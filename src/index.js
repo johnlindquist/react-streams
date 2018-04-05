@@ -1,6 +1,6 @@
 import { createElement, Component, createContext } from "react"
 
-import { Subject } from "rxjs"
+import { Subject, BehaviorSubject } from "rxjs"
 import { map } from "rxjs/operators"
 
 const RENDER = "__RENDER"
