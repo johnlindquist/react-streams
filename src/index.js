@@ -2,39 +2,33 @@ import * as React from "react"
 import { Component, createContext } from "react"
 
 import { Subject, BehaviorSubject, of } from "rxjs"
-import {startWith, map, tap} from "rxjs/operators"
+import { startWith, map, tap } from "rxjs/operators"
 
 const RENDER = "__RENDER"
 const CHILDREN = "__CHILDREN"
 const VDOM$ = "__VDOM$"
 
 const mapStreamToState = target => streamFn => {
-  
-
   return class extends Component {
-
     props$ = new BehaviorSubject(this.props)
     stream$ = streamFn(this.props$).pipe(
-      map(props => target === VDOM$ ? {vdom$:props} : props)
-    )  
+      map(props => (target === VDOM$ ? { vdom$: props } : props))
+    )
 
-    UNSAFE_componentWillReceiveProps(nextProps){
+    UNSAFE_componentWillReceiveProps(nextProps) {
       this.props$.next(nextProps)
     }
- 
+
     subscription
-    
+
     __renderFn = {
-      [RENDER]: value =>  this.props.render(value),
+      [RENDER]: value => this.props.render(value),
       [CHILDREN]: value => this.props.children(value),
       [VDOM$]: value => this.state.vdom$
     }[target]
 
-
-    componentDidMount(){
-      this.subscription = this.stream$.subscribe(
-        this.setState.bind(this)
-      )
+    componentDidMount() {
+      this.subscription = this.stream$.subscribe(this.setState.bind(this))
     }
 
     render() {
@@ -53,21 +47,19 @@ const streamChildren = streamFn => mapStreamToState(CHILDREN)(streamFn)
 
 const streamComponent = streamFn => mapStreamToState(VDOM$)(streamFn)
 
-
 const streamContext = stream => {
-  
   const { Provider, Consumer } = createContext()
 
   class StreamProvider extends Component {
     subscription
     componentWillMount() {
-      this.subscription = stream.subscribe(
-        this.setState.bind(this)
-      )
+      this.subscription = stream.subscribe(this.setState.bind(this))
     }
 
     render() {
-      return this.state ? <Provider value={...this.state}>{this.props.children}</Provider> : null
+      return this.state ? (
+        <Provider {...this.state}>{this.props.children}</Provider>
+      ) : null
     }
 
     componentWillUnmount() {
@@ -84,10 +76,8 @@ const streamHandler = (...args) => {
   return [subject.pipe(...args), subject.next.bind(subject)]
 }
 
-const streamHandlerStartWith = (value,...args) => streamHandler(
-  startWith(value),
-  ...args
-)
+const streamHandlerStartWith = (value, ...args) =>
+  streamHandler(startWith(value), ...args)
 
 export {
   streamRender,
