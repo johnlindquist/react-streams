@@ -1,24 +1,16 @@
 import { createElement, Component, createContext } from "react"
 
-import { Subject, BehaviorSubject } from "rxjs"
-import { map } from "rxjs/operators"
+import { Subject, BehaviorSubject, of } from "rxjs"
+import { map, tap } from "rxjs/operators"
 
 const RENDER = "__RENDER"
 const CHILDREN = "__CHILDREN"
 const VDOM$ = "__VDOM$"
 
-const mapStreamToState = target => streamFn => {
+const operatorsToRender = target => (...ops) => {
   return class extends Component {
-    props$ = new BehaviorSubject(this.props)
-    stream$ = streamFn(this.props$).pipe(
-      map(props => (target === VDOM$ ? { vdom$: props } : props))
-    )
-
-    UNSAFE_componentWillReceiveProps(nextProps) {
-      this.props$.next(nextProps)
-    }
-
     subscription
+    props$
 
     __renderFn = {
       [RENDER]: value => this.props.render(value),
@@ -27,7 +19,17 @@ const mapStreamToState = target => streamFn => {
     }[target]
 
     componentDidMount() {
-      this.subscription = this.stream$.subscribe(this.setState.bind(this))
+      this.props$ = new BehaviorSubject(this.props)
+      this.subscription = this.props$
+        .pipe(
+          ...ops,
+          map(value => (target === VDOM$ ? { vdom$: value } : value))
+        )
+        .subscribe(this.setState.bind(this))
+    }
+
+    UNSAFE_componentWillReceiveProps(nextProps) {
+      this.props$.next(nextProps)
     }
 
     render() {
@@ -40,11 +42,11 @@ const mapStreamToState = target => streamFn => {
   }
 }
 
-const streamPropsToRender = streamFn => mapStreamToState(RENDER)(streamFn)
+const pipePropsToRender = (...ops) => operatorsToRender(RENDER)(...ops)
 
-const streamPropsToChildren = streamFn => mapStreamToState(CHILDREN)(streamFn)
+const pipePropsToChildren = (...ops) => operatorsToRender(CHILDREN)(...ops)
 
-const streamPropsToComponent = streamFn => mapStreamToState(VDOM$)(streamFn)
+const pipePropsToComponent = (...ops) => operatorsToRender(VDOM$)(...ops)
 
 const streamProviderConsumer = stream$ => {
   const { Provider, Consumer } = createContext()
@@ -76,9 +78,9 @@ const subjectHandlerPair = (...args) => {
 }
 
 export {
-  streamPropsToRender,
-  streamPropsToChildren,
-  streamPropsToComponent,
-  streamProviderConsumer,
+  pipePropsToRender,
+  pipePropsToChildren,
+  pipePropsToComponent,
+  streamToProviderConsumer,
   subjectHandlerPair
 }
