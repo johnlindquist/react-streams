@@ -134,3 +134,36 @@ render(
   document.querySelector("#root")
 )
 ```
+
+## Proof Props Stream from Parents
+
+[![Edit 5x29k7v3lp](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/5x29k7v3lp)
+
+```js
+import React from "react"
+import { render } from "react-dom"
+import { pipePropsToChildren } from "react-streams"
+import { interval } from "rxjs"
+import { map, pluck } from "rxjs/operators"
+
+const Timer = pipePropsToChildren(
+  props$ => interval(1000),
+  map(tick => ({ tick }))
+)
+
+const PropsStreamingDemo = pipePropsToChildren(
+  pluck("number"),
+  map(number => ({ number: number * 2 }))
+)
+
+render(
+  <Timer>
+    {props => (
+      <PropsStreamingDemo number={props.tick}>
+        {props2 => <h1>{props2.number}</h1>}
+      </PropsStreamingDemo>
+    )}
+  </Timer>,
+  document.querySelector("#root")
+)
+```
