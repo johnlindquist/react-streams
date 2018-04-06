@@ -1,6 +1,6 @@
 {
   "name": "react-streams",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
   "repository": {
@@ -15,7 +15,11 @@
     "build": "tsc",
     "dev": "tsc -w"
   },
-  "keywords": ["react", "rxjs", "streams"],
+  "keywords": [
+    "react",
+    "rxjs",
+    "streams"
+  ],
   "author": "John Lindquist",
   "license": "ISC",
   "peerDependencies": {
