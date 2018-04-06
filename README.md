@@ -47,6 +47,41 @@ render(
 )
 ```
 
+## Ajax
+
+[![Edit 10911rxp53](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/10911rxp53)
+
+```js
+import React from "react"
+import { render } from "react-dom"
+import { pipePropsToChildren } from "react-streams"
+import { pluck, switchMap } from "rxjs/operators"
+import { ajax } from "rxjs/ajax"
+
+const PersonLoader = pipePropsToChildren(
+  pluck("url"),
+  switchMap(ajax),
+  pluck("response")
+)
+
+const Person = props => (
+  <div>
+    <h1>{props.name}</h1>
+    <img
+      src={`https://azure-lipstick.glitch.me/${props.image}`}
+      alt={props.name}
+    />
+  </div>
+)
+
+render(
+  <PersonLoader url="https://azure-lipstick.glitch.me/people/10">
+    {Person}
+  </PersonLoader>,
+  document.querySelector("#root")
+)
+```
+
 ## Switch to a Stream
 
 [![Edit 1z7yx6my5l](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/1z7yx6my5l)
