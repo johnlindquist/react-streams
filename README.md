@@ -1,6 +1,12 @@
 # ⛲️ react-streams ⛲️
 
-Heavily inspired by [recompose](https://github.com/acdlite/recompose).
+## Install
+
+```bash
+npm i react-streams rxjs@rc
+```
+
+> Requires rxjs v6 (currently release candidate)
 
 ## Hello World
 
@@ -202,3 +208,7 @@ render(
   document.querySelector("#root")
 )
 ```
+
+### Credits
+
+Heavily inspired by [recompose](https://github.com/acdlite/recompose).
