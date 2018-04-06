@@ -15,11 +15,7 @@
     "build": "tsc",
     "dev": "tsc -w"
   },
-  "keywords": [
-    "react",
-    "rxjs",
-    "streams"
-  ],
+  "keywords": ["react", "rxjs", "streams"],
   "author": "John Lindquist",
   "license": "ISC",
   "peerDependencies": {
