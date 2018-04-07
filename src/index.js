@@ -1,25 +1,27 @@
 import { createElement, Component, createContext } from "react"
 
-import { Subject, BehaviorSubject, of } from "rxjs"
+import { Subject } from "rxjs"
 
 const pipeProps = (...ops) => {
+  const setState$ = new Subject()
+
   return class extends Component {
     subscription
-    props$
+    state = {}
 
     __renderFn = this.props.children
       ? this.props.children
       : this.props.render ? this.props.render : value => value
 
     componentDidMount() {
-      this.props$ = new BehaviorSubject(this.props)
-      this.subscription = this.props$
+      this.subscription = setState$
         .pipe(...ops)
         .subscribe(this.setState.bind(this))
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
-      this.props$.next(nextProps)
+    static getDerivedStateFromProps = (nextProps, prevState) => {
+      setState$.next(nextProps)
+      return nextProps
     }
 
     render() {
