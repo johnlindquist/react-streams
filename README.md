@@ -174,24 +174,25 @@ render(
 import React from "react"
 import { render } from "react-dom"
 import { pipeProps, sourceNext } from "react-streams"
-import { map, pluck, startWith } from "rxjs/operators"
+import { map, pluck, startWith, switchMap } from "rxjs/operators"
 
-const [change$, onChange] = sourceNext(
-  pluck("target", "checked"),
-  startWith(false)
-)
+const [change$, onChange] = sourceNext(pluck("target", "checked"))
 
 const ToggleCheckbox = pipeProps(
-  () => change$,
-  map(toggled => ({ toggled, onChange }))
+  switchMap(checked => change$.pipe(startWith(checked))),
+  map(checked => ({ checked, onChange }))
 )
 
 render(
-  <ToggleCheckbox>
+  <ToggleCheckbox checked={true}>
     {props => (
       <div>
-        <input type="checkbox" onChange={props.onChange} />
-        <h1>{props.toggled ? "ON" : "OFF"}</h1>
+        <input
+          type="checkbox"
+          onChange={props.onChange}
+          checked={props.checked}
+        />
+        <h1>{props.checked ? "ON" : "OFF"}</h1>
       </div>
     )}
   </ToggleCheckbox>,
