@@ -179,7 +179,7 @@ import { map, pluck, startWith, switchMap } from "rxjs/operators"
 const [change$, onChange] = sourceNext(pluck("target", "checked"))
 
 const ToggleCheckbox = pipeProps(
-  switchMap(checked => change$.pipe(startWith(checked))),
+  switchMap(({ checked }) => change$.pipe(startWith(checked))),
   map(checked => ({ checked, onChange }))
 )
 
