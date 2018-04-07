@@ -35,11 +35,12 @@ const pipeProps = (...operations) => {
   }
 }
 
-const switchProps = (observable, select) => (...operations) =>
+const switchProps = (observable, selectOrValue) => (...operations) =>
   pipeProps(
     switchMap(props => {
-      const value = select instanceof Function ? select(props) : select
-      return observable.pipe(startWith(value))
+      const value =
+        selectOrValue instanceof Function ? selectOrValue(props) : selectOrValue
+      return value ? observable.pipe(startWith(value)) : observable
     }),
     ...operations
   )

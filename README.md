@@ -91,11 +91,11 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipeProps } from "react-streams"
+import { switchProps } from "react-streams"
 import { interval } from "rxjs"
 import { map } from "rxjs/operators"
 
-const Timer = pipeProps(() => interval(1000), map(tick => ({ tick })))
+const Timer = switchProps(interval(1000), "Go!")(map(tick => ({ tick })))
 
 render(
   <Timer>{props => <h1>{props.tick}</h1>}</Timer>,
@@ -110,15 +110,13 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipeProps, sourceNext } from "react-streams"
+import { switchProps, sourceNext } from "react-streams"
 import { interval } from "rxjs"
 import { map, scan, startWith } from "rxjs/operators"
 
 const [click$, onClick] = sourceNext()
 
-const Counter = pipeProps(
-  () => click$,
-  startWith(0),
+const Counter = switchProps(click$, 0)(
   scan(count => count + 1),
   map(count => ({ count, onClick }))
 )
@@ -136,25 +134,23 @@ render(
 )
 ```
 
-## Handler Operators
+## Map Props to Source
 
 [![Edit jl07wrwnmv](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jl07wrwnmv)
 
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipeProps, sourceNext } from "react-streams"
+import { switchProps, sourceNext } from "react-streams"
 import { map, startWith, pluck } from "rxjs/operators"
 
-const [input$, onInput] = sourceNext(
-  pluck("target", "value"),
-  startWith("Typing Demo")
+const [input$, onInput] = sourceNext(pluck("target", "value"))
+
+const TypingDemo = switchProps(input$, props => props.text)(
+  map(text => ({ text, onInput }))
 )
-
-const TypingDemo = pipeProps(props$ => input$, map(text => ({ text, onInput })))
-
 render(
-  <TypingDemo>
+  <TypingDemo text="Text from props">
     {props => (
       <div>
         <input placeholder={props.text} onInput={props.onInput} />
@@ -173,13 +169,12 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipeProps, sourceNext } from "react-streams"
-import { map, pluck, startWith, switchMap } from "rxjs/operators"
+import { switchProps, sourceNext } from "react-streams"
+import { map, pluck } from "rxjs/operators"
 
 const [change$, onChange] = sourceNext(pluck("target", "checked"))
 
-const ToggleCheckbox = pipeProps(
-  switchMap(({ checked }) => change$.pipe(startWith(checked))),
+const ToggleCheckbox = switchProps(change$, props => props.checked)(
   map(checked => ({ checked, onChange }))
 )
 
@@ -207,11 +202,11 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipeProps } from "react-streams"
+import { switchProps, pipeProps } from "react-streams"
 import { interval } from "rxjs"
 import { map, pluck } from "rxjs/operators"
 
-const Timer = pipeProps(props$ => interval(1000), map(tick => ({ tick })))
+const Timer = switchProps(interval(1000))(map(tick => ({ tick })))
 
 const PropsStreamingDemo = pipeProps(
   pluck("number"),
