@@ -1,6 +1,7 @@
 import { createElement, Component, createContext } from "react"
 
 import { Subject } from "rxjs"
+import { startWith } from "rxjs/operators"
 
 const pipeProps = (...ops) => {
   const setState$ = new Subject()
@@ -15,7 +16,7 @@ const pipeProps = (...ops) => {
 
     componentDidMount() {
       this.subscription = setState$
-        .pipe(...ops)
+        .pipe(startWith(this.props), ...ops)
         .subscribe(this.setState.bind(this))
     }
 
