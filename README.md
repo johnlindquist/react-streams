@@ -166,6 +166,39 @@ render(
 )
 ```
 
+## Toggle Checkbox
+
+[![Edit yv069rp21](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/yv069rp21)
+
+```js
+import React from "react"
+import { render } from "react-dom"
+import { pipeProps, sourceNext } from "react-streams"
+import { map, pluck, startWith } from "rxjs/operators"
+
+const [change$, onChange] = sourceNext(
+  pluck("target", "checked"),
+  startWith(false)
+)
+
+const ToggleCheckbox = pipeProps(
+  () => change$,
+  map(toggled => ({ toggled, onChange }))
+)
+
+render(
+  <ToggleCheckbox>
+    {props => (
+      <div>
+        <input type="checkbox" onChange={props.onChange} />
+        <h1>{props.toggled ? "ON" : "OFF"}</h1>
+      </div>
+    )}
+  </ToggleCheckbox>,
+  document.querySelector("#root")
+)
+```
+
 ## Proof Props Stream from Parents
 
 [![Edit 5x29k7v3lp](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/5x29k7v3lp)
