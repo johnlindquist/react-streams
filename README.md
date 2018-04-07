@@ -15,9 +15,9 @@ npm i react-streams rxjs@rc
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipePropsToChildren } from "react-streams"
+import { pipeProps } from "react-streams"
 
-const HelloWorld = pipePropsToChildren()
+const HelloWorld = pipeProps()
 
 render(
   <HelloWorld greeting="Hello" name="react-streams">
@@ -38,10 +38,10 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipePropsToChildren } from "react-streams"
+import { pipeProps } from "react-streams"
 import { map } from "rxjs/operators"
 
-const OperatorExample = pipePropsToChildren(
+const OperatorExample = pipeProps(
   map(props => ({ message: `${props.message} example` }))
 )
 
@@ -60,15 +60,11 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipePropsToChildren } from "react-streams"
+import { pipeProps } from "react-streams"
 import { pluck, switchMap } from "rxjs/operators"
 import { ajax } from "rxjs/ajax"
 
-const PersonLoader = pipePropsToChildren(
-  pluck("url"),
-  switchMap(ajax),
-  pluck("response")
-)
+const PersonLoader = pipeProps(pluck("url"), switchMap(ajax), pluck("response"))
 
 const Person = props => (
   <div>
@@ -95,14 +91,11 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipePropsToChildren } from "react-streams"
+import { pipeProps } from "react-streams"
 import { interval } from "rxjs"
 import { map } from "rxjs/operators"
 
-const Timer = pipePropsToChildren(
-  props$ => interval(1000),
-  map(tick => ({ tick }))
-)
+const Timer = pipeProps(() => interval(1000), map(tick => ({ tick })))
 
 render(
   <Timer>{props => <h1>{props.tick}</h1>}</Timer>,
@@ -117,14 +110,14 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipePropsToChildren, subjectHandlerPair } from "react-streams"
+import { pipeProps, sourceNext } from "react-streams"
 import { interval } from "rxjs"
 import { map, scan, startWith } from "rxjs/operators"
 
-const [click$, onClick] = subjectHandlerPair()
+const [click$, onClick] = sourceNext()
 
-const Counter = pipePropsToChildren(
-  props$ => click$,
+const Counter = pipeProps(
+  () => click$,
   startWith(0),
   scan(count => count + 1),
   map(count => ({ count, onClick }))
@@ -150,18 +143,15 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipePropsToChildren, subjectHandlerPair } from "react-streams"
+import { pipeProps, sourceNext } from "react-streams"
 import { map, startWith, pluck } from "rxjs/operators"
 
-const [input$, onInput] = subjectHandlerPair(
+const [input$, onInput] = sourceNext(
   pluck("target", "value"),
   startWith("Typing Demo")
 )
 
-const TypingDemo = pipePropsToChildren(
-  props$ => input$,
-  map(text => ({ text, onInput }))
-)
+const TypingDemo = pipeProps(props$ => input$, map(text => ({ text, onInput })))
 
 render(
   <TypingDemo>
@@ -183,16 +173,13 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipePropsToChildren } from "react-streams"
+import { pipeProps } from "react-streams"
 import { interval } from "rxjs"
 import { map, pluck } from "rxjs/operators"
 
-const Timer = pipePropsToChildren(
-  props$ => interval(1000),
-  map(tick => ({ tick }))
-)
+const Timer = pipeProps(props$ => interval(1000), map(tick => ({ tick })))
 
-const PropsStreamingDemo = pipePropsToChildren(
+const PropsStreamingDemo = pipeProps(
   pluck("number"),
   map(number => ({ number: number * 2 }))
 )
@@ -200,9 +187,12 @@ const PropsStreamingDemo = pipePropsToChildren(
 render(
   <Timer>
     {props => (
-      <PropsStreamingDemo number={props.tick}>
-        {props2 => <h1>{props2.number}</h1>}
-      </PropsStreamingDemo>
+      <div>
+        <h1>{props.tick}</h1>
+        <PropsStreamingDemo number={props.tick}>
+          {props2 => <h1>{props2.number}</h1>}
+        </PropsStreamingDemo>
+      </div>
     )}
   </Timer>,
   document.querySelector("#root")
@@ -216,7 +206,7 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { pipePropsToComponent } from "react-streams"
+import { pipeProps } from "react-streams"
 import { of } from "rxjs"
 import { pluck, switchMap, map, catchError } from "rxjs/operators"
 import { ajax } from "rxjs/ajax"
@@ -238,7 +228,7 @@ const Fail = err =>
     </h1>
   )
 
-const CatchDemo = pipePropsToComponent(
+const CatchDemo = pipeProps(
   map(({ url, person }) => `${url}people/${person}`),
   switchMap(ajax),
   pluck("response"),
