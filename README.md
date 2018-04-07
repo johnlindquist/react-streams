@@ -256,10 +256,10 @@ const Success = props => (
 
 const Fail = err =>
   of(
-    <h1>
+    <div>
       <h1>Failed!!!!</h1>
       <img src={URL + "darth_vader.jpg"} alt="FAILED" />
-    </h1>
+    </div>
   )
 
 const CatchDemo = pipeProps(

@@ -1,9 +1,9 @@
 import { createElement, Component, createContext } from "react"
 
 import { Subject } from "rxjs"
-import { startWith } from "rxjs/operators"
+import { startWith, switchMap } from "rxjs/operators"
 
-const pipeProps = (...ops) => {
+const pipeProps = (...operations) => {
   const setState$ = new Subject()
 
   return class extends Component {
@@ -16,7 +16,7 @@ const pipeProps = (...ops) => {
 
     componentDidMount() {
       this.subscription = setState$
-        .pipe(startWith(this.props), ...ops)
+        .pipe(startWith(this.props), ...operations)
         .subscribe(this.setState.bind(this))
     }
 
@@ -34,6 +34,15 @@ const pipeProps = (...ops) => {
     }
   }
 }
+
+const switchProps = (observable, select) => (...operations) =>
+  pipeProps(
+    switchMap(props => {
+      const value = select instanceof Function ? select(props) : select
+      return observable.pipe(startWith(value))
+    }),
+    ...operations
+  )
 
 const streamProviderConsumer = stream$ => {
   const { Provider, Consumer } = createContext()
@@ -64,4 +73,4 @@ const sourceNext = (...args) => {
   return [subject.pipe(...args), subject.next.bind(subject)]
 }
 
-export { pipeProps, streamProviderConsumer, sourceNext }
+export { pipeProps, switchProps, streamProviderConsumer, sourceNext }
