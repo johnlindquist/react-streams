@@ -95,7 +95,7 @@ import { switchProps } from "react-streams"
 import { interval } from "rxjs"
 import { map } from "rxjs/operators"
 
-const Timer = switchProps(interval(1000), "Go!")(map(tick => ({ tick })))
+const Timer = switchProps(interval(1000))(map(tick => ({ tick })))
 
 render(
   <Timer>{props => <h1>{props.tick}</h1>}</Timer>,

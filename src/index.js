@@ -34,13 +34,29 @@ const pipeProps = (...operations) => {
     }
   }
 }
-
-const switchProps = (observable, selectOrValue) => (...operations) =>
+/*
+Covering cases:
+(input$, "text") //switch to stream, startWith second param
+(ajax("http://")) //switch to stream, no startWith
+(ajax, ({url}) => url) //switch to creation fn, create with url from props
+*/
+const switchProps = (observableOrFn, optionalSelectOrValue) => (
+  ...operations
+) =>
   pipeProps(
     switchMap(props => {
-      const value =
-        selectOrValue instanceof Function ? selectOrValue(props) : selectOrValue
-      return value ? observable.pipe(startWith(value)) : observable
+      const optionalValue =
+        optionalSelectOrValue instanceof Function
+          ? optionalSelectOrValue(props)
+          : optionalSelectOrValue
+
+      const observable =
+        observableOrFn instanceof Function
+          ? optionalValue
+            ? observableOrFn(optionalValue)
+            : observableOrFn.pipe(startWith(optionalValue))
+          : observableOrFn
+      return observable
     }),
     ...operations
   )
