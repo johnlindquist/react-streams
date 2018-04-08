@@ -53,37 +53,6 @@ render(
 )
 ```
 
-## Ajax
-
-[![Edit 10911rxp53](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/10911rxp53)
-
-```js
-import React from "react"
-import { render } from "react-dom"
-import { pipeProps } from "react-streams"
-import { pluck, switchMap } from "rxjs/operators"
-import { ajax } from "rxjs/ajax"
-
-const PersonLoader = pipeProps(pluck("url"), switchMap(ajax), pluck("response"))
-
-const Person = props => (
-  <div>
-    <h1>{props.name}</h1>
-    <img
-      src={`https://azure-lipstick.glitch.me/${props.image}`}
-      alt={props.name}
-    />
-  </div>
-)
-
-render(
-  <PersonLoader url="https://azure-lipstick.glitch.me/people/10">
-    {Person}
-  </PersonLoader>,
-  document.querySelector("#root")
-)
-```
-
 ## Switch to a Stream
 
 [![Edit 1z7yx6my5l](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/1z7yx6my5l)
@@ -99,6 +68,60 @@ const Timer = switchProps(interval(1000))(map(tick => ({ tick })))
 
 render(
   <Timer>{props => <h1>{props.tick}</h1>}</Timer>,
+  document.querySelector("#root")
+)
+```
+
+## Start a Stream from Props
+
+> Compare to previous example
+
+[![Edit q4x08mqp8q](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/q4x08mqp8q)
+
+```js
+import React from "react"
+import { render } from "react-dom"
+import { switchProps } from "react-streams"
+import { interval } from "rxjs"
+import { map } from "rxjs/operators"
+
+const Timer = switchProps(interval, props => props.time)(
+  map(tick => ({ tick }))
+)
+
+render(
+  <Timer time={250}>{props => <h1>{props.tick}</h1>}</Timer>,
+  document.querySelector("#root")
+)
+```
+
+## Ajax
+
+[![Edit 10911rxp53](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/10911rxp53)
+
+```js
+import React from "react"
+import { render } from "react-dom"
+import { switchProps } from "react-streams"
+import { pluck } from "rxjs/operators"
+import { ajax } from "rxjs/ajax"
+
+const PersonLoader = switchProps(ajax, props => props.url)(pluck("response"))
+
+const Person = props => (
+  <div>
+    <h1>{props.name}</h1>
+    <img
+      src={`https://azure-lipstick.glitch.me/${props.image}`}
+      alt={props.name}
+    />
+  </div>
+)
+
+render(
+  <PersonLoader url="https://azure-lipstick.glitch.me/people/10">
+    {Person}
+  </PersonLoader>,
   document.querySelector("#root")
 )
 ```
