@@ -1,4 +1,4 @@
-import { createElement, Component, createContext } from "react"
+import * as React from "react"
 
 import { Subject } from "rxjs"
 import { startWith, switchMap } from "rxjs/operators"
@@ -6,13 +6,13 @@ import { startWith, switchMap } from "rxjs/operators"
 const pipeProps = (...operations) => {
   const setState$ = new Subject()
 
-  return class extends Component {
+  return class extends React.Component {
     subscription
     state = {}
 
     __renderFn = this.props.children
       ? this.props.children
-      : this.props.render ? this.props.render : value => value
+      : (this.props as any).render ? (this.props as any).render : value => value
 
     componentDidMount() {
       this.subscription = setState$
@@ -62,9 +62,10 @@ const switchProps = (observableOrFn, optionalSelectOrValue) => (
   )
 
 const streamProviderConsumer = stream$ => {
+  const createContext = (React as any).createContext;
   const { Provider, Consumer } = createContext()
 
-  class StreamProvider extends Component {
+  class StreamProvider extends React.Component {
     subscription
     componentDidMount() {
       this.subscription = stream$.subscribe(this.setState.bind(this))
@@ -72,7 +73,7 @@ const streamProviderConsumer = stream$ => {
 
     render() {
       return this.state
-        ? createElement(Provider, { value: this.state }, this.props.children)
+        ? React.createElement(Provider, { value: this.state }, this.props.children)
         : null
     }
 
