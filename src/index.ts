@@ -60,7 +60,7 @@ Covering cases:
 (ajax, ({url}) => url) //switch to creation fn, create with url from props
 */
 const switchProps = <T, P>(
-  observableOrFn: Observable<T> | ((value: T) => Observable<T>),
+  observableOrFn: Observable<T> | ((value?: T) => Observable<T>),
   optionalSelectOrValue?: ((props: P) => T) | T
 ) => ((
   ...operations
@@ -71,17 +71,21 @@ const switchProps = <T, P>(
         optionalSelectOrValue instanceof Function
           ? optionalSelectOrValue(props)
           : optionalSelectOrValue
+      const hasValue = (optionalValue !== undefined)
 
       const observable =
         observableOrFn instanceof Function
-          ? (optionalValue !== undefined)
+          ? hasValue
             ? observableOrFn(optionalValue)
-            : observableOrFn.pipe(startWith(optionalValue))
-          : observableOrFn
+            : observableOrFn()
+          : hasValue
+            ? observableOrFn.pipe(startWith(optionalValue))
+            : observableOrFn
       return observable
     }),
     ...operations
-  )) as typeof pipeProps
+  )
+) as typeof pipeProps
   
 // Use a locally-declared signature for `createContext` until this PR is merged:
 // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/24509
