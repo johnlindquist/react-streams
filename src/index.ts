@@ -79,12 +79,31 @@ const switchProps = (observableOrFn, optionalSelectOrValue) => (
     }),
     ...operations
   )
+  
+// Use a locally-declared signature for `createContext` until this PR is merged:
+// https://github.com/DefinitelyTyped/DefinitelyTyped/pull/24509
+//
+// A local declaration is used so that the merging of the above PR won't effect
+// a breaking change. The non-local, delaration-merging approach mentioned in
+// the following article would effect a breaking change:
+// https://medium.com/@mtiller/react-16-3-context-api-intypescript-45c9eeb7a384
 
-const streamProviderConsumer = stream$ => {
-  const createContext = (React as any).createContext;
-  const { Provider, Consumer } = createContext()
+type CreateContextType = <T>(defaultValue: T, calculateChangedBits?: (prev: T, next: T) => number) => {
+  Provider: React.ComponentType<{
+    value: T;
+    children?: React.ReactNode;
+  }>;
+  Consumer: React.ComponentType<{
+    children: (value: T) => React.ReactNode;
+    unstable_observedBits?: number;
+  }>;
+}
 
-  class StreamProvider extends React.Component {
+const streamProviderConsumer = <T>(stream$: Observable<T>) => {
+  const createContext = (React as any).createContext as CreateContextType
+  const { Provider, Consumer } = createContext<T>(undefined!)
+
+  class StreamProvider extends React.Component<{}, T> {
     subscription
     componentDidMount() {
       this.subscription = stream$.subscribe(this.setState.bind(this))
@@ -101,7 +120,7 @@ const streamProviderConsumer = stream$ => {
     }
   }
 
-  return [StreamProvider, Consumer]
+  return [StreamProvider, Consumer] as [React.ComponentType<{}>, typeof Consumer]
 }
 
 function sourceNext<T>(): [Observable<T>, (value: T) => {}];
