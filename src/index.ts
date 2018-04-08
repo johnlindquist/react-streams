@@ -59,7 +59,10 @@ Covering cases:
 (ajax("http://")) //switch to stream, no startWith
 (ajax, ({url}) => url) //switch to creation fn, create with url from props
 */
-const switchProps = (observableOrFn, optionalSelectOrValue) => (
+const switchProps = <T, P>(
+  observableOrFn: Observable<T> | ((value: T) => Observable<T>),
+  optionalSelectOrValue?: ((props: P) => T) | T
+) => ((
   ...operations
 ) =>
   pipeProps(
@@ -78,7 +81,7 @@ const switchProps = (observableOrFn, optionalSelectOrValue) => (
       return observable
     }),
     ...operations
-  )
+  )) as typeof pipeProps
   
 // Use a locally-declared signature for `createContext` until this PR is merged:
 // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/24509
