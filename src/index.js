@@ -22,7 +22,7 @@ const pipeProps = (...operations) => {
 
     static getDerivedStateFromProps = (nextProps, prevState) => {
       setState$.next(nextProps)
-      return nextProps
+      return null
     }
 
     render() {
