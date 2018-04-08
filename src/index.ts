@@ -1,18 +1,37 @@
 import * as React from "react"
 
-import { Subject } from "rxjs"
+import { Observable, OperatorFunction, Subject } from "rxjs"
 import { startWith, switchMap } from "rxjs/operators"
 
-const pipeProps = (...operations) => {
-  const setState$ = new Subject()
+type PipedComponentType<T> = React.ComponentType<T & {
+  children?: (props: T) => React.ReactNode;
+  render?: (props: T) => React.ReactNode;
+}>
 
-  return class extends React.Component {
+function pipeProps<T>(): PipedComponentType<T>;
+function pipeProps<T, A>(op1: OperatorFunction<T, A>): PipedComponentType<A>;
+function pipeProps<T, A, B>(op1: OperatorFunction<T, A>, op2: OperatorFunction<A, B>): PipedComponentType<B>;
+function pipeProps<T, A, B, C>(op1: OperatorFunction<T, A>, op2: OperatorFunction<A, B>, op3: OperatorFunction<B, C>): PipedComponentType<C>;
+function pipeProps<T, A, B, C, D>(op1: OperatorFunction<T, A>, op2: OperatorFunction<A, B>, op3: OperatorFunction<B, C>, op4: OperatorFunction<C, D>): PipedComponentType<D>;
+function pipeProps<T, A, B, C, D, E>(op1: OperatorFunction<T, A>, op2: OperatorFunction<A, B>, op3: OperatorFunction<B, C>, op4: OperatorFunction<C, D>, op5: OperatorFunction<D, E>): PipedComponentType<E>;
+function pipeProps<T, A, B, C, D, E, F>(op1: OperatorFunction<T, A>, op2: OperatorFunction<A, B>, op3: OperatorFunction<B, C>, op4: OperatorFunction<C, D>, op5: OperatorFunction<D, E>, op6: OperatorFunction<E, F>): PipedComponentType<F>;
+function pipeProps<T, A, B, C, D, E, F, G>(op1: OperatorFunction<T, A>, op2: OperatorFunction<A, B>, op3: OperatorFunction<B, C>, op4: OperatorFunction<C, D>, op5: OperatorFunction<D, E>, op6: OperatorFunction<E, F>, op7: OperatorFunction<F, G>): PipedComponentType<G>;
+function pipeProps<T, A, B, C, D, E, F, G, H>(op1: OperatorFunction<T, A>, op2: OperatorFunction<A, B>, op3: OperatorFunction<B, C>, op4: OperatorFunction<C, D>, op5: OperatorFunction<D, E>, op6: OperatorFunction<E, F>, op7: OperatorFunction<F, G>, op8: OperatorFunction<G, H>): PipedComponentType<H>;
+function pipeProps<T, A, B, C, D, E, F, G, H, I>(op1: OperatorFunction<T, A>, op2: OperatorFunction<A, B>, op3: OperatorFunction<B, C>, op4: OperatorFunction<C, D>, op5: OperatorFunction<D, E>, op6: OperatorFunction<E, F>, op7: OperatorFunction<F, G>, op8: OperatorFunction<G, H>, op9: OperatorFunction<H, I>): PipedComponentType<I>;
+function pipeProps<T, R>(...operations: OperatorFunction<any, any>[]): PipedComponentType<R>;
+function pipeProps<T>(...operations) {
+  const setState$ = new Subject<T>()
+
+  return class extends React.Component<{
+    children?: (props: any) => React.ReactNode;
+    render?: (props: any) => React.ReactNode;
+  }, any> {
     subscription
     state = {}
 
-    __renderFn = this.props.children
+    __renderFn = (this.props.children
       ? this.props.children
-      : (this.props as any).render ? (this.props as any).render : value => value
+      : this.props.render ? this.props.render : value => value) as Function
 
     componentDidMount() {
       this.subscription = setState$
@@ -91,4 +110,4 @@ const sourceNext = (...args) => {
   return [subject.pipe(...args), subject.next.bind(subject)]
 }
 
-export { pipeProps, switchProps, streamProviderConsumer, sourceNext }
+export { PipedComponentType, pipeProps, switchProps, streamProviderConsumer, sourceNext }
