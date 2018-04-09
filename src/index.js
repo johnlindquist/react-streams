@@ -1,12 +1,11 @@
 import { createElement, Component, createContext } from "react"
 
 import { Subject } from "rxjs"
-import { startWith, switchMap } from "rxjs/operators"
+import { startWith, switchMap, distinctUntilChanged } from "rxjs/operators"
 
 const pipeProps = (...operations) => {
-  const setState$ = new Subject()
-
   return class extends Component {
+    setState$ = new Subject()
     subscription
     state = {}
 
@@ -15,14 +14,13 @@ const pipeProps = (...operations) => {
       : this.props.render ? this.props.render : value => value
 
     componentDidMount() {
-      this.subscription = setState$
-        .pipe(startWith(this.props), ...operations)
+      this.subscription = this.setState$
+        .pipe(startWith(this.props), distinctUntilChanged(), ...operations)
         .subscribe(this.setState.bind(this))
     }
 
-    static getDerivedStateFromProps = (nextProps, prevState) => {
-      setState$.next(nextProps)
-      return null
+    componentDidUpdate() {
+      this.setState$.next(this.props)
     }
 
     render() {
