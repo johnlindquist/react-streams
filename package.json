@@ -3,6 +3,7 @@
   "version": "4.0.0",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
+  "types": "dist/index.d.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/johnlindquist/react-streams.git"
@@ -15,7 +16,11 @@
     "build": "tsc",
     "dev": "tsc -w"
   },
-  "keywords": ["react", "rxjs", "streams"],
+  "keywords": [
+    "react",
+    "rxjs",
+    "streams"
+  ],
   "author": "John Lindquist",
   "license": "ISC",
   "peerDependencies": {
@@ -24,6 +29,8 @@
   },
   "devDependencies": {
     "@types/react": "^16.3.2",
+    "react": "^16.3.0",
+    "rxjs": "^6.0.0-rc.0",
     "typescript": "^2.8.1"
   }
 }
