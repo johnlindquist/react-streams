@@ -1,6 +1,6 @@
 {
   "name": "react-streams",
-  "version": "3.2.3",
+  "version": "4.0.0",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
   "repository": {
