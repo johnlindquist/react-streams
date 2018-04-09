@@ -60,11 +60,11 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { switchProps } from "react-streams"
+import { pipeProps } from "react-streams"
 import { interval } from "rxjs"
 import { map } from "rxjs/operators"
 
-const Timer = switchProps(interval(1000))(map(tick => ({ tick })))
+const Timer = pipeProps(() => interval(1000).pipe(map(tick => ({ tick }))))
 
 render(
   <Timer>{props => <h1>{props.tick}</h1>}</Timer>,
@@ -81,11 +81,12 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { switchProps } from "react-streams"
+import { pipeProps } from "react-streams"
 import { interval } from "rxjs"
-import { map } from "rxjs/operators"
+import { map, switchMap } from "rxjs/operators"
 
-const Timer = switchProps(interval, props => props.time)(
+const Timer = pipeProps(
+  switchMap(props => interval(props.time)),
   map(tick => ({ tick }))
 )
 
@@ -102,11 +103,11 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { switchProps } from "react-streams"
-import { pluck } from "rxjs/operators"
+import { pipeProps } from "react-streams"
+import { pluck, switchMap } from "rxjs/operators"
 import { ajax } from "rxjs/ajax"
 
-const PersonLoader = switchProps(ajax, props => props.url)(pluck("response"))
+const PersonLoader = pipeProps(pluck("url"), switchMap(ajax), pluck("response"))
 
 const Person = props => (
   <div>
@@ -133,16 +134,18 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { switchProps, sourceNext } from "react-streams"
-import { interval } from "rxjs"
+import { pipeProps, sourceNext } from "react-streams"
 import { map, scan, startWith } from "rxjs/operators"
 
-const [click$, onClick] = sourceNext()
+const Counter = pipeProps(() => {
+  const [click$, onClick] = sourceNext()
 
-const Counter = switchProps(click$, 0)(
-  scan(count => count + 1),
-  map(count => ({ count, onClick }))
-)
+  return click$.pipe(
+    startWith(0),
+    scan(count => count + 1),
+    map(count => ({ count, onClick }))
+  )
+})
 
 render(
   <Counter>
@@ -164,13 +167,16 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { switchProps, sourceNext } from "react-streams"
-import { map, startWith, pluck } from "rxjs/operators"
+import { pipeProps, sourceNext } from "react-streams"
+import { map, startWith, pluck, switchMap } from "rxjs/operators"
 
-const [input$, onInput] = sourceNext(pluck("target", "value"))
+const TypingDemo = pipeProps(
+  pluck("text"),
+  switchMap(text => {
+    const [input$, onInput] = sourceNext(pluck("target", "value"))
 
-const TypingDemo = switchProps(input$, props => props.text)(
-  map(text => ({ text, onInput }))
+    return input$.pipe(startWith(text), map(text => ({ text, onInput })))
+  })
 )
 render(
   <TypingDemo text="Text from props">
@@ -192,13 +198,19 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { switchProps, sourceNext } from "react-streams"
-import { map, pluck } from "rxjs/operators"
+import { pipeProps, sourceNext } from "react-streams"
+import { map, pluck, startWith, switchMap } from "rxjs/operators"
 
-const [change$, onChange] = sourceNext(pluck("target", "checked"))
+const ToggleCheckbox = pipeProps(
+  pluck("checked"),
+  switchMap(checked => {
+    const [change$, onChange] = sourceNext(pluck("target", "checked"))
 
-const ToggleCheckbox = switchProps(change$, props => props.checked)(
-  map(checked => ({ checked, onChange }))
+    return change$.pipe(
+      startWith(checked),
+      map(checked => ({ checked, onChange }))
+    )
+  })
 )
 
 render(
@@ -225,11 +237,11 @@ render(
 ```js
 import React from "react"
 import { render } from "react-dom"
-import { switchProps, pipeProps } from "react-streams"
+import { pipeProps } from "react-streams"
 import { interval } from "rxjs"
 import { map, pluck } from "rxjs/operators"
 
-const Timer = switchProps(interval(1000))(map(tick => ({ tick })))
+const Timer = pipeProps(() => interval(250), map(tick => ({ tick })))
 
 const PropsStreamingDemo = pipeProps(
   pluck("number"),
