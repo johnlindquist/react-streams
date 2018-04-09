@@ -51,8 +51,8 @@ const switchProps = (observableOrFn, optionalSelectOrValue) => (
           : optionalSelectOrValue
 
       const observable =
-        observableOrFn instanceof Function
-          ? optionalValue
+        optionalValue !== undefined
+          ? observableOrFn instanceof Function
             ? observableOrFn(optionalValue)
             : observableOrFn.pipe(startWith(optionalValue))
           : observableOrFn
