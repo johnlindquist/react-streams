@@ -193,9 +193,12 @@ function source(...operations) {
       proxy.apply(...args)
     },
     {
+      apply(target, thisArg, args) {
+        subject.next.bind(subject)(...args)
+      },
       get(target, prop) {
         if (prop === "apply") {
-          return subject.next.bind(subject)
+          return target[prop]
         } else {
           return source[prop]
         }
