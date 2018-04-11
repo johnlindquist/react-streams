@@ -183,4 +183,27 @@ function sourceNext<T>(...operations) {
   return [subject.pipe(...operations), subject.next.bind(subject)]
 }
 
-export { PipedComponentType, pipeProps, sourceNext }
+function source(...operations) {
+  const subject = new Subject()
+  const source = subject.pipe(...operations)
+
+  const proxy = new Proxy(
+    function(...args) {
+      // @ts-ignore: Because Proxies :)
+      proxy.apply(...args)
+    },
+    {
+      get(target, prop) {
+        if (prop === "apply") {
+          return subject.next.bind(subject)
+        } else {
+          return source[prop]
+        }
+      }
+    }
+  )
+
+  return proxy
+}
+
+export { PipedComponentType, pipeProps, sourceNext, source }
