@@ -189,12 +189,11 @@ function source(...operations) {
 
   const proxy = new Proxy(
     function(...args) {
-      // @ts-ignore: Because Proxies :)
-      proxy.apply(...args)
+      subject.next(...args)
     },
     {
       apply(target, thisArg, args) {
-        subject.next.bind(subject)(...args)
+        target.apply(thisArg, args)
       },
       get(target, prop) {
         if (prop === "apply") {
