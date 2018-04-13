@@ -1,6 +1,6 @@
 import { Component, ReactNode } from "react"
 
-import { Observable, OperatorFunction, Subject } from "rxjs"
+import { Observable, observable, OperatorFunction, Subject } from "rxjs"
 import { distinctUntilChanged, startWith, switchMap } from "rxjs/operators"
 
 type PipedComponentType<T> = React.ComponentType<
@@ -187,25 +187,9 @@ function source(...operations) {
   const subject = new Subject()
   const source = subject.pipe(...operations)
 
-  const proxy = new Proxy(
-    function(...args) {
-      subject.next(...args)
-    },
-    {
-      apply(target, thisArg, args) {
-        target.apply(thisArg, args)
-      },
-      get(target, prop) {
-        if (prop === "apply") {
-          return target[prop]
-        } else {
-          return source[prop]
-        }
-      }
-    }
-  )
-
-  return proxy
+  const handler = (...args) => subject.next(...args)
+  handler[observable] = () => source
+  return handler
 }
 
 export { PipedComponentType, pipeProps, sourceNext, source }

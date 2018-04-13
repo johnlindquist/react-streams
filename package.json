@@ -16,17 +16,17 @@
     "build": "tsc",
     "dev": "tsc -w"
   },
-  "keywords": ["react", "rxjs", "streams"],
+  "keywords": [
+    "react",
+    "rxjs",
+    "streams"
+  ],
   "author": "John Lindquist",
   "license": "ISC",
-  "peerDependencies": {
-    "react": "^16.3.0",
-    "rxjs": "^6.0.0-rc.0"
-  },
   "devDependencies": {
     "@types/react": "^16.3.2",
     "react": "^16.3.0",
-    "rxjs": "^6.0.0-rc.0",
+    "rxjs": "^6.0.0-uncanny-rc.7",
     "typescript": "^2.8.1"
   }
 }
