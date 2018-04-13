@@ -1,6 +1,6 @@
 {
   "name": "react-streams",
-  "version": "4.1.2",
+  "version": "5.0.0",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
@@ -16,11 +16,7 @@
     "build": "tsc",
     "dev": "tsc -w"
   },
-  "keywords": [
-    "react",
-    "rxjs",
-    "streams"
-  ],
+  "keywords": ["react", "rxjs", "streams"],
   "author": "John Lindquist",
   "license": "ISC",
   "devDependencies": {
