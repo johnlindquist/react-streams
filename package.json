@@ -1,17 +1,20 @@
 {
   "name": "react-streams",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/johnlindquist/react-streams.git"
+    "url":
+      "git+https://github.com/johnlindquist/react-streams.git"
   },
   "bugs": {
-    "url": "https://github.com/johnlindquist/react-streams/issues"
+    "url":
+      "https://github.com/johnlindquist/react-streams/issues"
   },
-  "homepage": "https://github.com/johnlindquist/react-streams#readme",
+  "homepage":
+    "https://github.com/johnlindquist/react-streams#readme",
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w"
@@ -22,7 +25,7 @@
   "devDependencies": {
     "@types/react": "^16.3.2",
     "react": "^16.3.0",
-    "rxjs": "^6.0.0-uncanny-rc.7",
+    "rxjs": "^6.0.0",
     "typescript": "^2.8.1"
   }
 }

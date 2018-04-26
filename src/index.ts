@@ -1,7 +1,16 @@
 import { Component, ReactNode } from "react"
 
-import { Observable, observable, OperatorFunction, Subject } from "rxjs"
-import { distinctUntilChanged, startWith, switchMap } from "rxjs/operators"
+import {
+  Observable,
+  observable,
+  OperatorFunction,
+  Subject
+} from "rxjs"
+import {
+  distinctUntilChanged,
+  startWith,
+  switchMap
+} from "rxjs/operators"
 
 type PipedComponentType<T> = React.ComponentType<
   T & {
@@ -11,7 +20,9 @@ type PipedComponentType<T> = React.ComponentType<
 >
 
 function pipeProps<T>(): PipedComponentType<T>
-function pipeProps<T, A>(op1: OperatorFunction<T, A>): PipedComponentType<A>
+function pipeProps<T, A>(
+  op1: OperatorFunction<T, A>
+): PipedComponentType<A>
 function pipeProps<T, A, B>(
   op1: OperatorFunction<T, A>,
   op2: OperatorFunction<A, B>
@@ -88,16 +99,24 @@ function pipeProps<T>(...operations) {
 
     __renderFn = (this.props.children
       ? this.props.children
-      : this.props.render ? this.props.render : value => value) as Function
+      : this.props.render
+        ? this.props.render
+        : value => value) as Function
 
     componentDidMount() {
       this.subscription = this.setState$
-        .pipe(startWith(this.props), distinctUntilChanged(), ...operations)
+        .pipe(
+          startWith(this.props),
+          distinctUntilChanged(),
+          ...operations
+        )
         .subscribe(this.setState.bind(this))
     }
 
     render() {
-      return this.subscription ? this.__renderFn(this.state) : null
+      return this.subscription
+        ? this.__renderFn(this.state)
+        : null
     }
 
     componentDidUpdate() {
@@ -110,79 +129,6 @@ function pipeProps<T>(...operations) {
   }
 }
 
-function sourceNext<T>(): [Observable<T>, (value: T) => {}]
-function sourceNext<T, A>(
-  op1: OperatorFunction<T, A>
-): [Observable<A>, (value: T) => {}]
-function sourceNext<T, A, B>(
-  op1: OperatorFunction<T, A>,
-  op2: OperatorFunction<A, B>
-): [Observable<B>, (value: T) => {}]
-function sourceNext<T, A, B, C>(
-  op1: OperatorFunction<T, A>,
-  op2: OperatorFunction<A, B>,
-  op3: OperatorFunction<B, C>
-): [Observable<C>, (value: T) => {}]
-function sourceNext<T, A, B, C, D>(
-  op1: OperatorFunction<T, A>,
-  op2: OperatorFunction<A, B>,
-  op3: OperatorFunction<B, C>,
-  op4: OperatorFunction<C, D>
-): [Observable<D>, (value: T) => {}]
-function sourceNext<T, A, B, C, D, E>(
-  op1: OperatorFunction<T, A>,
-  op2: OperatorFunction<A, B>,
-  op3: OperatorFunction<B, C>,
-  op4: OperatorFunction<C, D>,
-  op5: OperatorFunction<D, E>
-): [Observable<E>, (value: T) => {}]
-function sourceNext<T, A, B, C, D, E, F>(
-  op1: OperatorFunction<T, A>,
-  op2: OperatorFunction<A, B>,
-  op3: OperatorFunction<B, C>,
-  op4: OperatorFunction<C, D>,
-  op5: OperatorFunction<D, E>,
-  op6: OperatorFunction<E, F>
-): [Observable<F>, (value: T) => {}]
-function sourceNext<T, A, B, C, D, E, F, G>(
-  op1: OperatorFunction<T, A>,
-  op2: OperatorFunction<A, B>,
-  op3: OperatorFunction<B, C>,
-  op4: OperatorFunction<C, D>,
-  op5: OperatorFunction<D, E>,
-  op6: OperatorFunction<E, F>,
-  op7: OperatorFunction<F, G>
-): [Observable<G>, (value: T) => {}]
-function sourceNext<T, A, B, C, D, E, F, G, H>(
-  op1: OperatorFunction<T, A>,
-  op2: OperatorFunction<A, B>,
-  op3: OperatorFunction<B, C>,
-  op4: OperatorFunction<C, D>,
-  op5: OperatorFunction<D, E>,
-  op6: OperatorFunction<E, F>,
-  op7: OperatorFunction<F, G>,
-  op8: OperatorFunction<G, H>
-): [Observable<H>, (value: T) => {}]
-function sourceNext<T, A, B, C, D, E, F, G, H, I>(
-  op1: OperatorFunction<T, A>,
-  op2: OperatorFunction<A, B>,
-  op3: OperatorFunction<B, C>,
-  op4: OperatorFunction<C, D>,
-  op5: OperatorFunction<D, E>,
-  op6: OperatorFunction<E, F>,
-  op7: OperatorFunction<F, G>,
-  op8: OperatorFunction<G, H>,
-  op9: OperatorFunction<H, I>
-): [Observable<I>, (value: T) => {}]
-function sourceNext<T, R>(
-  ...operations: OperatorFunction<T, R>[]
-): [Observable<R>, (value: T) => {}]
-function sourceNext<T>(...operations) {
-  const subject = new Subject<T>()
-
-  return [subject.pipe(...operations), subject.next.bind(subject)]
-}
-
 function source(...operations) {
   const subject = new Subject()
   const source = subject.pipe(...operations)
@@ -192,4 +138,4 @@ function source(...operations) {
   return handler
 }
 
-export { PipedComponentType, pipeProps, sourceNext, source }
+export { PipedComponentType, pipeProps, source }
