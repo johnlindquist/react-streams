@@ -2,6 +2,7 @@ import { Component, ReactNode } from "react"
 
 import {
   Observable,
+  ObservableInput,
   observable,
   OperatorFunction,
   Subject
@@ -129,8 +130,77 @@ function pipeProps<T>(...operations) {
   }
 }
 
-function source(...operations) {
-  const subject = new Subject()
+type SourceType<T, R> = ((value: T) => void) & ObservableInput<R>
+
+function source<T>(): SourceType<T, T>
+function source<T, A>(
+  op1: OperatorFunction<T, A>
+): SourceType<T, A>
+function source<T, A, B>(
+  op1: OperatorFunction<T, A>,
+  op2: OperatorFunction<A, B>
+): SourceType<T, B>
+function source<T, A, B, C>(
+  op1: OperatorFunction<T, A>,
+  op2: OperatorFunction<A, B>,
+  op3: OperatorFunction<B, C>
+): SourceType<T, C>
+function source<T, A, B, C, D>(
+  op1: OperatorFunction<T, A>,
+  op2: OperatorFunction<A, B>,
+  op3: OperatorFunction<B, C>,
+  op4: OperatorFunction<C, D>
+): SourceType<T, D>
+function source<T, A, B, C, D, E>(
+  op1: OperatorFunction<T, A>,
+  op2: OperatorFunction<A, B>,
+  op3: OperatorFunction<B, C>,
+  op4: OperatorFunction<C, D>,
+  op5: OperatorFunction<D, E>
+): SourceType<T, E>
+function source<T, A, B, C, D, E, F>(
+  op1: OperatorFunction<T, A>,
+  op2: OperatorFunction<A, B>,
+  op3: OperatorFunction<B, C>,
+  op4: OperatorFunction<C, D>,
+  op5: OperatorFunction<D, E>,
+  op6: OperatorFunction<E, F>
+): SourceType<T, F>
+function source<T, A, B, C, D, E, F, G>(
+  op1: OperatorFunction<T, A>,
+  op2: OperatorFunction<A, B>,
+  op3: OperatorFunction<B, C>,
+  op4: OperatorFunction<C, D>,
+  op5: OperatorFunction<D, E>,
+  op6: OperatorFunction<E, F>,
+  op7: OperatorFunction<F, G>
+): SourceType<T, G>
+function source<T, A, B, C, D, E, F, G, H>(
+  op1: OperatorFunction<T, A>,
+  op2: OperatorFunction<A, B>,
+  op3: OperatorFunction<B, C>,
+  op4: OperatorFunction<C, D>,
+  op5: OperatorFunction<D, E>,
+  op6: OperatorFunction<E, F>,
+  op7: OperatorFunction<F, G>,
+  op8: OperatorFunction<G, H>
+): SourceType<T, H>
+function source<T, A, B, C, D, E, F, G, H, I>(
+  op1: OperatorFunction<T, A>,
+  op2: OperatorFunction<A, B>,
+  op3: OperatorFunction<B, C>,
+  op4: OperatorFunction<C, D>,
+  op5: OperatorFunction<D, E>,
+  op6: OperatorFunction<E, F>,
+  op7: OperatorFunction<F, G>,
+  op8: OperatorFunction<G, H>,
+  op9: OperatorFunction<H, I>
+): SourceType<T, I>
+function source<T, R>(
+  ...operations: OperatorFunction<any, any>[]
+): SourceType<T, R>
+function source<T>(...operations) {
+  const subject = new Subject<T>()
   const source = subject.pipe(...operations)
 
   const handler = (...args) => subject.next(...args)
@@ -138,4 +208,4 @@ function source(...operations) {
   return handler
 }
 
-export { PipedComponentType, pipeProps, source }
+export { PipedComponentType, pipeProps, source, SourceType }
