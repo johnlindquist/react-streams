@@ -6,26 +6,55 @@
   "types": "dist/index.d.js",
   "repository": {
     "type": "git",
-    "url":
-      "git+https://github.com/johnlindquist/react-streams.git"
+    "url": "git+https://github.com/johnlindquist/react-streams.git"
   },
   "bugs": {
-    "url":
-      "https://github.com/johnlindquist/react-streams/issues"
+    "url": "https://github.com/johnlindquist/react-streams/issues"
   },
-  "homepage":
-    "https://github.com/johnlindquist/react-streams#readme",
+  "homepage": "https://github.com/johnlindquist/react-streams#readme",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc -w"
+    "dev": "tsc -w",
+    "test": "jest"
   },
-  "keywords": ["react", "rxjs", "streams"],
+  "keywords": [
+    "react",
+    "rxjs",
+    "streams"
+  ],
   "author": "John Lindquist",
   "license": "ISC",
   "devDependencies": {
+    "@types/jest": "^22.2.3",
     "@types/react": "^16.3.2",
+    "jest": "^22.4.3",
     "react": "^16.3.0",
     "rxjs": "^6.0.0",
+    "ts-jest": "^22.4.4",
+    "ts-snippet": "^3.1.1",
     "typescript": "^2.8.1"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig-test.json"
+      }
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "testPathIgnorePatterns": [
+      "/dist/",
+      "/node_modules/"
+    ],
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    }
   }
 }
