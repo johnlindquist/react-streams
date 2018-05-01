@@ -1,6 +1,6 @@
 {
   "name": "react-streams",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
@@ -17,11 +17,7 @@
     "dev": "tsc -w",
     "test": "jest"
   },
-  "keywords": [
-    "react",
-    "rxjs",
-    "streams"
-  ],
+  "keywords": ["react", "rxjs", "streams"],
   "author": "John Lindquist",
   "license": "ISC",
   "devDependencies": {
@@ -40,18 +36,8 @@
         "tsConfigFile": "tsconfig-test.json"
       }
     },
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ],
-    "testPathIgnorePatterns": [
-      "/dist/",
-      "/node_modules/"
-    ],
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+    "testPathIgnorePatterns": ["/dist/", "/node_modules/"],
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
