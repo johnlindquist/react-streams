@@ -5,13 +5,23 @@ import {
   ObservableInput,
   observable,
   OperatorFunction,
-  Subject
+  Subject,
+  combineLatest,
+  concat,
+  merge,
+  from
 } from "rxjs"
 import {
   distinctUntilChanged,
   startWith,
-  switchMap
+  switchMap,
+  tap,
+  withLatestFrom,
+  mergeMap,
+  map,
+  scan
 } from "rxjs/operators"
+import { MapOperator } from "rxjs/internal/operators/map"
 
 type PipedComponentType<T> = React.ComponentType<
   T & {
@@ -21,9 +31,7 @@ type PipedComponentType<T> = React.ComponentType<
 >
 
 function pipeProps<T>(): PipedComponentType<T>
-function pipeProps<T, A>(
-  op1: OperatorFunction<T, A>
-): PipedComponentType<A>
+function pipeProps<T, A>(op1: OperatorFunction<T, A>): PipedComponentType<A>
 function pipeProps<T, A, B>(
   op1: OperatorFunction<T, A>,
   op2: OperatorFunction<A, B>
@@ -88,7 +96,7 @@ function pipeProps<T, R>(
   ...operations: OperatorFunction<any, any>[]
 ): PipedComponentType<R>
 function pipeProps<T>(...operations) {
-  return class extends Component<
+  return class PipeProps extends Component<
     {
       children?: (props: any) => ReactNode
       render?: (props: any) => ReactNode
@@ -106,18 +114,12 @@ function pipeProps<T>(...operations) {
 
     componentDidMount() {
       this.subscription = this.setState$
-        .pipe(
-          startWith(this.props),
-          distinctUntilChanged(),
-          ...operations
-        )
+        .pipe(startWith(this.props), distinctUntilChanged(), ...operations)
         .subscribe(this.setState.bind(this))
     }
 
     render() {
-      return this.subscription
-        ? this.__renderFn(this.state)
-        : null
+      return this.subscription ? this.__renderFn(this.state) : null
     }
 
     componentDidUpdate() {
@@ -130,12 +132,83 @@ function pipeProps<T>(...operations) {
   }
 }
 
+//TODO: optimize :)
+const propsToStreams = fn =>
+  //maybe we need a "switchProps", "mergeProps", "concatProps", etc...
+  //but I can't think of many scenarios where props update and you wouldn't want to "switch"
+  switchMap(inProps => {
+    const props = fn(inProps)
+    //re-creating Object.entries()
+    const entries = Object.keys(props).map(key => [key, props[key]])
+
+    const handlerEntries = entries.filter(([_, v]) => v instanceof Function)
+    const handlerProps = handlerEntries.reduce(
+      (acc, curr) => ({
+        ...acc,
+        [curr[0]]: curr[1]
+      }),
+      {}
+    )
+
+    const streamEntries = entries.filter(([_, v]) => !(v instanceof Function))
+    const streams = streamEntries.map(([_, v]) => v)
+    const streamKeys = streamEntries.map(([v]) => v)
+
+    return combineLatest(...streams, (...args) => {
+      const streamProps = args.reduce((props, arg, i) => {
+        return {
+          ...props,
+          [streamKeys[i]]: arg
+        }
+      }, {})
+
+      return {
+        ...streamProps,
+        ...handlerProps
+      }
+    })
+  })
+
+function streamProps<T>(fn) {
+  return class PipeProps extends Component<
+    {
+      children?: (props: any) => ReactNode
+      render?: (props: any) => ReactNode
+    },
+    any
+  > {
+    setState$ = new Subject()
+    subscription
+
+    __renderFn = (this.props.children
+      ? this.props.children
+      : this.props.render
+        ? this.props.render
+        : value => value) as Function
+
+    componentDidMount() {
+      this.subscription = this.setState$
+        .pipe(startWith(this.props), distinctUntilChanged(), propsToStreams(fn))
+        .subscribe(this.setState.bind(this))
+    }
+
+    render() {
+      return this.subscription ? this.__renderFn(this.state) : null
+    }
+
+    componentDidUpdate() {
+      this.setState$.next(this.props)
+    }
+
+    componentWillUnmount() {
+      this.subscription.unsubscribe()
+    }
+  }
+}
 type SourceType<T, R> = ((value: T) => void) & ObservableInput<R>
 
 function source<T>(): SourceType<T, T>
-function source<T, A>(
-  op1: OperatorFunction<T, A>
-): SourceType<T, A>
+function source<T, A>(op1: OperatorFunction<T, A>): SourceType<T, A>
 function source<T, A, B>(
   op1: OperatorFunction<T, A>,
   op2: OperatorFunction<A, B>
@@ -208,4 +281,20 @@ function source<T>(...operations) {
   return handler
 }
 
-export { PipedComponentType, pipeProps, source, SourceType }
+const streamActions = (stream, actions) =>
+  concat(stream, merge(...actions)).pipe(
+    scan((value, fn: Function) => fn(value))
+  )
+
+const action = (src, reducer) => from(src).pipe(map(reducer))
+
+export {
+  PipedComponentType,
+  pipeProps,
+  source,
+  SourceType,
+  streamProps,
+  propsToStreams,
+  streamActions,
+  action
+}
