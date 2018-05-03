@@ -10,6 +10,7 @@ import {
   concat,
   merge,
   from,
+  of,
   MonoTypeOperatorFunction
 } from "rxjs"
 import {
@@ -143,32 +144,13 @@ const propsToStreams = fn =>
     //re-creating Object.entries()
     const entries = Object.keys(props).map(key => [key, props[key]])
 
-    const handlerEntries = entries.filter(([_, v]) => v instanceof Function)
-    const handlerProps = handlerEntries.reduce(
-      (acc, curr) => ({
-        ...acc,
-        [curr[0]]: curr[1]
-      }),
-      {}
-    )
-
-    const streamEntries = entries.filter(([_, v]) => !(v instanceof Function))
-    const streams = streamEntries.map(([_, v]) => v)
-    const streamKeys = streamEntries.map(([v]) => v)
-
-    return combineLatest(...streams, (...args) => {
-      const streamProps = args.reduce((props, arg, i) => {
-        return {
-          ...props,
-          [streamKeys[i]]: arg
-        }
-      }, {})
-
-      return {
-        ...streamProps,
-        ...handlerProps
-      }
-    })
+    return entries.length === 0 ? of({}) :
+      combineLatest(entries.map(([_, v]) => v instanceof Observable ? v : of(v))).pipe(
+        map(values => values.reduce(
+          (acc, value, index) => ({ ...acc, [entries[index][0]]: value }),
+          {}
+        ))
+      )
   })
 
 function streamProps<T>(fn) {
