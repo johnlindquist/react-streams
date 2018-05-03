@@ -255,8 +255,25 @@ const preventDefault: MonoTypeOperatorFunction<Event> = tap((e: Event) =>
 )
 const getTargetValue = pluck("target", "value")
 
+const stateToStreams = fn => state => convertPropsToStreams(fn(state))
+
 const streamState = fn => state =>
-  pipeProps(switchMapTo(convertPropsToStreams(fn(state))))
+  pipeProps(switchMapTo(stateToStreams(fn)(state)))
+
+const combineStateStreams = (...stateStreams) =>
+  pipeProps(
+    switchMapTo(
+      combineLatest(...stateStreams, (...args) =>
+        args.reduce(
+          (state, arg) => ({
+            ...state,
+            ...arg
+          }),
+          {}
+        )
+      )
+    )
+  )
 
 export {
   PipedComponentType,
@@ -269,5 +286,7 @@ export {
   action,
   preventDefault,
   getTargetValue,
-  streamState
+  streamState,
+  stateToStreams,
+  combineStateStreams
 }
