@@ -98,7 +98,7 @@ function pipeProps<T, R>(
   ...operations: OperatorFunction<any, any>[]
 ): PipedComponentType<R>
 function pipeProps<T>(...operations) {
-  return class PipeProps extends Component<
+  return class extends Component<
     {
       children?: (props: any) => ReactNode
       render?: (props: any) => ReactNode
@@ -172,40 +172,7 @@ const propsToStreams = fn =>
   })
 
 function streamProps<T>(fn) {
-  return class PipeProps extends Component<
-    {
-      children?: (props: any) => ReactNode
-      render?: (props: any) => ReactNode
-    },
-    any
-  > {
-    setState$ = new Subject()
-    subscription
-
-    __renderFn = (this.props.children
-      ? this.props.children
-      : this.props.render
-        ? this.props.render
-        : value => value) as Function
-
-    componentDidMount() {
-      this.subscription = this.setState$
-        .pipe(startWith(this.props), distinctUntilChanged(), propsToStreams(fn))
-        .subscribe(this.setState.bind(this))
-    }
-
-    render() {
-      return this.subscription ? this.__renderFn(this.state) : null
-    }
-
-    componentDidUpdate() {
-      this.setState$.next(this.props)
-    }
-
-    componentWillUnmount() {
-      this.subscription.unsubscribe()
-    }
-  }
+  return pipeProps(propsToStreams(fn))
 }
 type SourceType<T, R> = ((value: T) => void) & ObservableInput<R>
 
