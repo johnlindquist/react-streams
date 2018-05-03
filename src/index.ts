@@ -1,29 +1,25 @@
 import { Component, ReactNode } from "react"
-
 import {
-  Observable,
+  MonoTypeOperatorFunction,
   ObservableInput,
-  observable,
   OperatorFunction,
   Subject,
   combineLatest,
   concat,
-  merge,
   from,
-  MonoTypeOperatorFunction
+  merge,
+  observable
 } from "rxjs"
 import {
   distinctUntilChanged,
+  map,
+  pluck,
+  scan,
   startWith,
   switchMap,
-  tap,
-  withLatestFrom,
-  mergeMap,
-  map,
-  scan,
-  pluck
+  switchMapTo,
+  tap
 } from "rxjs/operators"
-import { MapOperator } from "rxjs/internal/operators/map"
 
 type PipedComponentType<T> = React.ComponentType<
   T & {
@@ -134,42 +130,39 @@ function pipeProps<T>(...operations) {
   }
 }
 
-//TODO: optimize :)
-const propsToStreams = fn =>
-  //maybe we need a "switchProps", "mergeProps", "concatProps", etc...
-  //but I can't think of many scenarios where props update and you wouldn't want to "switch"
-  switchMap(inProps => {
-    const props = fn(inProps)
-    //re-creating Object.entries()
-    const entries = Object.keys(props).map(key => [key, props[key]])
+const convertPropsToStreams = props => {
+  const entries = Object.keys(props).map(key => [key, props[key]])
 
-    const handlerEntries = entries.filter(([_, v]) => v instanceof Function)
-    const handlerProps = handlerEntries.reduce(
-      (acc, curr) => ({
-        ...acc,
-        [curr[0]]: curr[1]
-      }),
-      {}
-    )
+  const handlerEntries = entries.filter(([_, v]) => v instanceof Function)
+  const handlerProps = handlerEntries.reduce(
+    (acc, curr) => ({
+      ...acc,
+      [curr[0]]: curr[1]
+    }),
+    {}
+  )
 
-    const streamEntries = entries.filter(([_, v]) => !(v instanceof Function))
-    const streams = streamEntries.map(([_, v]) => v)
-    const streamKeys = streamEntries.map(([v]) => v)
+  const streamEntries = entries.filter(([_, v]) => !(v instanceof Function))
+  const streams = streamEntries.map(([_, v]) => v)
+  const streamKeys = streamEntries.map(([v]) => v)
 
-    return combineLatest(...streams, (...args) => {
-      const streamProps = args.reduce((props, arg, i) => {
-        return {
-          ...props,
-          [streamKeys[i]]: arg
-        }
-      }, {})
-
+  return combineLatest(...streams, (...args) => {
+    const streamProps = args.reduce((props, arg, i) => {
       return {
-        ...streamProps,
-        ...handlerProps
+        ...props,
+        [streamKeys[i]]: arg
       }
-    })
+    }, {})
+
+    return {
+      ...streamProps,
+      ...handlerProps
+    }
   })
+}
+
+const propsToStreams = fn =>
+  switchMap(props => convertPropsToStreams(fn(props)))
 
 function streamProps<T>(fn) {
   return pipeProps(propsToStreams(fn))
@@ -262,6 +255,9 @@ const preventDefault: MonoTypeOperatorFunction<Event> = tap((e: Event) =>
 )
 const getTargetValue = pluck("target", "value")
 
+const streamState = state => fn =>
+  pipeProps(switchMapTo(convertPropsToStreams(fn(state))))
+
 export {
   PipedComponentType,
   pipeProps,
@@ -272,5 +268,6 @@ export {
   streamActions,
   action,
   preventDefault,
-  getTargetValue
+  getTargetValue,
+  streamState
 }
