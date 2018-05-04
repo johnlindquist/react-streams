@@ -8,7 +8,8 @@ import {
   concat,
   from,
   merge,
-  observable
+  observable,
+  of
 } from "rxjs"
 import {
   distinctUntilChanged,
@@ -243,8 +244,8 @@ function handler<T>(...operations) {
   return next
 }
 
-const streamActions = (stream, actions) =>
-  concat(stream, merge(...actions)).pipe(
+const mapActions = (prop, actions) =>
+  concat(of(prop), merge(...actions)).pipe(
     scan((value, fn: Function) => fn(value))
   )
 
@@ -260,21 +261,19 @@ const stateToStreams = fn => state => convertPropsToStreams(fn(state))
 const streamState = fn => state =>
   pipeProps(switchMapTo(stateToStreams(fn)(state)))
 
-const combineStateStreams = (...stateStreams) =>
-  pipeProps(
-    switchMapTo(
-      combineLatest(...stateStreams, (...args) =>
-        args.reduce(
-          (state, arg) => ({
-            ...state,
-            ...arg
-          }),
-          {}
-        )
-      )
+const combineStateStreams = (...stateStreams) => {
+  return combineLatest(...stateStreams, (...args) =>
+    args.reduce(
+      (state, arg) => ({
+        ...state,
+        ...arg
+      }),
+      {}
     )
   )
+}
 
+const streamToComponent = stream => pipeProps(switchMapTo(stream))
 export {
   PipedComponentType,
   pipeProps,
@@ -282,11 +281,12 @@ export {
   SourceType,
   streamProps,
   propsToStreams,
-  streamActions,
+  mapActions,
   action,
   preventDefault,
   getTargetValue,
   streamState,
   stateToStreams,
-  combineStateStreams
+  combineStateStreams,
+  streamToComponent
 }

@@ -1,6 +1,6 @@
 {
   "name": "react-streams",
-  "version": "9.1.0",
+  "version": "9.2.0",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
@@ -15,17 +15,30 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
-    "test": "jest"
+    "test": "jest",
+    "examples": "poi examples/index.js --port 4321",
+    "cypress": "cypress open",
+    "e2e": "run-p examples cypress"
   },
-  "keywords": ["react", "rxjs", "streams"],
+  "keywords": [
+    "react",
+    "rxjs",
+    "streams"
+  ],
   "author": "John Lindquist",
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^22.2.3",
     "@types/react": "^16.3.2",
+    "cypress": "^2.1.0",
     "jest": "^22.4.3",
-    "react": "^16.3.0",
-    "rxjs": "^6.0.0",
+    "poi": "^10.1.5",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
+    "react-loadable": "^5.4.0",
+    "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2",
+    "rxjs": "^6.1.0",
     "ts-jest": "^22.4.4",
     "ts-snippet": "^3.1.1",
     "typescript": "^2.8.1"
@@ -36,11 +49,24 @@
         "tsConfigFile": "tsconfig-test.json"
       }
     },
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
-    "testPathIgnorePatterns": ["/dist/", "/node_modules/"],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "testPathIgnorePatterns": [
+      "/dist/",
+      "/node_modules/"
+    ],
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     }
+  },
+  "dependencies": {
+    "npm-run-all": "^4.1.2"
   }
 }
