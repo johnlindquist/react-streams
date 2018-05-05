@@ -1,3 +1,4 @@
+import React from "react"
 import { mapTo } from "rxjs/operators"
 import { action, handler, mapActions, streamProps } from "../../"
 
@@ -21,12 +22,12 @@ export default () => (
   <Counter count={4}>
     {({ count, onInc, onDec }) => (
       <div>
-        <div id="count">{count}</div>
-        <button id="inc" onClick={onInc}>
-          +
-        </button>
         <button id="dec" onClick={onDec}>
           -
+        </button>
+        <span id="count">{count}</span>
+        <button id="inc" onClick={onInc}>
+          +
         </button>
       </div>
     )}

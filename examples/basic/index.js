@@ -1,3 +1,4 @@
+import React from "react"
 import { delay, startWith } from "rxjs/operators"
 import { pipeProps } from "../../"
 

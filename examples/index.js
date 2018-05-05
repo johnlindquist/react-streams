@@ -24,6 +24,5 @@ render(
       <ExampleRoute path="/counter" />
     </Switch>
   </Router>,
-
   document.querySelector("#app")
 )
