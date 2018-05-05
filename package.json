@@ -1,6 +1,6 @@
 {
   "name": "react-streams",
-  "version": "9.2.0",
+  "version": "9.3.0",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
@@ -16,9 +16,10 @@
     "build": "tsc",
     "dev": "tsc -w",
     "test": "jest",
-    "examples": "poi --config examples/poi.config.js --port 4321",
+    "examples:client": "poi --config examples/poi.config.js --port 4321",
+    "examples:server": "json-server --port 4322 examples/db.js",
     "cypress": "cypress open",
-    "e2e": "run-p examples cypress",
+    "e2e": "run-p examples:* cypress",
     "docs": "poi --config docs/poi.config.js"
   },
   "keywords": [
@@ -31,12 +32,15 @@
   "devDependencies": {
     "@babel/preset-react": "^7.0.0-beta.46",
     "@babel/preset-stage-0": "^7.0.0-beta.46",
+    "@cypress/webpack-preprocessor": "^2.0.1",
     "@mdx-js/loader": "^0.8.1",
     "@mdx-js/mdx": "^0.8.1",
     "@types/jest": "^22.2.3",
     "@types/react": "^16.3.2",
+    "babel-preset-stage-0": "^6.24.1",
     "cypress": "^2.1.0",
     "jest": "^22.4.3",
+    "json-server": "^0.12.2",
     "poi": "^10.1.5",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",

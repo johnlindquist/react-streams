@@ -1,0 +1,25 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body,
+input {
+  font-family: "Avenir", sans-serif;
+  font-size: 1rem;
+}
+
+input[type="submit"],
+button {
+  border: 1px solid black;
+}
+
+input[type="submit"]:hover,
+button:hover {
+  background-color: lightblue;
+}
+
+ul {
+  padding: 0;
+  list-style-type: none;
+}

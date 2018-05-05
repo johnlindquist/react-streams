@@ -8,8 +8,7 @@ import {
   concat,
   from,
   merge,
-  observable,
-  of
+  observable
 } from "rxjs"
 import {
   distinctUntilChanged,
@@ -19,7 +18,8 @@ import {
   startWith,
   switchMap,
   switchMapTo,
-  tap
+  tap,
+  share
 } from "rxjs/operators"
 
 type PipedComponentType<T> = React.ComponentType<
@@ -237,15 +237,15 @@ function handler<T, R>(
 ): SourceType<T, R>
 function handler<T>(...operations) {
   const subject = new Subject<T>()
-  const source = subject.pipe(...operations)
+  const source = subject.pipe(...operations, share())
 
   const next = (...args) => subject.next(...args)
   next[observable] = () => source
   return next
 }
 
-const mapActions = (prop, actions) =>
-  concat(of(prop), merge(...actions)).pipe(
+const mapActions = (stream, actions) =>
+  concat(stream, merge(...actions)).pipe(
     scan((value, fn: Function) => fn(value))
   )
 

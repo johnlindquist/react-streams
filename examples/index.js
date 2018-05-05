@@ -1,7 +1,10 @@
 import React from "react"
 import { render } from "react-dom"
 import Loadable from "react-loadable"
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom"
+import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom"
+import "./index.css"
+
+const examples = ["basic", "text", "counter", "todos"]
 
 const ExampleRoute = props => (
   <Route
@@ -18,11 +21,18 @@ const ExampleRoute = props => (
 
 render(
   <Router>
-    <Switch>
-      <ExampleRoute path="/basic" />
-      <ExampleRoute path="/text" />
-      <ExampleRoute path="/counter" />
-    </Switch>
+    <>
+      {examples.map(example => (
+        <Link style={{ padding: "1rem" }} key={example} to={`/${example}`}>
+          {example}
+        </Link>
+      ))}
+      <Switch>
+        {examples.map(example => (
+          <ExampleRoute key={example} path={`/${example}`} />
+        ))}
+      </Switch>
+    </>
   </Router>,
   document.querySelector("#app")
 )

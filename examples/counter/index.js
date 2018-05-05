@@ -1,4 +1,5 @@
 import React from "react"
+import { of } from "rxjs"
 import { mapTo } from "rxjs/operators"
 import { action, handler, mapActions, streamProps } from "../../"
 
@@ -6,7 +7,7 @@ const Counter = streamProps(({ count }) => {
   const onInc = handler(mapTo(2))
   const onDec = handler(mapTo(-2))
 
-  const count$ = mapActions(count, [
+  const count$ = mapActions(of(count), [
     action(onInc, num => count => count + num),
     action(onDec, num => count => count + num)
   ])

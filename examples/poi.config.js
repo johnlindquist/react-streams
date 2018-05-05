@@ -2,7 +2,18 @@ const path = require("path")
 
 module.exports = {
   entry: "./examples/index.js",
+  devServer: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:4322",
+        pathRewrite: { "^/api": "" }
+      }
+    }
+  },
   configureWebpack(config, context) {
+    config.resolve.alias = {
+      "react-streams": "../../"
+    }
     config.module.rules.push({
       test: /\.md?$/,
       use: [

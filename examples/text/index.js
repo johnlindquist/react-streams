@@ -1,4 +1,5 @@
 import React from "react"
+import { of } from "rxjs"
 import {
   action,
   getTargetValue,
@@ -10,7 +11,9 @@ import {
 const Text = streamProps(({ message }) => {
   const onChange = handler(getTargetValue)
 
-  const message$ = mapActions(message, [action(onChange, text => () => text)])
+  const message$ = mapActions(of(message), [
+    action(onChange, text => () => text)
+  ])
   /**
    * The above is the same as the "pure" Rx below. `mapActions` and `action` are
    * just helpers around this "concat(of, merge).scan" pattern

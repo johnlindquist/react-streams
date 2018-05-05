@@ -1,4 +1,4 @@
-describe("Counter", () => {
+describe("Text", () => {
   beforeEach(() => {
     cy.visit("http://localhost:4321/text")
   })
