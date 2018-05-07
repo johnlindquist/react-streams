@@ -1,6 +1,6 @@
-describe("Share", () => {
+describe("streamState", () => {
   beforeEach(() => {
-    cy.command("launch", "share")
+    cy.command("launch", "streamState")
     cy.wait("@get")
   })
 

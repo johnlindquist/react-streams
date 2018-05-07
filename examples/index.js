@@ -11,7 +11,9 @@ const examples = [
   "todos",
   "state",
   "store",
-  "share"
+  "share",
+  "streamState",
+  "streamToComponent"
 ]
 
 const ExampleRoute = props => (
