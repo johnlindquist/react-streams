@@ -1,6 +1,6 @@
 {
   "name": "react-streams",
-  "version": "9.3.0",
+  "version": "9.4.0",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
@@ -18,8 +18,10 @@
     "test": "jest",
     "examples:client": "poi --config examples/poi.config.js --port 4321",
     "examples:server": "json-server --port 4322 examples/db.js",
-    "cypress": "cypress open",
-    "e2e": "run-p examples:* cypress",
+    "cypress:run": "cypress run --config videoRecording=false",
+    "cypress:open": "cypress open",
+    "e2e": "run-p examples:* cypress:run",
+    "e2e:open": "run-p examples:* cypress:open",
     "docs": "poi --config docs/poi.config.js"
   },
   "keywords": [

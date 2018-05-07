@@ -15,11 +15,11 @@ import {
   map,
   pluck,
   scan,
+  share,
   startWith,
   switchMap,
   switchMapTo,
-  tap,
-  share
+  tap
 } from "rxjs/operators"
 
 type PipedComponentType<T> = React.ComponentType<
@@ -273,7 +273,7 @@ const combineStateStreams = (...stateStreams) => {
   )
 }
 
-const streamToComponent = stream => pipeProps(switchMapTo(stream))
+const streamToComponent = stream => pipeProps(switchMapTo(stream.pipe(share())))
 export {
   PipedComponentType,
   pipeProps,

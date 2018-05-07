@@ -23,3 +23,13 @@
 //
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("launch", url => {
+  cy.server()
+  cy.route("GET", "/api/todos").as("get")
+  cy.route("POST", "/api/todos").as("post")
+  cy.route("PATCH", "/api/todos/*").as("patch")
+  cy.route("DELETE", "/api/todos/*").as("delete")
+
+  cy.visit(`http://localhost:4321/${url}`)
+})

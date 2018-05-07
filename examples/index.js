@@ -4,7 +4,15 @@ import Loadable from "react-loadable"
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom"
 import "./index.css"
 
-const examples = ["basic", "text", "counter", "todos"]
+const examples = [
+  "basic",
+  "text",
+  "counter",
+  "todos",
+  "state",
+  "store",
+  "share"
+]
 
 const ExampleRoute = props => (
   <Route
