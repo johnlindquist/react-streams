@@ -6,7 +6,7 @@ import {
   handler,
   mapActions,
   streamProps
-} from "../../"
+} from "react-streams"
 
 const Text = streamProps(({ message }) => {
   const onChange = handler(getTargetValue)
