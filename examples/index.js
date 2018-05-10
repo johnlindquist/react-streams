@@ -6,6 +6,7 @@ import "./index.css"
 
 const examples = [
   "basic",
+  "ajax",
   "text",
   "counter",
   "todos",
