@@ -3,7 +3,7 @@ import { streamState } from "react-streams"
 import { ajax } from "rxjs/ajax"
 import { pluck } from "rxjs/operators"
 
-const endpoint = process.env.NODE_ENV
+const endpoint = process.env.DEV
   ? "api/todos"
   : "https://dandelion-bonsai.glitch.me/todos"
 const state = { endpoint }

@@ -2,7 +2,7 @@ import React from "react"
 import TodosStream from "./TodosStream"
 
 // Get your own, free todos API 🙌 https://glitch.com/edit/#!/import/github/johnlindquist/todos-api
-const endpoint = process.env.NODE_ENV
+const endpoint = process.env.DEV
   ? "api/todos"
   : "https://dandelion-bonsai.glitch.me/todos"
 
