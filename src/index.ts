@@ -187,7 +187,7 @@ const getTargetValue = pluck("target", "value")
 const stateToStreams = fn => state => convertPropsToStreams(fn(state))
 
 const streamState = fn => state =>
-  pipeProps(switchMapTo(stateToStreams(fn)(state)))
+  pipeProps(switchMapTo(stateToStreams(fn)(state)), share())
 
 const combineStateStreams = (...stateStreams) => {
   return combineLatest(...stateStreams, (...args) =>

@@ -1,7 +1,7 @@
 import React from "react"
 import { streamState } from "react-streams"
 import { ajax } from "rxjs/ajax"
-import { pluck } from "rxjs/operators"
+import { pluck, share } from "rxjs/operators"
 
 const endpoint = process.env.DEV
   ? "api/todos"
