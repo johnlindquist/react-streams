@@ -13,7 +13,8 @@ const examples = [
   "store",
   "share",
   "streamState",
-  "streamToComponent"
+  "streamToComponent",
+  "combineState"
 ]
 
 const ExampleRoute = props => (
@@ -32,11 +33,13 @@ const ExampleRoute = props => (
 render(
   <Router>
     <>
-      {examples.map(example => (
-        <Link style={{ padding: "1rem" }} key={example} to={`/${example}`}>
-          {example}
-        </Link>
-      ))}
+      <nav style={{ display: "flex", flexWrap: "wrap" }}>
+        {examples.map(example => (
+          <Link style={{ padding: "1rem" }} key={example} to={`/${example}`}>
+            {example}
+          </Link>
+        ))}
+      </nav>
       <Switch>
         {examples.map(example => (
           <ExampleRoute key={example} path={`/${example}`} />
