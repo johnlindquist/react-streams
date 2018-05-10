@@ -1,4 +1,4 @@
-import React from "react"
+import React, { Fragment } from "react"
 import { render } from "react-dom"
 import Loadable from "react-loadable"
 import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom"
@@ -32,7 +32,7 @@ const ExampleRoute = props => (
 
 render(
   <Router>
-    <>
+    <Fragment>
       <nav style={{ display: "flex", flexWrap: "wrap" }}>
         {examples.map(example => (
           <Link style={{ padding: "1rem" }} key={example} to={`/${example}`}>
@@ -45,7 +45,7 @@ render(
           <ExampleRoute key={example} path={`/${example}`} />
         ))}
       </Switch>
-    </>
+    </Fragment>
   </Router>,
   document.querySelector("#root")
 )
