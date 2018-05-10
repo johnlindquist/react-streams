@@ -7,7 +7,11 @@ const endpoint = process.env.DEV
   ? "api/todos"
   : "https://dandelion-bonsai.glitch.me/todos"
 
-const todos$ = ajax(endpoint).pipe(pluck("response"), map(todos => ({ todos })))
+const todos$ = ajax(endpoint).pipe(
+  share(),
+  pluck("response"),
+  map(todos => ({ todos }))
+)
 const StateContainer = streamToComponent(todos$)
 
 export default () => (
