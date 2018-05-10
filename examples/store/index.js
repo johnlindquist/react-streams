@@ -1,13 +1,14 @@
-import React from "react";
-import { streamToComponent } from "react-streams";
-import { ajax } from "rxjs/ajax";
-import { pluck, map, share } from "rxjs/operators";
+import React from "react"
+import { streamToComponent } from "react-streams"
+import { ajax } from "rxjs/ajax"
+import { pluck, map, share } from "rxjs/operators"
 
-const todos$ = ajax("api/todos").pipe(
-  pluck("response"),
-  map(todos => ({ todos }))
-);
-const StateContainer = streamToComponent(todos$);
+const endpoint = process.env.NODE_ENV
+  ? "api/todos"
+  : "https://dandelion-bonsai.glitch.me/todos"
+
+const todos$ = ajax(endpoint).pipe(pluck("response"), map(todos => ({ todos })))
+const StateContainer = streamToComponent(todos$)
 
 export default () => (
   <div>
@@ -31,4 +32,4 @@ export default () => (
       </div>
     </div>
   </div>
-);
+)

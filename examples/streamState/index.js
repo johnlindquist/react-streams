@@ -3,10 +3,13 @@ import { streamState } from "react-streams"
 import { ajax } from "rxjs/ajax"
 import { pluck } from "rxjs/operators"
 
-const state = { url: "api/todos" }
+const endpoint = process.env.NODE_ENV
+  ? "api/todos"
+  : "https://dandelion-bonsai.glitch.me/todos"
+const state = { endpoint }
 
-const toStream = ({ url }) => ({
-  todos: ajax(url).pipe(pluck("response"))
+const toStream = ({ endpoint }) => ({
+  todos: ajax(endpoint).pipe(pluck("response"))
 })
 const stream$ = toStream(state)
 

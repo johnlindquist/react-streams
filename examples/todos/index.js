@@ -2,7 +2,9 @@ import React from "react"
 import TodosStream from "./TodosStream"
 
 // Get your own, free todos API 🙌 https://glitch.com/edit/#!/import/github/johnlindquist/todos-api
-const endpoint = "api/todos"
+const endpoint = process.env.NODE_ENV
+  ? "api/todos"
+  : "https://dandelion-bonsai.glitch.me/todos"
 
 const AddTodoForm = ({ onAddTodo, onSetTodo, current }) => (
   <form

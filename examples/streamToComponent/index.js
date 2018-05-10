@@ -3,7 +3,13 @@ import { streamToComponent } from "react-streams"
 import { ajax } from "rxjs/ajax"
 import { map, pluck } from "rxjs/operators"
 
-const stream$ = ajax("api/todos").pipe(
+const endpoint = process.env.NODE_ENV
+  ? "api/todos"
+  : "https://dandelion-bonsai.glitch.me/todos"
+
+console.log(endpoint)
+
+const stream$ = ajax(endpoint).pipe(
   pluck("response"),
   map(todos => ({ todos }))
 )
