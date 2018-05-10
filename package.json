@@ -1,9 +1,9 @@
 {
   "name": "react-streams",
-  "version": "9.6.0",
+  "version": "9.6.1",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
-  "types": "dist/index.d.js",
+  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/johnlindquist/react-streams.git"
