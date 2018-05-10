@@ -16,12 +16,13 @@
     "build": "tsc",
     "dev": "tsc -w",
     "test": "jest",
+    "examples": "run-p examples:*",
     "examples:client": "poi --config examples/poi.config.js --port 4321",
     "examples:server": "json-server --port 4322 examples/db.js",
     "cypress:run": "cypress run --config videoRecording=false",
     "cypress:open": "cypress open",
-    "e2e": "run-p examples:* cypress:run",
-    "e2e:open": "run-p examples:* cypress:open",
+    "e2e": "run-p examples cypress:run",
+    "e2e:open": "run-p examples cypress:open",
     "docs": "poi --config docs/poi.config.js"
   },
   "keywords": [
