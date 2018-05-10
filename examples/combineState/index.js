@@ -44,19 +44,19 @@ export default () => (
   <div>
     <NameOnlyComponent>
       {({ name, onUpdate }) => (
-        <div style={containerStyle}>
+        <div id="name" style={containerStyle}>
           <h2>Name Only</h2>
           <input type="text" value={name} onChange={onUpdate} />
-          <span>{name}</span>
+          <h3>{name}</h3>
         </div>
       )}
     </NameOnlyComponent>
 
     <CountOnlyComponent>
       {({ count, onInc, onDec }) => (
-        <div style={containerStyle}>
+        <div id="count" style={containerStyle}>
           <h2>Count Only</h2>
-          <h2>{count} apples</h2>
+          <h3>{count} apples</h3>
           <button onClick={onInc}>+</button>
           <button onClick={onDec}>-</button>
         </div>
@@ -65,11 +65,11 @@ export default () => (
 
     <CountAndNameComponent>
       {({ count, onInc, onDec, name, onUpdate }) => (
-        <div style={containerStyle}>
+        <div id="countAndName" style={containerStyle}>
           <h2>Name and Count Combined</h2>
-          <h2>
+          <h3>
             {name} has {count} apples
-          </h2>
+          </h3>
           <button onClick={onInc}>+</button>
           <button onClick={onDec}>-</button>
 
