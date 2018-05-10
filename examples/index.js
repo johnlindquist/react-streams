@@ -11,7 +11,6 @@ const examples = [
   "todos",
   "state",
   "store",
-  "share",
   "streamState",
   "streamToComponent",
   "combineState"
