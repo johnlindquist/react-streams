@@ -2,6 +2,9 @@ const path = require("path")
 
 module.exports = {
   entry: "./examples/index.js",
+  html: {
+    template: "./examples/index.ejs"
+  },
   devServer: {
     proxy: {
       "/api": {

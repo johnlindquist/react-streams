@@ -1,7 +1,7 @@
 import React from "react"
 import { of } from "rxjs"
 import { mapTo } from "rxjs/operators"
-import { action, handler, mapActions, streamProps } from "../../"
+import { action, handler, mapActions, streamProps } from "react-streams"
 
 const Counter = streamProps(({ count }) => {
   const onInc = handler(mapTo(2))
