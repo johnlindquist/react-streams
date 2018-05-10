@@ -1,4 +1,4 @@
-import { Component, ReactNode } from "react"
+import { Component, ReactNode, ComponentClass, StatelessComponent } from "react"
 import {
   MonoTypeOperatorFunction,
   ObservableInput,
@@ -8,7 +8,8 @@ import {
   concat,
   from,
   merge,
-  observable
+  observable,
+  Observable
 } from "rxjs"
 import {
   distinctUntilChanged,
@@ -256,8 +257,7 @@ const preventDefault: MonoTypeOperatorFunction<Event> = tap((e: Event) =>
 )
 const getTargetValue = pluck("target", "value")
 
-const stateToStreams = fn => state =>
-  convertPropsToStreams(fn(state)).pipe(share())
+const stateToStreams = fn => state => convertPropsToStreams(fn(state))
 
 const streamState = fn => state =>
   pipeProps(switchMapTo(stateToStreams(fn)(state)))
