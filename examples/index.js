@@ -47,5 +47,5 @@ render(
       </Switch>
     </>
   </Router>,
-  document.querySelector("#app")
+  document.querySelector("#root")
 )
