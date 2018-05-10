@@ -77,5 +77,8 @@
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     }
+  },
+  "dependencies": {
+    "rx-handler": "^1.0.1"
   }
 }

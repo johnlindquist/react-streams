@@ -5489,10 +5489,6 @@ json-schema@0.2.3:
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/json-schema/-/json-schema-0.2.3.tgz#b480c892e59a2f05954ce727bd3f2a4e882f9e13"
 
-json-server-reset@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/json-server-reset/-/json-server-reset-1.0.0.tgz#62068224239c372b54cd9bb251aa6ea3efb98b98"
-
 json-server@^0.12.2:
   version "0.12.2"
   resolved "https://registry.yarnpkg.com/json-server/-/json-server-0.12.2.tgz#2ae4de8de432e279f3374cc9f3882e49e29b35a0"
@@ -7870,13 +7866,19 @@ run-queue@^1.0.0, run-queue@^1.0.3:
   dependencies:
     aproba "^1.1.1"
 
+rx-handler@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/rx-handler/-/rx-handler-1.0.1.tgz#fdbefdc45a34b9b3d157ffa54f90f98b7d146b35"
+  dependencies:
+    rxjs "^6.0.0"
+
 rxjs@^5.0.0-beta.11:
   version "5.5.10"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.5.10.tgz#fde02d7a614f6c8683d0d1957827f492e09db045"
   dependencies:
     symbol-observable "1.0.1"
 
-rxjs@^6.1.0:
+rxjs@^6.0.0, rxjs@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.1.0.tgz#833447de4e4f6427b9cec3e5eb9f56415cd28315"
   dependencies:
