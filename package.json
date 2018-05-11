@@ -17,13 +17,14 @@
     "dev": "tsc -w",
     "test": "jest",
     "examples": "run-p examples:*",
-    "examples:client": "poi --config examples/poi.config.js --port 4321",
-    "examples:server": "json-server --port 4322 examples/db.js",
+    "examples:client": "cd examples && poi --port 4321",
+    "examples:server": "cd examples && json-server --port 4322 db.js",
     "cypress:run": "cypress run --config videoRecording=false",
     "cypress:open": "cypress open",
-    "e2e": "run-p examples cypress:run",
+    "e2e": "concurrently -k --success first 'npm run examples' 'npm run cypress:run'",
     "e2e:open": "run-p examples cypress:open",
-    "docs": "poi --config docs/poi.config.js"
+    "docs": "poi --config docs/poi.config.js",
+    "prepublish": "run-p e2e"
   },
   "keywords": [
     "react",
@@ -41,6 +42,7 @@
     "@types/jest": "^22.2.3",
     "@types/react": "^16.3.2",
     "babel-preset-stage-0": "^6.24.1",
+    "concurrently": "^3.5.1",
     "cypress": "^2.1.0",
     "jest": "^22.4.3",
     "json-server": "^0.12.2",

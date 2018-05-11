@@ -3,7 +3,7 @@ import TodosStream from "./TodosStream"
 
 // Get your own, free todos API 🙌 https://glitch.com/edit/#!/import/github/johnlindquist/todos-api
 const endpoint = process.env.DEV
-  ? "api/todos"
+  ? "/api/todos"
   : "https://dandelion-bonsai.glitch.me/todos"
 
 const AddTodoForm = ({ onAddTodo, onSetTodo, current }) => (

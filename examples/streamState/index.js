@@ -4,7 +4,7 @@ import { ajax } from "rxjs/ajax"
 import { pluck, share } from "rxjs/operators"
 
 const endpoint = process.env.DEV
-  ? "api/todos"
+  ? "/api/todos"
   : "https://dandelion-bonsai.glitch.me/todos"
 const state = { endpoint }
 

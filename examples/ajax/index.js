@@ -4,7 +4,7 @@ import { pluck, switchMap } from "rxjs/operators"
 import { pipeProps } from "react-streams"
 
 const endpoint = process.env.DEV
-  ? "api/todos"
+  ? "/api/todos"
   : "https://dandelion-bonsai.glitch.me/todos"
 
 const Todo = pipeProps(

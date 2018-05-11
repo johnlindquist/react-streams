@@ -4,7 +4,7 @@ import { ajax } from "rxjs/ajax"
 import { map, pluck } from "rxjs/operators"
 
 const endpoint = process.env.DEV
-  ? "api/todos"
+  ? "/api/todos"
   : "https://dandelion-bonsai.glitch.me/todos"
 
 console.log(endpoint)
