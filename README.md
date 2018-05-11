@@ -1,1 +1,3 @@
-# [ ⛲️ react-streams.com ⛲️ ](https://react-streams.com)
+# react-streams
+
+![react-streams logo](./logo.svg)
