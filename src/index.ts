@@ -32,31 +32,33 @@ type PipedComponentType<T> = React.ComponentType<
   }
 >
 
-function pipeProps<T>(): PipedComponentType<T>
-function pipeProps<T, A>(op1: OperatorFunction<T, A>): PipedComponentType<A>
-function pipeProps<T, A, B>(
+function componentFromOps<T>(): PipedComponentType<T>
+function componentFromOps<T, A>(
+  op1: OperatorFunction<T, A>
+): PipedComponentType<A>
+function componentFromOps<T, A, B>(
   op1: OperatorFunction<T, A>,
   op2: OperatorFunction<A, B>
 ): PipedComponentType<B>
-function pipeProps<T, A, B, C>(
+function componentFromOps<T, A, B, C>(
   op1: OperatorFunction<T, A>,
   op2: OperatorFunction<A, B>,
   op3: OperatorFunction<B, C>
 ): PipedComponentType<C>
-function pipeProps<T, A, B, C, D>(
+function componentFromOps<T, A, B, C, D>(
   op1: OperatorFunction<T, A>,
   op2: OperatorFunction<A, B>,
   op3: OperatorFunction<B, C>,
   op4: OperatorFunction<C, D>
 ): PipedComponentType<D>
-function pipeProps<T, A, B, C, D, E>(
+function componentFromOps<T, A, B, C, D, E>(
   op1: OperatorFunction<T, A>,
   op2: OperatorFunction<A, B>,
   op3: OperatorFunction<B, C>,
   op4: OperatorFunction<C, D>,
   op5: OperatorFunction<D, E>
 ): PipedComponentType<E>
-function pipeProps<T, A, B, C, D, E, F>(
+function componentFromOps<T, A, B, C, D, E, F>(
   op1: OperatorFunction<T, A>,
   op2: OperatorFunction<A, B>,
   op3: OperatorFunction<B, C>,
@@ -64,7 +66,7 @@ function pipeProps<T, A, B, C, D, E, F>(
   op5: OperatorFunction<D, E>,
   op6: OperatorFunction<E, F>
 ): PipedComponentType<F>
-function pipeProps<T, A, B, C, D, E, F, G>(
+function componentFromOps<T, A, B, C, D, E, F, G>(
   op1: OperatorFunction<T, A>,
   op2: OperatorFunction<A, B>,
   op3: OperatorFunction<B, C>,
@@ -73,7 +75,7 @@ function pipeProps<T, A, B, C, D, E, F, G>(
   op6: OperatorFunction<E, F>,
   op7: OperatorFunction<F, G>
 ): PipedComponentType<G>
-function pipeProps<T, A, B, C, D, E, F, G, H>(
+function componentFromOps<T, A, B, C, D, E, F, G, H>(
   op1: OperatorFunction<T, A>,
   op2: OperatorFunction<A, B>,
   op3: OperatorFunction<B, C>,
@@ -83,7 +85,7 @@ function pipeProps<T, A, B, C, D, E, F, G, H>(
   op7: OperatorFunction<F, G>,
   op8: OperatorFunction<G, H>
 ): PipedComponentType<H>
-function pipeProps<T, A, B, C, D, E, F, G, H, I>(
+function componentFromOps<T, A, B, C, D, E, F, G, H, I>(
   op1: OperatorFunction<T, A>,
   op2: OperatorFunction<A, B>,
   op3: OperatorFunction<B, C>,
@@ -94,10 +96,10 @@ function pipeProps<T, A, B, C, D, E, F, G, H, I>(
   op8: OperatorFunction<G, H>,
   op9: OperatorFunction<H, I>
 ): PipedComponentType<I>
-function pipeProps<T, R>(
+function componentFromOps<T, R>(
   ...operations: OperatorFunction<any, any>[]
 ): PipedComponentType<R>
-function pipeProps<T>(...operations) {
+function componentFromOps<T>(...operations) {
   return class extends Component<
     {
       children?: (props: any) => ReactNode
@@ -169,7 +171,7 @@ const propsToStreams = fn =>
   switchMap(props => convertPropsToStreams(fn(props)))
 
 function streamProps<T>(fn) {
-  return pipeProps(propsToStreams(fn))
+  return componentFromOps(propsToStreams(fn))
 }
 
 const mapActions = (stream, actions) =>
@@ -187,7 +189,7 @@ const getTargetValue = pluck("target", "value")
 const stateToStreams = fn => state => convertPropsToStreams(fn(state))
 
 const streamState = fn => state =>
-  pipeProps(switchMapTo(stateToStreams(fn)(state)), share())
+  componentFromOps(switchMapTo(stateToStreams(fn)(state)), share())
 
 const combineStateStreams = (...stateStreams) => {
   return combineLatest(...stateStreams, (...args) =>
@@ -201,10 +203,10 @@ const combineStateStreams = (...stateStreams) => {
   )
 }
 
-const streamToComponent = stream => pipeProps(switchMapTo(stream))
+const componentFromStream = stream => componentFromOps(switchMapTo(stream))
 export {
   PipedComponentType,
-  pipeProps,
+  componentFromOps,
   handler,
   SourceType,
   streamProps,
@@ -216,5 +218,5 @@ export {
   streamState,
   stateToStreams,
   combineStateStreams,
-  streamToComponent
+  componentFromStream
 }

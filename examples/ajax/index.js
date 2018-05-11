@@ -1,13 +1,13 @@
 import React from "react"
 import { ajax } from "rxjs/ajax"
 import { pluck, switchMap } from "rxjs/operators"
-import { pipeProps } from "react-streams"
+import { componentFromOps } from "react-streams"
 
 const endpoint = process.env.DEV
   ? "/api/todos"
   : "https://dandelion-bonsai.glitch.me/todos"
 
-const Todo = pipeProps(
+const Todo = componentFromOps(
   switchMap(({ id }) => ajax(`${endpoint}/${id}`)),
   pluck("response")
 )

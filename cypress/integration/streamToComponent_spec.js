@@ -1,4 +1,4 @@
-describe("Share", () => {
+describe("streamToComponent", () => {
   beforeEach(() => {
     cy.command("launch", "streamToComponent")
     cy.wait("@get")

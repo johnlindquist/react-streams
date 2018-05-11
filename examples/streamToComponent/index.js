@@ -1,5 +1,5 @@
 import React from "react"
-import { streamToComponent } from "react-streams"
+import { componentFromStream } from "react-streams"
 import { ajax } from "rxjs/ajax"
 import { map, pluck } from "rxjs/operators"
 
@@ -14,7 +14,7 @@ const stream$ = ajax(endpoint).pipe(
   map(todos => ({ todos }))
 )
 
-const StateContainer = streamToComponent(stream$)
+const StateContainer = componentFromStream(stream$)
 
 export default () => (
   <StateContainer>

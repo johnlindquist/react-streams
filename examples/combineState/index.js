@@ -1,7 +1,7 @@
 import React from "react"
 import {
   combineStateStreams,
-  streamToComponent,
+  componentFromStream,
   stateToStreams,
   handler,
   mapActions,
@@ -24,15 +24,15 @@ const nameState$ = createNameStream(nameState)
 countState$.subscribe(countState => console.log(`countState`, countState))
 nameState$.subscribe(nameState => console.log(`nameState`, nameState))
 
-const NameOnlyComponent = streamToComponent(nameState$)
-const CountOnlyComponent = streamToComponent(countState$)
+const NameOnlyComponent = componentFromStream(nameState$)
+const CountOnlyComponent = componentFromStream(countState$)
 
 const countAndName$ = combineStateStreams(countState$, nameState$)
 countAndName$.subscribe(countAndName =>
   console.log(`countAndName`, countAndName)
 )
 
-const CountAndNameComponent = streamToComponent(countAndName$)
+const CountAndNameComponent = componentFromStream(countAndName$)
 
 const containerStyle = {
   border: "3px solid green",
