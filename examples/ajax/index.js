@@ -7,13 +7,17 @@ const endpoint = process.env.DEV
   ? "/api/todos"
   : "https://dandelion-bonsai.glitch.me/todos"
 
+const state = {
+  endpoint,
+  id: 1
+}
 const ops = [
   switchMap(({ endpoint, id }) => ajax(`${endpoint}/${id}`)),
   pluck("response")
 ]
 
 export default () => (
-  <Stream pipe={ops} endpoint={endpoint} id="1">
+  <Stream state={state} pipe={ops}>
     {({ text, id }) => (
       <div>
         {id}. {text}
