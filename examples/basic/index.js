@@ -1,9 +1,12 @@
 import React from "react"
+import { Stream } from "react-streams"
 import { delay, startWith } from "rxjs/operators"
-import { componentFromOps } from "react-streams"
 
-const Message = componentFromOps(delay(2000), startWith({ message: "Wait..." }))
+const state = { message: "Hello" }
+const ops = [delay(2000), startWith({ message: "Wait..." })]
 
 export default () => (
-  <Message message="Hello">{({ message }) => <div>{message}</div>}</Message>
+  <Stream state={state} pipe={ops}>
+    {({ message }) => <div>{message}</div>}
+  </Stream>
 )

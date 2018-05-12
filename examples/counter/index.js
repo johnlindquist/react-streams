@@ -1,9 +1,9 @@
 import React from "react"
+import { Stream, action, handler, mapActions } from "react-streams"
 import { of } from "rxjs"
 import { mapTo } from "rxjs/operators"
-import { action, handler, mapActions, streamProps } from "react-streams"
 
-const Counter = streamProps(({ count }) => {
+const map = ({ count }) => {
   const onInc = handler(mapTo(2))
   const onDec = handler(mapTo(-2))
 
@@ -17,10 +17,10 @@ const Counter = streamProps(({ count }) => {
     onInc,
     onDec
   }
-})
+}
 
 export default () => (
-  <Counter count={4}>
+  <Stream map={map} count={4}>
     {({ count, onInc, onDec }) => (
       <div>
         <button id="dec" onClick={onDec}>
@@ -32,5 +32,5 @@ export default () => (
         </button>
       </div>
     )}
-  </Counter>
+  </Stream>
 )

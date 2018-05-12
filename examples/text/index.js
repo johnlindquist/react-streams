@@ -1,42 +1,23 @@
 import React from "react"
+import { Stream, getTargetValue, handler } from "react-streams"
+import { delay, map } from "rxjs/operators"
 import { of } from "rxjs"
-import {
-  action,
+
+const state = { message: "Hello" }
+
+const onChange = handler(
   getTargetValue,
-  handler,
-  mapActions,
-  streamProps
-} from "react-streams"
-
-const Text = streamProps(({ message }) => {
-  const onChange = handler(getTargetValue)
-
-  const message$ = mapActions(of(message), [
-    action(onChange, text => () => text)
-  ])
-  /**
-   * The above is the same as the "pure" Rx below. `mapActions` and `action` are
-   * just helpers around this "concat(of, merge).scan" pattern
-   * 
-    const message$ = concat(
-      of(message),
-      merge(from(onChange).pipe(map(text => () => text)))
-    ).pipe(scan((message, fn) => fn(message)))
-   */
-
-  return {
-    message: message$,
-    onChange
-  }
-})
+  delay(250),
+  map(message => state => ({ ...state, message }))
+)
 
 export default () => (
-  <Text message="Hello">
-    {({ message, onChange }) => (
+  <Stream state={state} handlers={{ onChange }}>
+    {({ message }, { onChange }) => (
       <div>
+        <input id="input" type="text" onChange={onChange} />
         <div id="message">{message}</div>
-        <input id="input" type="text" value={message} onChange={onChange} />
       </div>
     )}
-  </Text>
+  </Stream>
 )

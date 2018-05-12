@@ -9,7 +9,8 @@ import {
   from,
   merge,
   observable,
-  Observable
+  Observable,
+  of
 } from "rxjs"
 import {
   distinctUntilChanged,
@@ -20,10 +21,78 @@ import {
   startWith,
   switchMap,
   switchMapTo,
-  tap
+  tap,
+  mapTo
 } from "rxjs/operators"
 
 import { handler, SourceType } from "rx-handler"
+
+class Stream extends Component<
+  {
+    children?: (props: any) => ReactNode
+    render?: (props: any) => ReactNode
+  },
+  any
+> {
+  setState$ = new Subject()
+  subscription
+
+  __renderFn = (this.props.children
+    ? this.props.children
+    : this.props.render
+      ? this.props.render
+      : value => value) as Function
+
+  componentDidMount() {
+    const { state, handlers, map, pipe, ...props } = this.props
+    this.handlers = handlers
+    const flatState = { ...state, ...props }
+    let ops = [startWith(flatState), distinctUntilChanged()]
+
+    if (handlers) {
+      ops = [
+        ...ops,
+        switchMap(state => {
+          return concat(of(state), merge(...Object.values(this.handlers))).pipe(
+            scan((acc, fn) => fn(acc))
+          )
+        })
+      ]
+    }
+
+    if (pipe) {
+      ops = [...ops, ...pipe]
+    }
+
+    if (map) {
+      ops = [...ops, switchMapPropsToObjectOfStreams(map)]
+    }
+
+    this.subscription = this.setState$
+      .pipe(...ops)
+      .subscribe(state => this.setState(() => state))
+  }
+
+  render() {
+    console.log(`render`, this.state, this.handlers)
+    return this.subscription ? this.__renderFn(this.state, this.handlers) : null
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return !this.state || nextProps !== this.props
+  }
+
+  componentDidUpdate() {
+    const { state, handlers, map, pipe, ...props } = this.props
+    this.handlers = handlers
+    const flatState = { ...state, ...props }
+    this.setState$.next(flatState)
+  }
+
+  componentWillUnmount() {
+    this.subscription.unsubscribe()
+  }
+}
 
 type PipedComponentType<T> = React.ComponentType<
   T & {
@@ -100,43 +169,53 @@ function componentFromOps<T, R>(
   ...operations: OperatorFunction<any, any>[]
 ): PipedComponentType<R>
 function componentFromOps<T>(...operations) {
-  return class extends Component<
-    {
-      children?: (props: any) => ReactNode
-      render?: (props: any) => ReactNode
-    },
-    any
-  > {
-    setState$ = new Subject()
-    subscription
+  return props => {
+    class StreamComponent extends Component<
+      {
+        children?: (props: any) => ReactNode
+        render?: (props: any) => ReactNode
+      },
+      any
+    > {
+      setState$ = new Subject()
+      subscription
 
-    __renderFn = (this.props.children
-      ? this.props.children
-      : this.props.render
-        ? this.props.render
-        : value => value) as Function
+      __renderFn = (this.props.children
+        ? this.props.children
+        : this.props.render
+          ? this.props.render
+          : value => value) as Function
 
-    componentDidMount() {
-      this.subscription = this.setState$
-        .pipe(startWith(this.props), distinctUntilChanged(), ...operations)
-        .subscribe(this.setState.bind(this))
+      componentDidMount() {
+        const foo = { ...this.props, ...props }
+        console.log({ foo })
+        this.subscription = this.setState$
+          .pipe(startWith(foo), distinctUntilChanged(), ...props.ops)
+          .subscribe(this.setState.bind(this))
+      }
+
+      render() {
+        return this.subscription ? this.__renderFn(this.state) : null
+      }
+
+      componentDidUpdate() {
+        this.setState$.next(this.props)
+      }
+
+      componentWillUnmount() {
+        this.subscription.unsubscribe()
+      }
     }
 
-    render() {
-      return this.subscription ? this.__renderFn(this.state) : null
-    }
-
-    componentDidUpdate() {
-      this.setState$.next(this.props)
-    }
-
-    componentWillUnmount() {
-      this.subscription.unsubscribe()
+    if (props.children) {
+      return new StreamComponent(props)
+    } else {
+      return StreamComponent
     }
   }
 }
 
-const convertPropsToStreams = props => {
+const mapPropsToObjectOfStreams = props => {
   const entries = Object.keys(props).map(key => [key, props[key]])
 
   const handlerEntries = entries.filter(([_, v]) => v instanceof Function)
@@ -167,11 +246,11 @@ const convertPropsToStreams = props => {
   })
 }
 
-const propsToStreams = fn =>
-  switchMap(props => convertPropsToStreams(fn(props)))
+const switchMapPropsToObjectOfStreams = fn =>
+  switchMap(props => mapPropsToObjectOfStreams(fn(props)))
 
 function streamProps<T>(fn) {
-  return componentFromOps(propsToStreams(fn))
+  return componentFromOps(switchMapPropsToObjectOfStreams(fn))
 }
 
 const mapActions = (stream, actions) =>
@@ -184,9 +263,9 @@ const action = (src, reducer) => from(src).pipe(map(reducer))
 const preventDefault: MonoTypeOperatorFunction<Event> = tap((e: Event) =>
   e.preventDefault()
 )
-const getTargetValue = pluck("target", "value")
+const getTargetValue = pluck("currentTarget", "value")
 
-const stateToStreams = fn => state => convertPropsToStreams(fn(state))
+const stateToStreams = fn => state => mapPropsToObjectOfStreams(fn(state))
 
 const streamState = fn => state =>
   componentFromOps(switchMapTo(stateToStreams(fn)(state)), share())
@@ -203,14 +282,14 @@ const combineStateStreams = (...stateStreams) => {
   )
 }
 
-const componentFromStream = stream => componentFromOps(switchMapTo(stream))
+const fromStream = stream => componentFromOps(switchMapTo(stream))
+
 export {
   PipedComponentType,
   componentFromOps,
   handler,
   SourceType,
   streamProps,
-  propsToStreams,
   mapActions,
   action,
   preventDefault,
@@ -218,5 +297,6 @@ export {
   streamState,
   stateToStreams,
   combineStateStreams,
-  componentFromStream
+  fromStream,
+  Stream
 }

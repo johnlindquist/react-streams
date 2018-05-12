@@ -1,5 +1,6 @@
 import React from "react"
-import TodosStream from "./TodosStream"
+import { Stream } from "react-streams"
+import todosMap from "./TodosStream"
 
 // Get your own, free todos API 🙌 https://glitch.com/edit/#!/import/github/johnlindquist/todos-api
 const endpoint = process.env.DEV
@@ -54,7 +55,7 @@ const Todo = ({ todo, onToggleDone, onDeleteTodo }) => (
 )
 
 export default () => (
-  <TodosStream endpoint={endpoint}>
+  <Stream map={todosMap} endpoint={endpoint}>
     {({ todos, current, onSetTodo, onAddTodo, onToggleDone, onDeleteTodo }) => (
       <div style={{ padding: "2rem", width: "300px" }}>
         <AddTodoForm
@@ -74,5 +75,5 @@ export default () => (
         </ul>
       </div>
     )}
-  </TodosStream>
+  </Stream>
 )

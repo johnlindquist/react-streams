@@ -3,8 +3,7 @@ import {
   getTargetValue,
   handler,
   mapActions,
-  preventDefault,
-  streamProps
+  preventDefault
 } from "react-streams"
 import { of } from "rxjs"
 import { ajax } from "rxjs/ajax"
@@ -19,7 +18,7 @@ import {
 
 const HEADERS = { "Content-Type": "application/json" }
 
-export default streamProps(({ endpoint }) => {
+export default ({ endpoint }) => {
   const onSetTodo = handler(getTargetValue)
 
   const onAddTodo = handler(
@@ -72,4 +71,4 @@ export default streamProps(({ endpoint }) => {
     onAddTodo,
     onDeleteTodo
   }
-})
+}
