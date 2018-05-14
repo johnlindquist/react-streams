@@ -15,8 +15,10 @@ module.exports = {
     config.resolve.alias = {
       "react-streams": "../../"
     }
+
     config.module.rules.push({
       test: /\.md?$/,
+      exclude: [/\.ejs$/],
       use: [
         {
           loader: "babel-loader",

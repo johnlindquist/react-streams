@@ -10,7 +10,8 @@ import {
   merge,
   observable,
   Observable,
-  of
+  of,
+  pipe
 } from "rxjs"
 import {
   distinctUntilChanged,
@@ -27,6 +28,64 @@ import {
 
 import { handler, SourceType } from "rx-handler"
 
+const mapStateHandlers = switchMap(({ state, handlers }) => {
+  // console.log({ state, handlers })
+  const state$ = of(state).pipe(map(state => state))
+  return merge(state$, ...Object.values(handlers)).pipe(
+    scan((state, fnOrObj) => {
+      console.log({ state, fnOrObj })
+      if (!state) return fnOrObj()
+      if (fnOrObj instanceof Function) {
+        return { ...state, ...fnOrObj(state) }
+      } else {
+        return { ...state, ...fnOrObj }
+      }
+    })
+  )
+})
+
+const config = (props, context) => {
+  console.log({ source, handlers })
+  const {
+    source,
+    handlers = {
+      next: handler(map(payload => state => ({ ...state, ...payload })))
+    }
+  } = props
+
+  context.handlers = handlers
+
+  console.log({ props })
+  const state$ = source.pipe(map(state => state))
+  return merge(state$, ...Object.values(handlers)).pipe(
+    scan((state, fnOrObj) => {
+      console.log({ state, fnOrObj })
+      if (!state) return fnOrObj()
+      if (fnOrObj instanceof Function) {
+        return { ...state, ...fnOrObj(state) }
+      } else {
+        return { ...state, ...fnOrObj }
+      }
+    })
+  )
+}
+
+const checkHandlers = map(({ handlers: hs, ...props }) => {
+  console.log(hs, props)
+  const handlers = hs
+    ? hs
+    : {
+        next: handler(map(payload => state => ({ ...state, ...payload })))
+      }
+
+  return { ...props, handlers }
+})
+
+const bindHandlers = context =>
+  tap(({ handlers }) => {
+    context.handlers = handlers
+  })
+
 class Stream extends Component<
   {
     children?: (props: any) => ReactNode
@@ -36,6 +95,8 @@ class Stream extends Component<
 > {
   setState$ = new Subject()
   subscription
+  handlers
+  cDU = handler()
 
   __renderFn = (this.props.children
     ? this.props.children
@@ -44,34 +105,9 @@ class Stream extends Component<
       : value => value) as Function
 
   componentDidMount() {
-    console.log(this.props)
-    const ops = [
-      startWith(this.props),
-      distinctUntilChanged(),
-      switchMap(({ state, handlers, pipe = [] }) => {
-        console.log({ state, handlers, pipe })
-        if (handlers && state) {
-          this.handlers = handlers
-          return concat(of(state), merge(...Object.values(handlers))).pipe(
-            scan((state, fnOrObj) => {
-              if (fnOrObj instanceof Function) {
-                return { ...state, ...fnOrObj(state) }
-              } else {
-                return { ...state, ...fnOrObj }
-              }
-            }),
-            ...pipe
-          )
-        }
-        if (state) {
-          return of(state).pipe(...pipe)
-        }
-      })
-    ]
-
-    this.subscription = this.setState$
-      .pipe(...ops)
-      .subscribe(state => this.setState(() => state))
+    this.subscription = config(this.props, this).subscribe(state =>
+      this.setState(() => state)
+    )
   }
 
   render() {
@@ -80,7 +116,7 @@ class Stream extends Component<
   }
 
   componentDidUpdate() {
-    this.setState$.next(this.props)
+    this.cDU()
   }
 
   componentWillUnmount() {
@@ -88,88 +124,51 @@ class Stream extends Component<
   }
 }
 
-const mapPropsToObjectOfStreams = props => {
-  const entries = Object.keys(props).map(key => [key, props[key]])
+class Subscribe extends Component<
+  {
+    children?: (props: any) => ReactNode
+    render?: (props: any) => ReactNode
+  },
+  any
+> {
+  setState$ = new Subject()
+  subscription
+  handlers
+  cDU = handler()
 
-  const handlerEntries = entries.filter(([_, v]) => v instanceof Function)
-  const handlerProps = handlerEntries.reduce(
-    (acc, curr) => ({
-      ...acc,
-      [curr[0]]: curr[1]
-    }),
-    {}
-  )
+  __renderFn = (this.props.children
+    ? this.props.children
+    : this.props.render
+      ? this.props.render
+      : value => value) as Function
 
-  const streamEntries = entries.filter(([_, v]) => !(v instanceof Function))
-  const streams = streamEntries.map(([_, v]) => v)
-  const streamKeys = streamEntries.map(([v]) => v)
-
-  return combineLatest(...streams, (...args) => {
-    const streamProps = args.reduce((props, arg, i) => {
-      return {
-        ...props,
-        [streamKeys[i]]: arg
+  componentDidMount() {
+    const {
+      source,
+      handlers = {
+        next: handler(map(payload => state => ({ ...state, ...payload })))
       }
-    }, {})
+    } = this.props
 
-    return {
-      ...streamProps,
-      ...handlerProps
-    }
-  })
-}
+    this.handlers = handlers
+    // const mapState = map(v => ({ state: v, handlers }))
 
-const switchMapPropsToObjectOfStreams = fn =>
-  switchMap(props => mapPropsToObjectOfStreams(fn(props)))
-
-function streamProps<T>(fn) {
-  return componentFromOps(switchMapPropsToObjectOfStreams(fn))
-}
-
-const mapActions = (stream, actions) =>
-  concat(stream, merge(...actions)).pipe(
-    scan((value, fn: Function) => fn(value))
-  )
-
-const action = (src, reducer) => from(src).pipe(map(reducer))
-
-const preventDefault: MonoTypeOperatorFunction<Event> = tap((e: Event) =>
-  e.preventDefault()
-)
-const getTargetValue = pluck("currentTarget", "value")
-
-const stateToStreams = fn => state => mapPropsToObjectOfStreams(fn(state))
-
-const streamState = fn => state =>
-  componentFromOps(switchMapTo(stateToStreams(fn)(state)), share())
-
-const combineStateStreams = (...stateStreams) => {
-  return combineLatest(...stateStreams, (...args) =>
-    args.reduce(
-      (state, arg) => ({
-        ...state,
-        ...arg
-      }),
-      {}
+    this.subscription = config({ source, handlers }).subscribe(state =>
+      this.setState(() => state)
     )
-  )
+  }
+
+  render() {
+    return this.subscription ? this.__renderFn(this.state, this.handlers) : null
+  }
+
+  componentDidUpdate() {
+    this.cDU()
+  }
+
+  componentWillUnmount() {
+    this.subscription.unsubscribe()
+  }
 }
 
-const fromStream = stream => componentFromOps(switchMapTo(stream))
-
-export {
-  PipedComponentType,
-  componentFromOps,
-  handler,
-  SourceType,
-  streamProps,
-  mapActions,
-  action,
-  preventDefault,
-  getTargetValue,
-  streamState,
-  stateToStreams,
-  combineStateStreams,
-  fromStream,
-  Stream
-}
+export { handler, SourceType, Stream, Subscribe, mapStateHandlers }

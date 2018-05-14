@@ -1,14 +1,13 @@
 import React from "react"
-import { Stream, getTargetValue, handler } from "react-streams"
-import { delay, map } from "rxjs/operators"
-import { of } from "rxjs"
+import { Stream, handler } from "react-streams"
+import { delay, map, tap, pluck } from "rxjs/operators"
 
 const state = { message: "Hello" }
 
 const onChange = handler(
-  getTargetValue,
+  pluck("target", "value"),
   delay(250),
-  map(message => state => ({ ...state, message }))
+  map(message => ({ message }))
 )
 
 export default () => (

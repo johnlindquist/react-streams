@@ -18,7 +18,7 @@ import {
 
 const HEADERS = { "Content-Type": "application/json" }
 
-export default ({ endpoint }) => {
+export default function({ endpoint }) {
   const onSetTodo = handler(getTargetValue)
 
   const onAddTodo = handler(

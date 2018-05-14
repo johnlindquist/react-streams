@@ -1,11 +1,8 @@
 import React from "react"
 import { Stream } from "react-streams"
-import todosMap from "./TodosStream"
-
-// Get your own, free todos API 🙌 https://glitch.com/edit/#!/import/github/johnlindquist/todos-api
-const endpoint = process.env.DEV
-  ? "/api/todos"
-  : "https://dandelion-bonsai.glitch.me/todos"
+import { map, pluck, switchMap, tap } from "rxjs/operators"
+import { of } from "rxjs"
+import { ajax } from "rxjs/ajax"
 
 const AddTodoForm = ({ onAddTodo, onSetTodo, current }) => (
   <form
@@ -54,11 +51,25 @@ const Todo = ({ todo, onToggleDone, onDeleteTodo }) => (
   </li>
 )
 
+// Get your own, free todos API 🙌 https://glitch.com/edit/#!/import/github/johnlindquist/todos-api
+const endpoint = process.env.DEV
+  ? "/api/todos"
+  : "https://dandelion-bonsai.glitch.me/todos"
+
+const ops = [
+  switchMap(({ endpoint }) => ajax(endpoint)),
+  pluck("response"),
+  map(todos => ({ todos }))
+]
+
 export default () => (
-  <Stream map={todosMap} endpoint={endpoint}>
-    {({ todos, current, onSetTodo, onAddTodo, onToggleDone, onDeleteTodo }) => (
+  <Stream state={{ endpoint }} pipe={ops}>
+    {({ todos, current }) => (
       <div style={{ padding: "2rem", width: "300px" }}>
-        <AddTodoForm
+        <ul style={{ padding: "0", listStyleType: "none" }}>
+          {todos.map(todo => <Todo key={todo.id} todo={todo} />)}
+        </ul>
+        {/* <AddTodoForm
           onAddTodo={onAddTodo}
           onSetTodo={onSetTodo}
           current={current}
@@ -72,7 +83,7 @@ export default () => (
               onDeleteTodo={onDeleteTodo}
             />
           ))}
-        </ul>
+        </ul> */}
       </div>
     )}
   </Stream>
