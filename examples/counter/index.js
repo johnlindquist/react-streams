@@ -1,18 +1,21 @@
 import React from "react"
 import { Stream, handler } from "react-streams"
 import { of } from "rxjs"
-import { map } from "rxjs/operators"
+import { map, mapTo } from "rxjs/operators"
 
-const state = { count: 4 }
+const Count = ({ start, ...props }) => {
+  const count$ = of({ count: start })
+  return <Stream source={count$} {...props} />
+}
 
 const handlers = {
   onInc: handler(map(() => state => ({ count: state.count + 2 }))),
   onDec: handler(map(() => state => ({ count: state.count - 2 }))),
-  onReset: handler(map(() => ({ count: 4 })))
+  onReset: handler(mapTo({ count: 4 }))
 }
 
 export default () => (
-  <Stream state={state} handlers={handlers}>
+  <Count start={4} handlers={handlers}>
     {({ count }, { onInc, onDec, onReset }) => (
       <div>
         <button id="dec" onClick={onDec}>
@@ -25,5 +28,5 @@ export default () => (
         <button onClick={onReset}>Reset</button>
       </div>
     )}
-  </Stream>
+  </Count>
 )

@@ -2,28 +2,26 @@ import React from "react"
 import { Stream } from "react-streams"
 import { ajax } from "rxjs/ajax"
 import { pluck, switchMap } from "rxjs/operators"
-import { pipe } from "rxjs"
+import { of } from "rxjs"
 
-const endpoint = process.env.DEV
+const url = process.env.DEV
   ? "/api/todos"
   : "https://dandelion-bonsai.glitch.me/todos"
 
-const state = {
-  endpoint,
-  id: 1
+const Todo = ({ url, id, ...props }) => {
+  const todo$ = of({ url, id }).pipe(
+    switchMap(({ url, id }) => ajax(`${url}/${id}`)),
+    pluck("response")
+  )
+  return <Stream source={todo$} {...props} />
 }
 
-const ops = pipe(
-  switchMap(({ endpoint, id }) => ajax(`${endpoint}/${id}`)),
-  pluck("response")
-)
-
 export default () => (
-  <Stream state={state} pipe={ops}>
+  <Todo url={url} id={1}>
     {({ text, id }) => (
       <div>
         {id}. {text}
       </div>
     )}
-  </Stream>
+  </Todo>
 )
