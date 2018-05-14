@@ -1,8 +1,10 @@
 import React from "react"
-import { Stream } from "react-streams"
-import { map, pluck, switchMap, tap } from "rxjs/operators"
-import { of } from "rxjs"
+import { Stream, handler } from "react-streams"
+import { concatMap, map, mapTo, pluck, switchMap, tap } from "rxjs/operators"
+import { of, pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
+
+const HEADERS = { "Content-Type": "application/json" }
 
 const AddTodoForm = ({ onAddTodo, onSetTodo, current }) => (
   <form
@@ -52,22 +54,52 @@ const Todo = ({ todo, onToggleDone, onDeleteTodo }) => (
 )
 
 // Get your own, free todos API 🙌 https://glitch.com/edit/#!/import/github/johnlindquist/todos-api
-const endpoint = process.env.DEV
+const url = process.env.DEV
   ? "/api/todos"
   : "https://dandelion-bonsai.glitch.me/todos"
 
-const ops = [
-  switchMap(({ endpoint }) => ajax(endpoint)),
-  pluck("response"),
-  map(todos => ({ todos }))
-]
+const Todos = ({ url, ...props }) => {
+  const todos$ = ajax(url).pipe(pluck("response"), map(todos => ({ todos })))
+
+  const toggleDoneAjax = pipe(
+    concatMap(todo =>
+      ajax.patch(
+        `${url}/${todo.id}`,
+        {
+          ...todo,
+          done: todo.done ? false : true
+        },
+        HEADERS
+      )
+    ),
+    pluck("response")
+  )
+
+  const toggleDone = map(todo => state => ({
+    todos: state.todos.map(t => (t.id === todo.id ? todo : t))
+  }))
+
+  const deleteTodoAjax = pipe(
+    concatMap(todo => ajax.delete(`${url}/${todo.id}`).pipe(mapTo(todo)))
+  )
+  const deleteTodo = map(todo => ({ todos }) => ({
+    todos: todos.filter(t => t.id !== todo.id)
+  }))
+
+  const handlers = {
+    onToggleDone: handler(toggleDoneAjax, toggleDone),
+    onDeleteTodo: handler(deleteTodoAjax, deleteTodo)
+  }
+
+  return <Stream source={todos$} handlers={handlers} {...props} />
+}
 
 export default () => (
-  <Stream state={{ endpoint }} pipe={ops}>
-    {({ todos, current }) => (
+  <Todos url={url}>
+    {({ todos, current }, handlers) => (
       <div style={{ padding: "2rem", width: "300px" }}>
         <ul style={{ padding: "0", listStyleType: "none" }}>
-          {todos.map(todo => <Todo key={todo.id} todo={todo} />)}
+          {todos.map(todo => <Todo key={todo.id} todo={todo} {...handlers} />)}
         </ul>
         {/* <AddTodoForm
           onAddTodo={onAddTodo}
@@ -86,5 +118,5 @@ export default () => (
         </ul> */}
       </div>
     )}
-  </Stream>
+  </Todos>
 )

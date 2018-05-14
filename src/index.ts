@@ -28,18 +28,7 @@ import {
 
 import { handler, SourceType } from "rx-handler"
 
-const config = (props, context) => {
-  console.log({ source, handlers })
-  const {
-    source,
-    handlers = {
-      next: handler(map(payload => state => ({ ...state, ...payload })))
-    }
-  } = props
-
-  context.handlers = handlers
-
-  console.log({ props })
+const config = ({ source, handlers = {} }) => {
   const state$ = source.pipe(map(state => state))
   return merge(state$, ...Object.values(handlers)).pipe(
     scan((state, fnOrObj) => {
@@ -72,14 +61,18 @@ class Stream extends Component<
       : value => value) as Function
 
   componentDidMount() {
-    this.subscription = config(this.props, this).subscribe(state =>
+    this.handlers = this.props.handlers
+
+    this.subscription = config(this.props).subscribe(state =>
       this.setState(() => state)
     )
   }
 
   render() {
-    console.log(`render`, this.state, this.handlers)
-    return this.subscription ? this.__renderFn(this.state, this.handlers) : null
+    console.log(`render`, this, this.state, this.handlers)
+    return this.subscription && this.state
+      ? this.__renderFn(this.state, this.handlers)
+      : null
   }
 
   componentDidUpdate() {
