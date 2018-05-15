@@ -45,9 +45,9 @@ const AddTodoForm = ({ onAddTodo }) => {
   )
   from(onSubmit).subscribe(onAddTodo)
 
-  const clearAfterAdd = from(onAddTodo).pipe(mapTo({ current: "" }))
+  const clearAfterAdd$ = from(onAddTodo).pipe(mapTo({ current: "" }))
 
-  const state$ = converge(current$, clearAfterAdd)
+  const state$ = converge(current$, clearAfterAdd$)
 
   return (
     <Stream

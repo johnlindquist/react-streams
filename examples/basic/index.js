@@ -1,7 +1,7 @@
 import React from "react"
 import { Stream } from "react-streams"
+import { of } from "rxjs"
 import { delay, startWith } from "rxjs/operators"
-import { of, pipe } from "rxjs"
 
 const source$ = of({ message: "Hello" }).pipe(
   delay(1000),

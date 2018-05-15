@@ -1,7 +1,7 @@
 import React from "react"
 import { Stream, plan } from "react-streams"
 import { merge, of } from "rxjs"
-import { map, scan, tap } from "rxjs/operators"
+import { map, scan } from "rxjs/operators"
 
 const Count = ({ start, ...props }) => {
   const count$ = of({ count: start })
@@ -10,8 +10,7 @@ const Count = ({ start, ...props }) => {
   const onReset = plan(map(() => state => ({ count: 4 })))
 
   const state$ = merge(count$, onInc, onDec, onReset).pipe(
-    scan((state = {}, updater) => updater(state)),
-    tap(state => console.log(`state`, state))
+    scan((state = {}, updater) => updater(state))
   )
   return <Stream source={state$} {...{ onInc, onDec, onReset, ...props }} />
 }

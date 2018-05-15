@@ -18,7 +18,7 @@ const state$ = merge(text$, onChange).pipe(
 )
 
 export default () => (
-  <Stream source={state$} {...{ onChange }}>
+  <Stream source={state$} onChange={onChange}>
     {({ message, onChange }) => (
       <div>
         <input id="input" type="text" onChange={onChange} />
