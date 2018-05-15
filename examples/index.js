@@ -40,7 +40,7 @@ render(
         ))}
       </nav>
       <Switch>
-        <Redirect exact from='/' to='/basic'/>
+        <Redirect exact from='/' to='/hello'/>
         {examples.map(example => (
           <ExampleRoute key={example} path={`/${example}`} />
         ))}
