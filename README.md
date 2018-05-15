@@ -4,7 +4,7 @@
 npm i react-streams rxjs
 ```
 
-<img src="./logo.svg" alt="drawing" style="width: 300px;"/>
+<img src="https://rawgit.com/johnlindquist/react-streams/master/logo.svg" alt="react-streams logo" style="width: 200px;"/>
 
 ## Play with Examples at [codesandbox.io](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples)
 
