@@ -6,7 +6,7 @@ npm i react-streams rxjs
 
 <img src="https://rawgit.com/johnlindquist/react-streams/master/logo.svg" alt="react-streams logo" width="300px;"/>
 
-## Play with Examples at [codesandbox.io](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples)
+## Play with Examples at [codesandbox.io](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%2Fhello%2Findex.js)
 
 `react-streams` provides three features:
 

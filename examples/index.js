@@ -1,7 +1,7 @@
 import React, { Fragment } from "react"
 import { render } from "react-dom"
 import Loadable from "react-loadable"
-import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom"
+import { BrowserRouter as Router, Link, Route, Switch, Redirect } from "react-router-dom"
 import "./index.css"
 
 const examples = [
@@ -40,6 +40,7 @@ render(
         ))}
       </nav>
       <Switch>
+        <Redirect exact from='/' to='/basic'/>
         {examples.map(example => (
           <ExampleRoute key={example} path={`/${example}`} />
         ))}
