@@ -69,9 +69,9 @@ class Stream extends Component<
   }
 
   render() {
-    console.log(`render`, this, this.state, this.handlers)
+    const { source, handlers, ...props } = this.props
     return this.subscription && this.state
-      ? this.__renderFn(this.state, this.handlers)
+      ? this.__renderFn({ ...this.state, ...this.handlers, ...props })
       : null
   }
 

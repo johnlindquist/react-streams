@@ -1,28 +1,59 @@
 import React from "react"
 import { Stream, handler } from "react-streams"
-import { concatMap, map, mapTo, pluck, switchMap, tap } from "rxjs/operators"
-import { of, pipe } from "rxjs"
+import {
+  concatMap,
+  map,
+  mapTo,
+  pluck,
+  switchMap,
+  share,
+  tap,
+  withLatestFrom
+} from "rxjs/operators"
+import { concat, from, of, pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
 
 const HEADERS = { "Content-Type": "application/json" }
 
-const AddTodoForm = ({ onAddTodo, onSetTodo, current }) => (
+const renderAddTodoForm = ({ current, onSetTodo, onAddTodo }) => (
   <form
     style={{ width: "100%", height: "2rem", display: "flex" }}
-    onSubmit={onAddTodo}
+    onSubmit={e => {
+      e.preventDefault()
+      onAddTodo(current)
+    }}
   >
     <input
       aria-label="Add Todo"
       style={{ flex: "1" }}
       type="text"
-      onChange={onSetTodo}
       value={current}
+      onChange={onSetTodo}
       autoFocus
       placeholder="What needs to be done?"
     />
     <input type="submit" value="Add Todo" />
   </form>
 )
+
+const AddTodoForm = ({ onAddTodo }) => {
+  const todo$ = of({ current: "" }).pipe(share())
+  const onSetTodo = handler(
+    pluck("target", "value"),
+    map(current => state => ({ current }))
+  )
+
+  const onClearTodo = from(onAddTodo).pipe(mapTo({ current: "" }))
+
+  return (
+    <Stream
+      source={todo$}
+      handlers={{ onSetTodo, onClearTodo }}
+      onAddTodo={onAddTodo}
+      render={renderAddTodoForm}
+    />
+  )
+}
 
 const Todo = ({ todo, onToggleDone, onDeleteTodo }) => (
   <li
@@ -61,6 +92,13 @@ const url = process.env.DEV
 const Todos = ({ url, ...props }) => {
   const todos$ = ajax(url).pipe(pluck("response"), map(todos => ({ todos })))
 
+  const addTodoAjax = pipe(
+    concatMap(text => ajax.post(`${url}`, { text, done: false }, HEADERS)),
+    pluck("response")
+  )
+
+  const addTodo = map(todo => ({ todos }) => ({ todos: [...todos, todo] }))
+
   const toggleDoneAjax = pipe(
     concatMap(todo =>
       ajax.patch(
@@ -87,6 +125,7 @@ const Todos = ({ url, ...props }) => {
   }))
 
   const handlers = {
+    onAddTodo: handler(addTodoAjax, addTodo),
     onToggleDone: handler(toggleDoneAjax, toggleDone),
     onDeleteTodo: handler(deleteTodoAjax, deleteTodo)
   }
@@ -96,27 +135,17 @@ const Todos = ({ url, ...props }) => {
 
 export default () => (
   <Todos url={url}>
-    {({ todos, current }, handlers) => (
-      <div style={{ padding: "2rem", width: "300px" }}>
-        <ul style={{ padding: "0", listStyleType: "none" }}>
-          {todos.map(todo => <Todo key={todo.id} todo={todo} {...handlers} />)}
-        </ul>
-        {/* <AddTodoForm
-          onAddTodo={onAddTodo}
-          onSetTodo={onSetTodo}
-          current={current}
-        />
-        <ul style={{ padding: "0", listStyleType: "none" }}>
-          {todos.map(todo => (
-            <Todo
-              key={todo.id}
-              todo={todo}
-              onToggleDone={onToggleDone}
-              onDeleteTodo={onDeleteTodo}
-            />
-          ))}
-        </ul> */}
-      </div>
-    )}
+    {({ todos, onAddTodo, onToggleDone, onDeleteTodo }) => {
+      return (
+        <div style={{ padding: "2rem", width: "300px" }}>
+          <AddTodoForm onAddTodo={onAddTodo} />
+          <ul style={{ padding: "0", listStyleType: "none" }}>
+            {todos.map(todo => (
+              <Todo key={todo.id} {...{ todo, onToggleDone, onDeleteTodo }} />
+            ))}
+          </ul>
+        </div>
+      )
+    }}
   </Todos>
 )

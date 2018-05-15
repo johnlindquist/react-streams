@@ -13,7 +13,7 @@ const onChange = handler(
 
 export default () => (
   <Stream source={text$} handlers={{ onChange }}>
-    {({ message }, { onChange }) => (
+    {({ message, onChange }) => (
       <div>
         <input id="input" type="text" onChange={onChange} />
         <div id="message">{message}</div>

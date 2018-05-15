@@ -16,7 +16,7 @@ const handlers = {
 
 export default () => (
   <Count start={4} handlers={handlers}>
-    {({ count }, { onInc, onDec, onReset }) => (
+    {({ count, onInc, onDec, onReset }) => (
       <div>
         <button id="dec" onClick={onDec}>
           -
