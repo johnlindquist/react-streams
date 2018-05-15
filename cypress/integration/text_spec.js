@@ -7,9 +7,9 @@ describe("Text", () => {
     cy.get("#message").contains(/^Hello$/)
   })
 
-  it("should change to 'Hello Friends'", () => {
-    cy.get("#input").type(" Friends")
-    cy.get("#message").contains(/^Hello Friends$/)
+  it("should change to 'Friends'", () => {
+    cy.get("#input").type("Friends")
+    cy.get("#message").should("have.text", "Friends")
   })
 
   it("should delete then type 'Hi'", () => {
@@ -17,6 +17,6 @@ describe("Text", () => {
       .get("#input")
       .clear()
       .type("Hi")
-    cy.get("#message").contains(/^Hi$/)
+    cy.get("#message").should("have.text", "Hi")
   })
 })

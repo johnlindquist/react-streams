@@ -1,6 +1,6 @@
 {
   "name": "react-streams",
-  "version": "10.0.0",
+  "version": "11.0.0",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -80,8 +80,5 @@
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     }
-  },
-  "dependencies": {
-    "rx-handler": "^1.0.1"
   }
 }

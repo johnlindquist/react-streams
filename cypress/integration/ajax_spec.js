@@ -3,7 +3,7 @@ describe("Ajax", () => {
     cy.command("launch", "ajax")
   })
 
-  it("should load and display the first Todo", () => {
-    cy.contains("1. Eat")
+  it("should load and display the third Todo", () => {
+    cy.contains("3. Code")
   })
 })

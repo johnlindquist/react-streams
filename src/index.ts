@@ -1,18 +1,24 @@
 import { Component, ReactNode } from "react"
-import { handler } from "rx-handler"
-import { merge } from "rxjs"
-import { map, scan, tap } from "rxjs/operators"
+import { Subject, merge, observable, Subscription, Observable } from "rxjs"
+import {
+  scan,
+  share,
+  distinctUntilChanged,
+  switchMap,
+  map,
+  tap
+} from "rxjs/operators"
 
 class Stream extends Component<
   {
+    source: Observable<any>
     children?: (props: any) => ReactNode
     render?: (props: any) => ReactNode
   },
   any
 > {
-  subscription
-  cDM = handler()
-  cDU = handler()
+  componentDidMountPlan = plan()
+  componentDidUpdatePlan = plan()
 
   __renderFn = (this.props.children
     ? this.props.children
@@ -20,27 +26,32 @@ class Stream extends Component<
       ? this.props.render
       : value => value) as Function
 
-  componentDidMount() {
-    console.log(`CDM`)
+  subscription: Subscription = merge(
+    this.componentDidMountPlan,
+    this.componentDidUpdatePlan
+  )
+    .pipe(
+      distinctUntilChanged(),
+      switchMap(p => {
+        const { source, ...props } = p as { source: Observable<any> }
 
-    const { source, ...props } = this.props
-    this.mountedProps = props
-    this.subscription = source.subscribe(state => {
-      console.log(`setState`, state)
+        return source.pipe(map(state => ({ ...state, ...props })))
+      })
+    )
+    .subscribe(state => {
       this.setState(() => state)
     })
+
+  componentDidMount() {
+    this.componentDidMountPlan(this.props)
   }
 
   render() {
-    console.log(`render`, { ...this.state, ...this.mountedProps })
-    return this.subscription
-      ? this.__renderFn({ ...this.state, ...this.mountedProps })
-      : null
+    return this.state ? this.__renderFn({ ...this.state }) : null
   }
 
   componentDidUpdate() {
-    console.log(`CDU`)
-    // this.cDU()
+    this.componentDidUpdatePlan(this.props)
   }
 
   componentWillUnmount() {
@@ -48,12 +59,20 @@ class Stream extends Component<
   }
 }
 
-const converge = (...streams) =>
+const converge: any = (...streams) =>
   merge(...streams).pipe(
     scan((state = {}, value) => {
       const patch = value instanceof Function ? value(state) : value
       return { ...state, ...patch }
     })
   )
+function plan(...operators) {
+  const subject = new Subject()
+  const source = subject.pipe(...operators, share())
 
-export { handler, SourceType, Stream, converge }
+  const next = (...args) => subject.next(...args)
+  next[observable] = () => source
+  return next
+}
+
+export { plan, Stream, converge }

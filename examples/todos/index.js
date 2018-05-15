@@ -1,25 +1,30 @@
 import React from "react"
-import { Stream, handler } from "react-streams"
-import { from, of, pipe, merge } from "rxjs"
+import { Stream, converge, plan } from "react-streams"
+import { from, pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
-import { concatMap, map, mapTo, pluck, scan } from "rxjs/operators"
+import {
+  concatMap,
+  map,
+  mapTo,
+  pluck,
+  startWith,
+  tap,
+  withLatestFrom
+} from "rxjs/operators"
 
 const HEADERS = { "Content-Type": "application/json" }
 
-const renderAddTodoForm = ({ current, onSetTodo, onAddTodo }) => (
+const renderAddTodoForm = ({ current, onChange, onSubmit }) => (
   <form
     style={{ width: "100%", height: "2rem", display: "flex" }}
-    onSubmit={e => {
-      e.preventDefault()
-      onAddTodo(current)
-    }}
+    onSubmit={onSubmit}
   >
     <input
       aria-label="Add Todo"
       style={{ flex: "1" }}
       type="text"
       value={current}
-      onChange={onSetTodo}
+      onChange={onChange}
       autoFocus
       placeholder="What needs to be done?"
     />
@@ -28,24 +33,26 @@ const renderAddTodoForm = ({ current, onSetTodo, onAddTodo }) => (
 )
 
 const AddTodoForm = ({ onAddTodo }) => {
-  const todo$ = of({ current: "" })
-  const onSetTodo = handler(
-    pluck("target", "value"),
-    map(current => state => ({ current }))
+  const onChange = plan(pluck("target", "value"))
+  const current$ = from(onChange).pipe(
+    startWith(""),
+    map(current => ({ current }))
   )
+
+  const onSubmit = plan(
+    tap(e => e.preventDefault()),
+    withLatestFrom(onChange, (_, text) => text)
+  )
+  from(onSubmit).subscribe(onAddTodo)
 
   const clearAfterAdd = from(onAddTodo).pipe(mapTo({ current: "" }))
 
-  const state$ = merge(todo$, onSetTodo, clearAfterAdd).pipe(
-    scan((state = {}, value) => {
-      const patch = value instanceof Function ? value(state) : value
-      return { ...state, ...patch }
-    })
-  )
+  const state$ = converge(current$, clearAfterAdd)
+
   return (
     <Stream
       source={state$}
-      {...{ onSetTodo, onAddTodo }}
+      {...{ onChange, onSubmit }}
       render={renderAddTodoForm}
     />
   )
@@ -120,16 +127,11 @@ const Todos = ({ url, ...props }) => {
     todos: todos.filter(t => t.id !== todo.id)
   }))
 
-  const onAddTodo = handler(addTodoAjax, addTodo)
-  const onToggleDone = handler(toggleDoneAjax, toggleDone)
-  const onDeleteTodo = handler(deleteTodoAjax, deleteTodo)
+  const onAddTodo = plan(addTodoAjax, addTodo)
+  const onToggleDone = plan(toggleDoneAjax, toggleDone)
+  const onDeleteTodo = plan(deleteTodoAjax, deleteTodo)
 
-  const state$ = merge(todos$, onAddTodo, onToggleDone, onDeleteTodo).pipe(
-    scan((state = {}, value) => {
-      const patch = value instanceof Function ? value(state) : value
-      return { ...state, ...patch }
-    })
-  )
+  const state$ = converge(todos$, onAddTodo, onToggleDone, onDeleteTodo)
 
   return (
     <Stream

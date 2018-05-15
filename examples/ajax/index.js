@@ -17,7 +17,7 @@ const Todo = ({ url, id, ...props }) => {
 }
 
 export default () => (
-  <Todo url={url} id={1}>
+  <Todo url={url} id={3}>
     {({ text, id }) => (
       <div>
         {id}. {text}

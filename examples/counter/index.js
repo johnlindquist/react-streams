@@ -1,13 +1,13 @@
 import React from "react"
-import { Stream, handler } from "react-streams"
+import { Stream, plan } from "react-streams"
 import { merge, of } from "rxjs"
 import { map, scan, tap } from "rxjs/operators"
 
 const Count = ({ start, ...props }) => {
   const count$ = of({ count: start })
-  const onInc = handler(map(() => state => ({ count: state.count + 2 })))
-  const onDec = handler(map(() => state => ({ count: state.count - 2 })))
-  const onReset = handler(map(() => state => ({ count: 4 })))
+  const onInc = plan(map(() => state => ({ count: state.count + 2 })))
+  const onDec = plan(map(() => state => ({ count: state.count - 2 })))
+  const onReset = plan(map(() => state => ({ count: 4 })))
 
   const state$ = merge(count$, onInc, onDec, onReset).pipe(
     scan((state = {}, updater) => updater(state)),

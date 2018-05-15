@@ -1,7 +1,11 @@
 const path = require("path")
 
 module.exports = {
+  progress: false,
   entry: "index.js",
+  html: {
+    template: "../cypress/index.ejs"
+  },
 
   devServer: {
     proxy: {
@@ -12,16 +16,17 @@ module.exports = {
     }
   },
   configureWebpack(config, context) {
+    debugger
     config.resolve.alias = {
-      "react-streams": "../../"
+      "react-streams": "../../dist/index.js"
     }
 
     config.module.rules.push({
       test: /\.md?$/,
-      exclude: [/\.ejs$/],
       use: [
         {
           loader: "babel-loader",
+
           options: {
             presets: [
               "env",

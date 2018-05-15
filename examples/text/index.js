@@ -1,11 +1,11 @@
 import React from "react"
-import { Stream, handler } from "react-streams"
+import { Stream, plan } from "react-streams"
 import { merge, of } from "rxjs"
 import { delay, map, pluck, scan } from "rxjs/operators"
 
 const text$ = of({ message: "Hello" })
 
-const onChange = handler(
+const onChange = plan(
   pluck("target", "value"),
   delay(250),
   map(message => ({ message }))

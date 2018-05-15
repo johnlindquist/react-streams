@@ -10,11 +10,9 @@ const examples = [
   "ajax",
   "text",
   "counter",
+  "converge",
   "todos",
-  "state",
-  "store",
-  "streamState",
-  "streamToComponent",
+  "context",
   "combineState"
 ]
 
