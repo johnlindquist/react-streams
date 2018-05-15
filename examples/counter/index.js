@@ -1,31 +1,37 @@
 import React from "react"
 import { Stream, handler } from "react-streams"
-import { of } from "rxjs"
-import { map, mapTo } from "rxjs/operators"
+import { merge, of } from "rxjs"
+import { map, scan, tap } from "rxjs/operators"
 
 const Count = ({ start, ...props }) => {
   const count$ = of({ count: start })
-  return <Stream source={count$} {...props} />
-}
+  const onInc = handler(map(() => state => ({ count: state.count + 2 })))
+  const onDec = handler(map(() => state => ({ count: state.count - 2 })))
+  const onReset = handler(map(() => state => ({ count: 4 })))
 
-const handlers = {
-  onInc: handler(map(() => state => ({ count: state.count + 2 }))),
-  onDec: handler(map(() => state => ({ count: state.count - 2 }))),
-  onReset: handler(mapTo({ count: 4 }))
+  const state$ = merge(count$, onInc, onDec, onReset).pipe(
+    scan((state = {}, updater) => updater(state)),
+    tap(state => console.log(`state`, state))
+  )
+  return <Stream source={state$} {...{ onInc, onDec, onReset, ...props }} />
 }
 
 export default () => (
-  <Count start={4} merge={handlers}>
+  <Count start={4}>
     {({ count, onInc, onDec, onReset }) => (
       <div>
-        <button id="dec" onClick={onDec}>
+        <button id="dec" onClick={onDec} aria-label="decrement">
           -
         </button>
-        <span id="count">{count}</span>
-        <button id="inc" onClick={onInc}>
+        <span id="count" aria-label="count">
+          {count}
+        </span>
+        <button id="inc" onClick={onInc} aria-label="increment">
           +
         </button>
-        <button onClick={onReset}>Reset</button>
+        <button onClick={onReset} aria-label="reset">
+          Reset
+        </button>
       </div>
     )}
   </Count>

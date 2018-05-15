@@ -3,24 +3,6 @@ import { handler } from "rx-handler"
 import { merge } from "rxjs"
 import { map, scan, tap } from "rxjs/operators"
 
-const config = (source, m = {}) => {
-  console.log(`
-  ---config---
-  `)
-  const state$ = source.pipe(map(state => state))
-  return merge(state$, ...Object.values(m)).pipe(
-    tap(v => console.log(`merge`, v)),
-    scan((state, fnOrObj) => {
-      if (!state) return fnOrObj()
-      if (fnOrObj instanceof Function) {
-        return { ...state, ...fnOrObj(state) }
-      } else {
-        return { ...state, ...fnOrObj }
-      }
-    })
-  )
-}
-
 class Stream extends Component<
   {
     children?: (props: any) => ReactNode
@@ -29,7 +11,7 @@ class Stream extends Component<
   any
 > {
   subscription
-  merge
+  cDM = handler()
   cDU = handler()
 
   __renderFn = (this.props.children
@@ -40,25 +22,19 @@ class Stream extends Component<
 
   componentDidMount() {
     console.log(`CDM`)
-    this.merge = this.props.merge
 
-    this.subscription = config(this.props.source, this.props.merge).subscribe(
-      state => {
-        console.log(`setState`, state)
-        this.setState(() => state)
-      }
-    )
+    const { source, ...props } = this.props
+    this.mountedProps = props
+    this.subscription = source.subscribe(state => {
+      console.log(`setState`, state)
+      this.setState(() => state)
+    })
   }
 
-  // shouldComponentUpdate(nextProps) {
-  //   return this.props != nextProps
-  // }
-
   render() {
-    const { source, merge, ...props } = this.props
-    console.log(`render`, { source, merge, props })
-    return this.subscription && this.state
-      ? this.__renderFn({ ...this.state, ...this.merge, ...props })
+    console.log(`render`, { ...this.state, ...this.mountedProps })
+    return this.subscription
+      ? this.__renderFn({ ...this.state, ...this.mountedProps })
       : null
   }
 
@@ -72,4 +48,12 @@ class Stream extends Component<
   }
 }
 
-export { handler, SourceType, Stream, config }
+const converge = (...streams) =>
+  merge(...streams).pipe(
+    scan((state = {}, value) => {
+      const patch = value instanceof Function ? value(state) : value
+      return { ...state, ...patch }
+    })
+  )
+
+export { handler, SourceType, Stream, converge }

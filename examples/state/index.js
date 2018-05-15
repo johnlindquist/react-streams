@@ -1,5 +1,5 @@
 import React from "react"
-import { Stream, handler, config } from "react-streams"
+import { Stream, handler, converge } from "react-streams"
 import { of } from "rxjs"
 import { mapTo, share } from "rxjs/operators"
 
@@ -7,10 +7,7 @@ const message$ = of({ message: "Hello" })
 const bye = handler(mapTo({ message: "Bye" }))
 const yo = handler(mapTo({ message: "yo" }))
 
-const state$ = config(message$, {
-  bye,
-  yo
-})
+const state$ = converge(message$, bye, yo)
 
 export default () => (
   <div>

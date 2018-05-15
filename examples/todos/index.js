@@ -1,8 +1,8 @@
 import React from "react"
 import { Stream, handler } from "react-streams"
-import { from, of, pipe } from "rxjs"
+import { from, of, pipe, merge } from "rxjs"
 import { ajax } from "rxjs/ajax"
-import { concatMap, map, mapTo, pluck } from "rxjs/operators"
+import { concatMap, map, mapTo, pluck, scan } from "rxjs/operators"
 
 const HEADERS = { "Content-Type": "application/json" }
 
@@ -36,11 +36,16 @@ const AddTodoForm = ({ onAddTodo }) => {
 
   const clearAfterAdd = from(onAddTodo).pipe(mapTo({ current: "" }))
 
+  const state$ = merge(todo$, onSetTodo, clearAfterAdd).pipe(
+    scan((state = {}, value) => {
+      const patch = value instanceof Function ? value(state) : value
+      return { ...state, ...patch }
+    })
+  )
   return (
     <Stream
-      source={todo$}
-      merge={{ onSetTodo, clearAfterAdd }}
-      onAddTodo={onAddTodo}
+      source={state$}
+      {...{ onSetTodo, onAddTodo }}
       render={renderAddTodoForm}
     />
   )
@@ -55,7 +60,7 @@ const Todo = ({ todo, onToggleDone, onDeleteTodo }) => (
     <span
       style={{
         flex: 1,
-        textDecoration: todo.done ? "line-through" : null
+        textDecoration: todo.done ? "line-through wavy" : null
       }}
     >
       {todo.text}
@@ -115,13 +120,23 @@ const Todos = ({ url, ...props }) => {
     todos: todos.filter(t => t.id !== todo.id)
   }))
 
-  const handlers = {
-    onAddTodo: handler(addTodoAjax, addTodo),
-    onToggleDone: handler(toggleDoneAjax, toggleDone),
-    onDeleteTodo: handler(deleteTodoAjax, deleteTodo)
-  }
+  const onAddTodo = handler(addTodoAjax, addTodo)
+  const onToggleDone = handler(toggleDoneAjax, toggleDone)
+  const onDeleteTodo = handler(deleteTodoAjax, deleteTodo)
 
-  return <Stream source={todos$} merge={handlers} {...props} />
+  const state$ = merge(todos$, onAddTodo, onToggleDone, onDeleteTodo).pipe(
+    scan((state = {}, value) => {
+      const patch = value instanceof Function ? value(state) : value
+      return { ...state, ...patch }
+    })
+  )
+
+  return (
+    <Stream
+      source={state$}
+      {...{ ...props, onAddTodo, onToggleDone, onDeleteTodo }}
+    />
+  )
 }
 
 export default () => (

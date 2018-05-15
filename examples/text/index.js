@@ -1,7 +1,7 @@
 import React from "react"
 import { Stream, handler } from "react-streams"
-import { delay, map, tap, pluck } from "rxjs/operators"
-import { of } from "rxjs"
+import { merge, of } from "rxjs"
+import { delay, map, pluck, scan } from "rxjs/operators"
 
 const text$ = of({ message: "Hello" })
 
@@ -11,8 +11,14 @@ const onChange = handler(
   map(message => ({ message }))
 )
 
+const state$ = merge(text$, onChange).pipe(
+  scan((state = {}, patch) => {
+    return { ...state, ...patch }
+  })
+)
+
 export default () => (
-  <Stream source={text$} merge={{ onChange }}>
+  <Stream source={state$} {...{ onChange }}>
     {({ message, onChange }) => (
       <div>
         <input id="input" type="text" onChange={onChange} />
