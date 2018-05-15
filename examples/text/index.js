@@ -12,7 +12,7 @@ const onChange = handler(
 )
 
 export default () => (
-  <Stream source={text$} handlers={{ onChange }}>
+  <Stream source={text$} merge={{ onChange }}>
     {({ message, onChange }) => (
       <div>
         <input id="input" type="text" onChange={onChange} />

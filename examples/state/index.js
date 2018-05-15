@@ -1,11 +1,35 @@
 import React from "react"
-import { componentFromStream } from "react-streams"
+import { Stream, handler, config } from "react-streams"
 import { of } from "rxjs"
+import { mapTo, share } from "rxjs/operators"
 
-const state = { message: "Hello" }
-const state$ = of(state)
-const StateContainer = componentFromStream(state$)
+const message$ = of({ message: "Hello" })
+const bye = handler(mapTo({ message: "Bye" }))
+const yo = handler(mapTo({ message: "yo" }))
+
+const state$ = config(message$, {
+  bye,
+  yo
+})
 
 export default () => (
-  <StateContainer>{({ message }) => <div>{message}</div>}</StateContainer>
+  <div>
+    <h1>Hi</h1>
+    <Stream source={state$}>
+      {({ message }) => (
+        <div>
+          <div>{message}</div>
+          <button onClick={bye}>Bye</button>
+        </div>
+      )}
+    </Stream>
+    <Stream source={state$}>
+      {({ message }) => (
+        <div>
+          <div>{message}</div>
+          <button onClick={yo}>Yo</button>
+        </div>
+      )}
+    </Stream>
+  </div>
 )

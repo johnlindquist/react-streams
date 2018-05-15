@@ -1,38 +1,16 @@
-import { Component, ReactNode, ComponentClass, StatelessComponent } from "react"
-import {
-  MonoTypeOperatorFunction,
-  ObservableInput,
-  OperatorFunction,
-  Subject,
-  combineLatest,
-  concat,
-  from,
-  merge,
-  observable,
-  Observable,
-  of,
-  pipe
-} from "rxjs"
-import {
-  distinctUntilChanged,
-  map,
-  pluck,
-  scan,
-  share,
-  startWith,
-  switchMap,
-  switchMapTo,
-  tap,
-  mapTo
-} from "rxjs/operators"
+import { Component, ReactNode } from "react"
+import { handler } from "rx-handler"
+import { merge } from "rxjs"
+import { map, scan, tap } from "rxjs/operators"
 
-import { handler, SourceType } from "rx-handler"
-
-const config = ({ source, handlers = {} }) => {
+const config = (source, m = {}) => {
+  console.log(`
+  ---config---
+  `)
   const state$ = source.pipe(map(state => state))
-  return merge(state$, ...Object.values(handlers)).pipe(
+  return merge(state$, ...Object.values(m)).pipe(
+    tap(v => console.log(`merge`, v)),
     scan((state, fnOrObj) => {
-      console.log({ state, fnOrObj })
       if (!state) return fnOrObj()
       if (fnOrObj instanceof Function) {
         return { ...state, ...fnOrObj(state) }
@@ -51,7 +29,7 @@ class Stream extends Component<
   any
 > {
   subscription
-  handlers
+  merge
   cDU = handler()
 
   __renderFn = (this.props.children
@@ -61,22 +39,32 @@ class Stream extends Component<
       : value => value) as Function
 
   componentDidMount() {
-    this.handlers = this.props.handlers
+    console.log(`CDM`)
+    this.merge = this.props.merge
 
-    this.subscription = config(this.props).subscribe(state =>
-      this.setState(() => state)
+    this.subscription = config(this.props.source, this.props.merge).subscribe(
+      state => {
+        console.log(`setState`, state)
+        this.setState(() => state)
+      }
     )
   }
 
+  // shouldComponentUpdate(nextProps) {
+  //   return this.props != nextProps
+  // }
+
   render() {
-    const { source, handlers, ...props } = this.props
+    const { source, merge, ...props } = this.props
+    console.log(`render`, { source, merge, props })
     return this.subscription && this.state
-      ? this.__renderFn({ ...this.state, ...this.handlers, ...props })
+      ? this.__renderFn({ ...this.state, ...this.merge, ...props })
       : null
   }
 
   componentDidUpdate() {
-    this.cDU()
+    console.log(`CDU`)
+    // this.cDU()
   }
 
   componentWillUnmount() {

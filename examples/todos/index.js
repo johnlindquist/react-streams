@@ -1,17 +1,8 @@
 import React from "react"
 import { Stream, handler } from "react-streams"
-import {
-  concatMap,
-  map,
-  mapTo,
-  pluck,
-  switchMap,
-  share,
-  tap,
-  withLatestFrom
-} from "rxjs/operators"
-import { concat, from, of, pipe } from "rxjs"
+import { from, of, pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
+import { concatMap, map, mapTo, pluck } from "rxjs/operators"
 
 const HEADERS = { "Content-Type": "application/json" }
 
@@ -37,18 +28,18 @@ const renderAddTodoForm = ({ current, onSetTodo, onAddTodo }) => (
 )
 
 const AddTodoForm = ({ onAddTodo }) => {
-  const todo$ = of({ current: "" }).pipe(share())
+  const todo$ = of({ current: "" })
   const onSetTodo = handler(
     pluck("target", "value"),
     map(current => state => ({ current }))
   )
 
-  const onClearTodo = from(onAddTodo).pipe(mapTo({ current: "" }))
+  const clearAfterAdd = from(onAddTodo).pipe(mapTo({ current: "" }))
 
   return (
     <Stream
       source={todo$}
-      handlers={{ onSetTodo, onClearTodo }}
+      merge={{ onSetTodo, clearAfterAdd }}
       onAddTodo={onAddTodo}
       render={renderAddTodoForm}
     />
@@ -130,7 +121,7 @@ const Todos = ({ url, ...props }) => {
     onDeleteTodo: handler(deleteTodoAjax, deleteTodo)
   }
 
-  return <Stream source={todos$} handlers={handlers} {...props} />
+  return <Stream source={todos$} merge={handlers} {...props} />
 }
 
 export default () => (
