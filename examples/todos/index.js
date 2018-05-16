@@ -1,6 +1,6 @@
 import React from "react"
 import { Stream, converge, plan } from "react-streams"
-import { from, pipe } from "rxjs"
+import { from, pipe, of } from "rxjs"
 import { ajax } from "rxjs/ajax"
 import {
   concatMap,
@@ -93,7 +93,7 @@ const url = process.env.DEV
   : "https://dandelion-bonsai.glitch.me/todos"
 
 const Todos = ({ url, ...props }) => {
-  const todos$ = ajax(url).pipe(pluck("response"), map(todos => ({ todos })))
+  const getTodos$ = ajax(url).pipe(pluck("response"), map(todos => ({ todos })))
 
   const addTodoAjax = pipe(
     concatMap(text => ajax.post(`${url}`, { text, done: false }, HEADERS)),
@@ -131,7 +131,13 @@ const Todos = ({ url, ...props }) => {
   const onToggleDone = plan(toggleDoneAjax, toggleDone)
   const onDeleteTodo = plan(deleteTodoAjax, deleteTodo)
 
-  const state$ = converge(todos$, onAddTodo, onToggleDone, onDeleteTodo)
+  const state$ = converge(
+    of({ todos: [] }),
+    getTodos$,
+    onAddTodo,
+    onToggleDone,
+    onDeleteTodo
+  )
 
   return (
     <Stream

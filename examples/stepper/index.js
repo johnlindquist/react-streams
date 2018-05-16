@@ -1,17 +1,7 @@
 import React from "react"
-import { render } from "react-dom"
-import { Stream, plan, converge } from "react-streams"
-import { of, from } from "rxjs"
-import {
-  map,
-  mergeScan,
-  first,
-  tap,
-  take,
-  share,
-  distinctUntilChanged,
-  distinctUntilKeyChanged
-} from "rxjs/operators"
+import { Stream, converge, plan } from "react-streams"
+import { of, merge, pipe } from "rxjs"
+import { map, tap, withLatestFrom, combineLatest, scan } from "rxjs/operators"
 
 const StepperControl = ({ min, max, step, ...props }) => {
   const start$ = of({ min, max, step, value: 0 })
@@ -20,20 +10,17 @@ const StepperControl = ({ min, max, step, ...props }) => {
   const onUpdateMax = plan(map(e => ({ max: Number(e.target.value) })))
   const onUpdateStep = plan(map(e => ({ step: Number(e.target.value) })))
 
-  const stepper$ = converge(start$, onUpdateMin, onUpdateMax, onUpdateStep)
+  const control$ = converge(start$, onUpdateMin, onUpdateMax, onUpdateStep)
 
   return (
     <Stream
-      source={stepper$}
+      source={control$}
       {...{ onUpdateMin, onUpdateMax, onUpdateStep, ...props }}
     />
   )
 }
 
-const start = plan(distinctUntilKeyChanged("value"))
-from(start).subscribe(v => console.log(`start`, v))
-
-const Stepper = ({ defaultValue, step, min, max, ...props }) => {
+const Stepper = ({ min, max, step, defaultValue, ...props }) => {
   const onDec = plan(
     map(() => ({ value }) => ({
       value: value - step < min ? value : value - step
@@ -51,18 +38,38 @@ const Stepper = ({ defaultValue, step, min, max, ...props }) => {
 
   const onBlur = plan(
     map(e => Number(e.target.value)),
-    map(value => () => ({ value: Math.min(max, Math.max(min, value)) }))
+    map(({ value }) => () => ({
+      value: Math.min(max, Math.max(min, value))
+    }))
   )
 
-  const value$ = converge(start, onDec, onInc, onChange, onBlur)
-  setTimeout(() => {
-    start({ value: defaultValue })
-  }, 100)
+  const value$ = converge(
+    of({ value: defaultValue }),
+    onDec,
+    onInc,
+    onChange,
+    onBlur
+  )
 
+  const changePipe = pipe(
+    scan((prev, next) => {
+      console.table({ prev, next })
+      if (
+        prev.min != next.min ||
+        prev.max != next.max ||
+        prev.step != next.step
+      ) {
+        console.log(`min or max or step changed`)
+        return { ...next, value: prev.value }
+      } else {
+        return next
+      }
+    })
+  )
   return (
     <Stream
       source={value$}
-      {...{ onDec, onInc, onChange, onBlur, step, min, max, ...props }}
+      {...{ ...props, min, max, step, onDec, onInc, onChange, onBlur }}
     />
   )
 }
