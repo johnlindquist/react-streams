@@ -13,7 +13,8 @@ const examples = [
   "converge",
   "todos",
   "context",
-  "combineState"
+  "combineState",
+  "stepper"
 ]
 
 const ExampleRoute = props => (
