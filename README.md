@@ -11,7 +11,7 @@ npm i react-streams rxjs
 `react-streams` provides three features:
 
 1.  `<Stream source={}/>` - Subscribes to a `source` prop and renders into `props.children`
-2.  `plan(...operators)` - Creates a function your `merge` with `source` and invoke to update `source`
+2.  `plan(...operators)` - Creates a function that can `merge` with `source`. Invoke the function to update `source`
 3.  `converge(source$, plan1, plan2, plan3, ...)` - Creates `sources` using the `merge` then `scan` pattern
 
 ## `<Stream>` from a `source` with Operators
