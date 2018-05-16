@@ -10,10 +10,9 @@ npm i react-streams rxjs
 
 `react-streams` provides three features:
 
-1. `<Stream source={}/>` - Subscribes to a `source` prop and renders into `props.children`
-2. `plan(...operators)` - Creates a function your `merge` with `source` and invoke to update `source`
-3. `converge(source$, plan1, plan2, plan3, ...)` - Creates `sources` using the `merge` then `scan` pattern
-
+1.  `<Stream source={}/>` - Subscribes to a `source` prop and renders into `props.children`
+2.  `plan(...operators)` - Creates a function your `merge` with `source` and invoke to update `source`
+3.  `converge(source$, plan1, plan2, plan3, ...)` - Creates `sources` using the `merge` then `scan` pattern
 
 ## `<Stream>` from a `source` with Operators
 
@@ -36,9 +35,7 @@ const source$ = of({ message: "Hello" }).pipe(
 )
 
 export default () => (
-  <Stream source={source$}>
-    {({ message }) => <div>{message}</div>}
-  </Stream>
+  <Stream source={source$}>{({ message }) => <div>{message}</div>}</Stream>
 )
 ```
 
@@ -79,13 +76,12 @@ export default () => (
 )
 ```
 
-
 ## Make a `Plan`
 
 A `plan` creates a function you invoke to push values into the `<Stream>`.
 Exactly like the "RxJS" `pipe`, a `plan` will group together operators to work on
 values in a sequence. Notice how `onChange` grabs the `target.value`, `delay`s 250 ms,
- and then pushes a message Object.
+and then pushes a message Object.
 
 `merge` together your `source` and your `plan`s, then `scan` them together.
 (We'll talk more about this pattern in the `converge` section.)
@@ -133,7 +129,6 @@ then invoke them when needed.
 The `merge` then `scan` pattern will wire them all together to keep your state
 in sync.
 
-
 ```js
 import React from "react"
 import { Stream, plan } from "react-streams"
@@ -172,12 +167,11 @@ export default () => (
     )}
   </Count>
 )
-
 ```
 
 ## Converge
 
-`converge` is a utility around the `merge` then `scan` pattern from the 
+`converge` is a utility around the `merge` then `scan` pattern from the
 last two demos. With `converge`, your `plans` can return either a function or an
 object to update/patch the state as shown below.
 
@@ -222,14 +216,14 @@ export default () => (
 
 ## Todos App (with Ajax)
 
-The `Todos` app below uses `plans` that talk to a backend. Each "add", "patch", 
+The `Todos` app below uses `plans` that talk to a backend. Each "add", "patch",
 and "delete" operation does a round-trip before coming back to update the UI.
 
 The `<AddTodoForm>` demonstrates how `plans` can talk to each other. `onSubmit`
-can trigger an `onAddTodo` and `clearAfterAdd$` can listen for `onAddTodo` to 
+can trigger an `onAddTodo` and `clearAfterAdd$` can listen for `onAddTodo` to
 push the next value.
 
-There are quite a few operators working together in `pipes` inside `plans`. 
+There are quite a few operators working together in `pipes` inside `plans`.
 `react-streams` strongly encourages creating reusable `pipes` of operators
 
 ```js
@@ -397,7 +391,7 @@ export default () => (
 ## Use `Context` for Global Streams
 
 Pass `source`s globally using React's `Context` api. As long as your `source` and
-`plans` converge, you can then pass them anywhere in your app to display or 
+`plans` converge, you can then pass them anywhere in your app to display or
 update values.
 
 ```js
@@ -518,5 +512,4 @@ export default () => (
     <NameAndCountStream render={NameAndCountComponent} />
   </div>
 )
-
 ```
