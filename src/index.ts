@@ -1,23 +1,26 @@
 import { Component, ReactNode } from "react"
 import {
+  Observable,
   Subject,
+  Subscription,
+  concat,
   merge,
   observable,
-  Subscription,
-  Observable,
-  of,
-  from
+  of
 } from "rxjs"
 import {
+  distinctUntilChanged,
+  map,
   scan,
   share,
-  distinctUntilChanged,
-  switchMap,
-  map,
-  tap,
-  skip,
-  first
+  switchMap
 } from "rxjs/operators"
+
+const defaultReceiveProps = switchMap(p => {
+  const { source, ...props } = p as { source: Observable<any> }
+
+  return source.pipe(map(state => ({ ...props, ...state })))
+})
 
 class Stream extends Component<
   {
@@ -28,7 +31,7 @@ class Stream extends Component<
   },
   any
 > {
-  newProps = plan()
+  updateProps = plan()
 
   __renderFn = (this.props.children
     ? this.props.children
@@ -42,27 +45,17 @@ class Stream extends Component<
   constructor(props) {
     super(props)
 
-    const props$ = merge(of(props), this.newProps)
+    const props$ = concat(of(props), this.updateProps)
 
     const state$ = props$.pipe(
       distinctUntilChanged(),
-      switchMap(p => {
-        console.log(`
-          SWITCH
-        `)
-        const { source, ...props } = p as { source: Observable<any> }
-
-        return source.pipe(map(state => ({ ...props, ...state })))
-      })
+      props.receiveProps ? props.receiveProps : defaultReceiveProps
     )
 
     this.subscription = state$.subscribe(state => {
-      // this.setState(() => state)
       if (this._isMounted) {
-        // console.log(`isMounted`, state, this._isMounted, this.state, this)
         this.setState(() => state)
       } else {
-        // console.log(`ctor`, state, this._isMounted, this.state, this)
         this.state = state
       }
     })
@@ -73,16 +66,11 @@ class Stream extends Component<
   }
 
   render() {
-    if (this._isMounted) {
-      // console.log(`render isMounted`, this.state, this)
-    } else {
-      // console.log(`render`, this.state, this)
-    }
     return this.__renderFn({ ...this.state })
   }
 
   componentDidUpdate() {
-    this.newProps(this.props)
+    this.updateProps(this.props)
   }
 
   componentWillUnmount() {
