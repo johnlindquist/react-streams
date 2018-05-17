@@ -5,16 +5,18 @@ npm i react-streams rxjs
 ```
 
 <p align="center">
+
 <img src="https://rawgit.com/johnlindquist/react-streams/master/logo.svg" alt="react-streams logo" width="300px;"/>
 </p>
 
 ## Play with Examples at [codesandbox.io](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%2Fhello%2Findex.js)
 
-`react-streams` provides three features:
+`react-streams` provides four features:
 
 1.  `<Stream source={}/>` - Subscribes to a `source` prop and renders into `props.children`
 2.  `plan(...operators)` - Creates a function that can `merge` with `source`. Invoke the function to update `source`
 3.  `converge(source$, plan1, plan2, plan3, ...)` - Creates `sources` using the `merge` then `scan` pattern
+4.  `<Stream receiveProps={}>` - Handles **_Advanced scenarios_** where you need a custom strategy to adapt to props changing (e.g., filtering props, combining prev/next props, etc). Using this will overwrite `source` because the `receiveProps` operator must return its own stream.
 
 ## `<Stream>` from a `source` with Operators
 
