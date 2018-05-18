@@ -32,7 +32,7 @@ const addTodoTransform = switchMap(({ onAddTodo, ...props }) => {
   const onSubmit = plan(submit)
 
   return of({ ...props, current: "" }).pipe(
-    converge({ onSubmit, onChange }, { clearAfterAdd$ })
+    converge({ onSubmit, onChange }, clearAfterAdd$)
   )
 })
 

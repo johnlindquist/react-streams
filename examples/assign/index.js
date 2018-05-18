@@ -1,25 +1,29 @@
 import React, { createContext } from "react"
-import { Stream, converge, plan } from "react-streams"
-import { of } from "rxjs"
+import { Subscribe, converge, plan, assign } from "react-streams"
+import { merge, of } from "rxjs"
 import { map, mapTo, pluck } from "rxjs/operators"
 
 const name$ = of({ name: "John" })
 const onUpdate = plan(pluck("target", "value"), map(name => () => ({ name })))
 
-const nameState$ = converge(name$, onUpdate)
+const nameState$ = name$.pipe(converge({ onUpdate }))
 
 const count$ = of({ count: 5 })
 const onInc = plan(mapTo(({ count }) => ({ count: count + 1 })))
 const onDec = plan(mapTo(({ count }) => ({ count: count - 1 })))
 
-const countState$ = converge(count$, onInc, onDec)
+const countState$ = count$.pipe(converge({ onInc, onDec }))
 
-const source = converge(nameState$, countState$)
+const source = assign(nameState$, countState$)
 
-const { Consumer } = createContext({ source, onUpdate, onInc, onDec })
+const { Consumer } = createContext({ source })
 
 const NameAndCountStream = props => (
-  <Consumer children={context => <Stream {...{ ...context, ...props }} />} />
+  <Consumer
+    children={context => (
+      <Subscribe source={context.source} render={props.render} />
+    )}
+  />
 )
 
 const NameOnlyComponent = ({ name, onUpdate }) => (

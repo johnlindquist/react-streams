@@ -1,7 +1,6 @@
 import React from "react"
-import { stream, plan, converge } from "react-streams"
-import { merge, of } from "rxjs"
-import { map, scan, switchMap } from "rxjs/operators"
+import { converge, plan, stream } from "react-streams"
+import { map } from "rxjs/operators"
 
 const onInc = plan(map(() => state => ({ count: state.count + 2 })))
 const onDec = plan(map(() => state => ({ count: state.count - 2 })))

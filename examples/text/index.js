@@ -1,7 +1,7 @@
 import React from "react"
-import { stream, plan, converge } from "react-streams"
-import { merge, of, pipe } from "rxjs"
-import { delay, map, pluck, scan, switchMap, mapTo, tap } from "rxjs/operators"
+import { converge, plan, stream } from "react-streams"
+import { pipe } from "rxjs"
+import { delay, map, pluck } from "rxjs/operators"
 
 const getValueThenDelay = pipe(
   pluck("target", "value"),

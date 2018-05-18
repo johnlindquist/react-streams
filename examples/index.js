@@ -1,19 +1,27 @@
 import React, { Fragment } from "react"
 import { render } from "react-dom"
 import Loadable from "react-loadable"
-import { BrowserRouter as Router, Link, Route, Switch, Redirect } from "react-router-dom"
+import {
+  BrowserRouter as Router,
+  Link,
+  Route,
+  Switch,
+  Redirect
+} from "react-router-dom"
 import "./index.css"
 
 const examples = [
   "hello",
   "basic",
+  "pipe",
   "ajax",
   "text",
-  "counter",
   "converge",
+  "counter",
   "todos",
+  "subscribe",
   "context",
-  "combineState",
+  "assign",
   "stepper"
 ]
 
@@ -41,7 +49,7 @@ render(
         ))}
       </nav>
       <Switch>
-        <Redirect exact from='/' to='/hello'/>
+        <Redirect exact from="/" to="/hello" />
         {examples.map(example => (
           <ExampleRoute key={example} path={`/${example}`} />
         ))}

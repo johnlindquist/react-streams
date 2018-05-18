@@ -1,22 +1,22 @@
 import React, { createContext } from "react"
-import { Stream, converge, plan } from "react-streams"
+import { Subscribe, converge, plan } from "react-streams"
 import { of } from "rxjs"
 import { mapTo } from "rxjs/operators"
 
 const message$ = of({ message: "Hello" })
-const bye = plan(mapTo({ message: "Bye" }))
-const yo = plan(mapTo({ message: "Yo" }))
-const source = converge(message$, bye, yo)
+const on = plan(mapTo({ message: "On" }))
+const off = plan(mapTo({ message: "Off" }))
+const source = message$.pipe(converge({ on, off }))
 
-const { Consumer } = createContext({ source, bye, yo })
+const { Consumer } = createContext({ source, on, off })
 
 export default () => (
   <div>
     <Consumer>
       {({ source }) => (
-        <Stream source={source}>
+        <Subscribe source={source}>
           {({ message }) => <h2 id="message">{message}</h2>}
-        </Stream>
+        </Subscribe>
       )}
     </Consumer>
 
@@ -24,13 +24,13 @@ export default () => (
       <div>
         <div>
           <Consumer>
-            {({ bye, yo }) => (
+            {({ on, off }) => (
               <div>
-                <button onClick={bye} aria-label="show bye message">
-                  Bye
+                <button onClick={on} aria-label="change message to 'on'">
+                  On
                 </button>
-                <button onClick={yo} aria-label="show yo message">
-                  Yo
+                <button onClick={off} aria-label="change message to 'off'">
+                  Off
                 </button>
               </div>
             )}
