@@ -1,23 +1,31 @@
 import React from "react"
-import { stream, Subscribe, converge, plan } from "react-streams"
+import { converge, plan, stream } from "react-streams"
 import { from, merge, of, pipe } from "rxjs"
-import { map, mergeScan, scan } from "rxjs/operators"
+import { map, mergeScan, scan, switchMap } from "rxjs/operators"
 
-const numFromInput = pipe(map(e => Number(e.target.value)))
+const inputNumAs = key => pipe(map(e => ({ [key]: Number(e.target.value) })))
 
 const StepperControl = stream(
   switchMap(({ min, max, step }) => {
-    const props$ = of({ min, max, step })
+    const onUpdateMin = plan(inputNumAs("min"))
+    const onUpdateMax = plan(inputNumAs("max"))
+    const onUpdateStep = plan(inputNumAs("step"))
 
-    const onUpdateMin = plan(numFromInput)
-    const onUpdateMax = plan(numFromInput)
-    const onUpdateStep = plan(numFromInput)
+    const props$ = of({
+      min,
+      max,
+      step,
+      onUpdateMin,
+      onUpdateMax,
+      onUpdateStep
+    })
 
+    //"converge" is inappropriate here due to the custom `scan`
     return merge(
       props$,
-      from(onUpdateMin).pipe(map(min => ({ min }))),
-      from(onUpdateMax).pipe(map(max => ({ max }))),
-      from(onUpdateStep).pipe(map(step => ({ step })))
+      from(onUpdateMin),
+      from(onUpdateMax),
+      from(onUpdateStep)
     ).pipe(
       scan(({ min, max, step }, next) => {
         const diff = max - min
@@ -52,8 +60,7 @@ const StepperControl = stream(
           max,
           step
         }
-      }),
-      converge({ onUpdateMin, onUpdateMax, onUpdateStep })
+      })
     )
   })
 )
@@ -61,6 +68,7 @@ const StepperControl = stream(
 const Stepper = stream(
   //mergeScan when you need to compare original props to updated props
   mergeScan((prevProps, { min, max, step, defaultValue }) => {
+    // Very helpful to compare prev/next props :)
     // console.table({
     //   props,
     //   prevProps,
