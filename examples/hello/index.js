@@ -1,9 +1,14 @@
 import React from "react"
-import { Stream } from "react-streams"
+import { stream } from "react-streams"
 import { of } from "rxjs"
+import { switchMap } from "rxjs/operators"
 
-const hello$ = of({ message: "Hello, world!" })
+const HelloWorld = stream(
+  switchMap(({ greeting, name }) => of({ message: `${greeting}, ${name}` }))
+)
 
 export default () => (
-  <Stream source={hello$}>{({ message }) => <h2>{message}</h2>}</Stream>
+  <HelloWorld greeting="Hello" name="world">
+    {({ message }) => <h2>{message}</h2>}
+  </HelloWorld>
 )

@@ -1,24 +1,28 @@
 import React from "react"
-import { Stream, converge, plan } from "react-streams"
+import { stream, converge, plan } from "react-streams"
 import { of } from "rxjs"
 import { map, mapTo } from "rxjs/operators"
 
-const message$ = of({ message: "Hello" })
 const date = plan(
   map(() => ({
     message: new Date().toLocaleDateString()
   }))
 )
 const bye = plan(mapTo({ message: "Bye" }))
-const yo = plan(mapTo({ message: "Yo" }))
+const exclaim = plan(
+  mapTo(({ message }) => ({
+    message: message + "!"
+  }))
+)
 
-const state$ = converge(message$, date, bye, yo)
+const ConvergeDemo = stream(converge({ date, bye, exclaim }))
 
 export default () => (
   <div>
-    <Stream source={state$}>
-      {({ message }) => (
+    <ConvergeDemo message="Hello" title="Converge Demo">
+      {({ message, title, date, by, exclaim }) => (
         <div>
+          <h2>{title}</h2>
           <div id="message">{message}</div>
           <button onClick={date} aria-label="show date message">
             Date
@@ -26,11 +30,11 @@ export default () => (
           <button onClick={bye} aria-label="show bye message">
             Bye
           </button>
-          <button onClick={yo} aria-label="show yo message">
-            Yo
+          <button onClick={exclaim} aria-label="add exclamation point">
+            !!!
           </button>
         </div>
       )}
-    </Stream>
+    </ConvergeDemo>
   </div>
 )

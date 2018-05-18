@@ -6,50 +6,81 @@ import {
   concat,
   merge,
   observable,
-  of
+  of,
+  OperatorFunction,
+  isObservable,
+  pipe,
+  UnaryFunction
 } from "rxjs"
 import {
   distinctUntilChanged,
   map,
   scan,
   share,
-  switchMap
+  switchMap,
+  tap,
+  withLatestFrom,
+  ignoreElements
 } from "rxjs/operators"
 
-const defaultReceiveProps = switchMap(p => {
-  const { source, ...props } = p as { source: Observable<any> }
-
-  return source.pipe(map(state => ({ ...props, ...state })))
+const patchScan = scan((state = {}, update) => {
+  const patch = update instanceof Function ? update(state) : update
+  return { ...state, ...patch }
 })
 
+const filterObject = (o, fn) =>
+  Object.entries(o)
+    .filter(fn)
+    .reduce(
+      (o, [key, value]) => ({
+        ...o,
+        [key]: value
+      }),
+      {}
+    )
+
+const update = key => map(key => () => ({ key }))
+const spreadMap = (overrides = {}) => map(value => ({ ...value, ...overrides }))
+
+const converge = (plans, streams = {}) =>
+  switchMap(({ transform, ...props }) => {
+    return concat(
+      of(props),
+      merge(
+        ...(Object.values(plans) as any[]),
+        ...(Object.values(streams) as any[])
+      )
+    ).pipe(patchScan, spreadMap(plans))
+  })
 class Stream extends Component<
   {
-    source: Observable<any>
+    transform: OperatorFunction<any, Observable<any>>
     children?: (props: any) => ReactNode
     render?: (props: any) => ReactNode
-    pipe
   },
   any
 > {
   updateProps = plan()
 
-  __renderFn = (this.props.children
+  _renderFn = (this.props.children
     ? this.props.children
     : this.props.render
       ? this.props.render
-      : value => value) as Function
+      : (state: any) => {
+          throw Error("Need children or render")
+        }) as Function
 
   subscription: Subscription
   _isMounted = false
 
-  constructor(props) {
+  constructor(props, transform) {
     super(props)
 
     const props$ = concat(of(props), this.updateProps)
 
     const state$ = props$.pipe(
       distinctUntilChanged(),
-      props.receiveProps ? props.receiveProps : defaultReceiveProps
+      props.transform ? props.transform : transform
     )
 
     this.subscription = state$.subscribe(state => {
@@ -66,7 +97,7 @@ class Stream extends Component<
   }
 
   render() {
-    return this.__renderFn({ ...this.state })
+    return this._renderFn({ ...this.state })
   }
 
   componentDidUpdate() {
@@ -78,12 +109,8 @@ class Stream extends Component<
   }
 }
 
-const patchScan = scan((state = {}, applyPatch) => {
-  const patch = applyPatch instanceof Function ? applyPatch(state) : applyPatch
-  return { ...state, ...patch }
-})
+const stream = transform => props => new Stream(props, transform)
 
-const converge: any = (...streams) => merge(...streams).pipe(patchScan)
 function plan(...operators) {
   const subject = new Subject()
   const source = subject.pipe(...operators, share())
@@ -93,4 +120,9 @@ function plan(...operators) {
   return next
 }
 
-export { plan, Stream, converge }
+const fromPlan = (otherPlan, selector): UnaryFunction<any, any> =>
+  pipe(withLatestFrom(otherPlan, (_, value) => value), map(selector))
+const toPlan = (otherPlan, selector = x => x): UnaryFunction<any, any> =>
+  pipe(map(selector), tap(otherPlan), ignoreElements())
+
+export { plan, fromPlan, toPlan, stream, Stream, converge }

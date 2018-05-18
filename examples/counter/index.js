@@ -1,22 +1,16 @@
 import React from "react"
-import { Stream, plan } from "react-streams"
+import { stream, plan, converge } from "react-streams"
 import { merge, of } from "rxjs"
-import { map, scan } from "rxjs/operators"
+import { map, scan, switchMap } from "rxjs/operators"
 
-const Count = ({ start, ...props }) => {
-  const count$ = of({ count: start })
-  const onInc = plan(map(() => state => ({ count: state.count + 2 })))
-  const onDec = plan(map(() => state => ({ count: state.count - 2 })))
-  const onReset = plan(map(() => state => ({ count: 4 })))
+const onInc = plan(map(() => state => ({ count: state.count + 2 })))
+const onDec = plan(map(() => state => ({ count: state.count - 2 })))
+const onReset = plan(map(() => state => ({ count: 4 })))
 
-  const state$ = merge(count$, onInc, onDec, onReset).pipe(
-    scan((state = {}, updater) => updater(state))
-  )
-  return <Stream source={state$} {...{ onInc, onDec, onReset, ...props }} />
-}
+const Count = stream(converge({ onInc, onDec, onReset }))
 
 export default () => (
-  <Count start={4}>
+  <Count count={4}>
     {({ count, onInc, onDec, onReset }) => (
       <div>
         <button id="dec" onClick={onDec} aria-label="decrement">
