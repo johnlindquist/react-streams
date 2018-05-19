@@ -22,6 +22,7 @@ const examples = [
   "todos",
   "drag",
   "subscribe",
+  "subscribePipe",
   "context",
   "assign",
   "stepper"

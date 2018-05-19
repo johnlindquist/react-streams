@@ -63,29 +63,29 @@ class Stream extends Component<
 > {
   updateProps = plan()
 
-  _renderFn = (this.props.children
-    ? this.props.children
-    : this.props.render
-      ? this.props.render
-      : (state: any) => {
-          throw Error("Need children or render")
-        }) as Function
+  _renderFn = (this.props.children ||
+    this.props.render ||
+    ((state: any) => {
+      throw Error("Need children or render")
+    })) as Function
 
   subscription?: Subscription
+  plans: any = {}
   _isMounted = false
 
-  constructor(props, context, config = {}) {
-    super(props, context)
-    this.setup(props, context, config)
+  setup(props, context, config) {
+    this.plans = config.plans
+
+    return concat(of(props), this.updateProps).pipe(
+      distinctUntilChanged(),
+      props.pipe || config.pipe || (x => x)
+    )
   }
 
-  setup(props, context, config) {
-    const props$ = concat(of(props), this.updateProps)
+  constructor(props, context, config: any = {}) {
+    super(props, context)
 
-    const state$ = props$.pipe(
-      distinctUntilChanged(),
-      props.pipe ? props.pipe : config.pipe ? config.pipe : x => x
-    )
+    const state$ = this.setup(props, context, config)
 
     this.subscription = state$.subscribe(state => {
       if (this._isMounted) {
@@ -101,7 +101,7 @@ class Stream extends Component<
   }
 
   render() {
-    return this._renderFn({ ...this.state })
+    return this.state ? this._renderFn(this.state, this.plans) : null
   }
 
   componentDidUpdate() {
@@ -115,33 +115,26 @@ class Stream extends Component<
 
 class Subscribe extends Stream {
   setup(props, context, config) {
-    const pickSource = props.source
-      ? props.source
-      : config.source
-        ? config.source
-        : of(Error("No source provided"))
+    this.plans = { ...props.plans, ...config.plans }
 
-    const source =
+    const pickSource = props.source || config.source
+
+    if (!pickSource) throw Error("'subscribe' requires a source")
+
+    const state$ =
       pickSource instanceof Observable ? pickSource : from(pickSource)
-
-    const state$ = source.pipe(
+    return state$.pipe(
       distinctUntilChanged(),
-      props.pipe ? props.pipe : config.pipe ? config.pipe : x => x
+      props.pipe || config.pipe || (x => x)
     )
-
-    this.subscription = state$.subscribe(state => {
-      if (this._isMounted) {
-        this.setState(() => state)
-      } else {
-        this.state = state
-      }
-    })
   }
 }
 
-const stream = pipe => (props, context) => new Stream(props, context, { pipe })
-const subscribe = (source, pipe) => (props, context) =>
-  new Subscribe(props, context, { source, pipe })
+const stream = (pipe, plans) => (props, context) =>
+  new Stream(props, context, { pipe, plans })
+
+const subscribe = (source, pipe, plans) => (props, context) =>
+  new Subscribe(props, context, { source, pipe, plans })
 
 function plan(...operators) {
   const subject = new Subject()

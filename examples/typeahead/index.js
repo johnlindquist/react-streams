@@ -1,5 +1,5 @@
 import React from "react"
-import { plan, subscribe } from "react-streams"
+import { plan, subscribe, Subscribe } from "react-streams"
 import { ajax } from "rxjs/ajax"
 import {
   debounceTime,
@@ -9,12 +9,15 @@ import {
   startWith,
   switchMap
 } from "rxjs/operators"
+import { pipe } from "rxjs"
 
 const url = process.env.DEV
   ? "/api/people"
   : "https://dandelion-bonsai.glitch.me/people"
 
-const onInput = plan(
+const onInput = plan()
+
+const handleInput = pipe(
   pluck("target", "value"),
   filter(text => text.length > 1),
   debounceTime(250),
@@ -25,11 +28,11 @@ const onInput = plan(
   map(people => ({ people }))
 )
 
-const Typeahead = subscribe(onInput)
+const Typeahead = subscribe(onInput, handleInput, { onInput })
 
 export default () => (
   <Typeahead>
-    {({ people }) => (
+    {({ people }, { onInput }) => (
       <div>
         <h2>Search a username:</h2>
         <input type="text" onInput={onInput} />

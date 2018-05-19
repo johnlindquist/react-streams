@@ -1,14 +1,7 @@
 import React from "react"
 import { plan, Subscribe } from "react-streams"
 import { from, fromEvent, merge } from "rxjs"
-import {
-  map,
-  switchMap,
-  takeUntil,
-  tap,
-  pluck,
-  subscribeOn
-} from "rxjs/operators"
+import { map, switchMap, takeUntil, tap, pluck } from "rxjs/operators"
 
 const onMouseMove = plan()
 const onMouseUp = plan()
@@ -28,13 +21,26 @@ const onDrag = onMouseDown =>
     )
   )
 
-const DraggableBox = ({ onDrag }) => {
+const DraggableBox = ({ onDrag, children }) => {
   const onMouseDown = plan()
 
-  return subscribe(onDrag)
   return (
-    <Subscribe source={onDrag(onMouseDown)}>
-      {({ top, left, currentTarget }) => (
+    <Subscribe
+      children={props => children({ ...props, onMouseDown })}
+      source={onDrag(onMouseDown)}
+    />
+  )
+}
+
+export default () => (
+  <div
+    onMouseMove={onMouseMove}
+    onMouseUp={onMouseUp}
+    style={{ backgroundColor: "whitesmoke", width: "100vw", height: "100vh" }}
+  >
+    <h2>Drag Demo</h2>
+    <DraggableBox onDrag={onDrag}>
+      {({ top, left, onMouseDown }) => (
         <div>
           <div
             onMouseDown={onMouseDown}
@@ -50,20 +56,43 @@ const DraggableBox = ({ onDrag }) => {
           />
         </div>
       )}
-    </Subscribe>
-  )
-}
+    </DraggableBox>
 
-export default () => (
-  <div
-    onMouseMove={onMouseMove}
-    onMouseUp={onMouseUp}
-    style={{ backgroundColor: "whitesmoke", width: "100vw", height: "100vh" }}
-  >
-    <h2>Drag Demo</h2>
-
-    <DraggableBox onDrag={onDrag} />
-    <DraggableBox onDrag={onDrag} />
-    <DraggableBox onDrag={onDrag} />
+    <DraggableBox onDrag={onDrag}>
+      {({ top, left, onMouseDown }) => (
+        <div>
+          <div
+            onMouseDown={onMouseDown}
+            style={{
+              width: 50,
+              height: 50,
+              position: "absolute",
+              backgroundColor: "yellow",
+              border: "5px solid black",
+              top,
+              left
+            }}
+          />
+        </div>
+      )}
+    </DraggableBox>
+    <DraggableBox onDrag={onDrag}>
+      {({ top, left, onMouseDown }) => (
+        <div>
+          <div
+            onMouseDown={onMouseDown}
+            style={{
+              width: 25,
+              height: 25,
+              position: "absolute",
+              backgroundColor: "green",
+              border: "5px solid black",
+              top,
+              left
+            }}
+          />
+        </div>
+      )}
+    </DraggableBox>
   </div>
 )
