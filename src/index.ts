@@ -115,7 +115,6 @@ class Stream extends Component<
 
 class Subscribe extends Stream {
   setup(props, context, config) {
-    console.log({ props, context, config })
     const pickSource = props.source
       ? props.source
       : config.source

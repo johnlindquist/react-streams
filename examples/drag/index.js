@@ -1,35 +1,41 @@
 import React from "react"
-import { Subscribe, plan } from "react-streams"
-import { from } from "rxjs"
-import { map, pluck, switchMap, takeUntil } from "rxjs/operators"
+import { plan, Subscribe } from "react-streams"
+import { from, fromEvent, merge } from "rxjs"
+import {
+  map,
+  switchMap,
+  takeUntil,
+  tap,
+  pluck,
+  subscribeOn
+} from "rxjs/operators"
 
-const onMouseDown = plan()
 const onMouseMove = plan()
 const onMouseUp = plan()
 
-const onDrag = from(onMouseDown).pipe(
-  pluck("currentTarget"),
-  switchMap(currentTarget =>
-    from(onMouseMove).pipe(
-      map(moveEvent => ({
-        left: moveEvent.clientX - currentTarget.offsetWidth / 2,
-        top: moveEvent.clientY - currentTarget.offsetHeight / 2
-      })),
-      takeUntil(onMouseUp)
+const onDrag = onMouseDown =>
+  from(onMouseDown).pipe(
+    pluck("currentTarget"),
+    switchMap(currentTarget =>
+      from(onMouseMove).pipe(
+        map(moveEvent => ({
+          left: moveEvent.clientX - currentTarget.offsetWidth / 2,
+          top: moveEvent.clientY - currentTarget.offsetHeight / 2,
+          currentTarget
+        })),
+        takeUntil(onMouseUp)
+      )
     )
   )
-)
 
-export default () => (
-  <div
-    onMouseMove={onMouseMove}
-    onMouseUp={onMouseUp}
-    style={{ backgroundColor: "whitesmoke", width: "100vw", height: "100vh" }}
-  >
-    <Subscribe source={onDrag}>
-      {({ top, left }) => (
+const DraggableBox = ({ onDrag }) => {
+  const onMouseDown = plan()
+
+  return subscribe(onDrag)
+  return (
+    <Subscribe source={onDrag(onMouseDown)}>
+      {({ top, left, currentTarget }) => (
         <div>
-          <h2>Drag Demo</h2>
           <div
             onMouseDown={onMouseDown}
             style={{
@@ -45,5 +51,19 @@ export default () => (
         </div>
       )}
     </Subscribe>
+  )
+}
+
+export default () => (
+  <div
+    onMouseMove={onMouseMove}
+    onMouseUp={onMouseUp}
+    style={{ backgroundColor: "whitesmoke", width: "100vw", height: "100vh" }}
+  >
+    <h2>Drag Demo</h2>
+
+    <DraggableBox onDrag={onDrag} />
+    <DraggableBox onDrag={onDrag} />
+    <DraggableBox onDrag={onDrag} />
   </div>
 )
