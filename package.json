@@ -18,7 +18,7 @@
     "test": "jest",
     "examples": "run-p examples:*",
     "examples:client": "cd examples && poi --port 4321",
-    "examples:server": "cd examples && json-server --port 4322 db.js",
+    "examples:server": "cd cypress/fixtures && json-server --port 4322 db.js",
     "cypress:run": "cypress run --config videoRecording=false",
     "cypress:open": "cypress open",
     "e2e": "concurrently -k --success first 'npm run examples' 'npm run cypress:run'",
