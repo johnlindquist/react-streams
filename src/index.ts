@@ -115,18 +115,20 @@ class Stream extends Component<
 
 class Subscribe extends Stream {
   setup(props, context, config) {
-    const source = props.source
+    console.log({ props, context, config })
+    const pickSource = props.source
       ? props.source
       : config.source
         ? config.source
         : of(Error("No source provided"))
-    const state$ =
-      source instanceof Observable
-        ? source
-        : from(source).pipe(
-            distinctUntilChanged(),
-            props.pipe ? props.pipe : config.pipe ? config.pipe : x => x
-          )
+
+    const source =
+      pickSource instanceof Observable ? pickSource : from(pickSource)
+
+    const state$ = source.pipe(
+      distinctUntilChanged(),
+      props.pipe ? props.pipe : config.pipe ? config.pipe : x => x
+    )
 
     this.subscription = state$.subscribe(state => {
       if (this._isMounted) {
