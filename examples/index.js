@@ -20,6 +20,7 @@ const examples = [
   "converge",
   "counter",
   "todos",
+  "drag",
   "subscribe",
   "context",
   "assign",
