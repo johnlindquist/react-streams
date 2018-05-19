@@ -17,8 +17,8 @@ describe("Converge", () => {
     cy.get("#message").should("have.text", "Bye")
   })
 
-  it("should change to the 'Yo' when clicking yo", () => {
-    cy.get('[aria-label="show yo message"]').click()
-    cy.get("#message").should("have.text", "Yo")
+  it("should add a ! to the word  when clicking !!!", () => {
+    cy.get('[aria-label="add exclamation point"]').click()
+    cy.get("#message").contains(/.*\!$/)
   })
 })

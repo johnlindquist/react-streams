@@ -26,10 +26,10 @@ export default () => (
           <Consumer>
             {({ on, off }) => (
               <div>
-                <button onClick={on} aria-label="change message to 'on'">
+                <button onClick={on} aria-label="change message to on">
                   On
                 </button>
-                <button onClick={off} aria-label="change message to 'off'">
+                <button onClick={off} aria-label="change message to off">
                   Off
                 </button>
               </div>

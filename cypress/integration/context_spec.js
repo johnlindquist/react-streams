@@ -6,13 +6,13 @@ describe("Context", () => {
     cy.get("#message").should("have.text", "Hello")
   })
 
-  it("should change to 'Bye' when clicking bye", () => {
-    cy.get('[aria-label="show bye message"]').click()
-    cy.get("#message").should("have.text", "Bye")
+  it("should change to 'On' when clicking on", () => {
+    cy.get('[aria-label="change message to on"]').click()
+    cy.get("#message").should("have.text", "On")
   })
 
-  it("should change to the 'Yo' when clicking yo", () => {
-    cy.get('[aria-label="show yo message"]').click()
-    cy.get("#message").should("have.text", "Yo")
+  it("should change to the 'Off' when clicking off", () => {
+    cy.get('[aria-label="change message to off"]').click()
+    cy.get("#message").should("have.text", "Off")
   })
 })

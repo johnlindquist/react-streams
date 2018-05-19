@@ -1,6 +1,6 @@
-describe("Combine State", () => {
+describe("Assign", () => {
   beforeEach(() => {
-    cy.command("launch", "combineState")
+    cy.command("launch", "assign")
     cy.get("#count > button:first").as("countButton")
     cy.get("#count > h3").as("countText")
     cy.get("#name > h3").as("nameText")

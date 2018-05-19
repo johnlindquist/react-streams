@@ -9,6 +9,6 @@ const HelloWorld = stream(
 
 export default () => (
   <HelloWorld greeting="Hello" name="world">
-    {({ message }) => <h2>{message}</h2>}
+    {({ message }) => <h2>{message}!</h2>}
   </HelloWorld>
 )
