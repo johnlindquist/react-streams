@@ -1,6 +1,6 @@
 {
   "name": "react-streams",
-  "version": "11.0.4",
+  "version": "12.0.0",
   "description": "Simple Streams for React",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
