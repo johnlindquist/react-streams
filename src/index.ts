@@ -10,7 +10,8 @@ import {
   OperatorFunction,
   isObservable,
   pipe,
-  UnaryFunction
+  UnaryFunction,
+  from
 } from "rxjs"
 import {
   distinctUntilChanged,
@@ -52,9 +53,6 @@ const converge = (plans, ...streams) =>
 
 const assign = (...streams) => merge(...streams).pipe(patchScan)
 
-/***
- * Stream
- */
 class Stream extends Component<
   {
     pipe: OperatorFunction<any, Observable<any>>
@@ -117,16 +115,18 @@ class Stream extends Component<
 
 class Subscribe extends Stream {
   setup(props, context, config) {
-    console.log({ props, context, config })
     const source = props.source
       ? props.source
       : config.source
         ? config.source
         : of(Error("No source provided"))
-    const state$ = source.pipe(
-      distinctUntilChanged(),
-      props.pipe ? props.pipe : config.pipe ? config.pipe : x => x
-    )
+    const state$ =
+      source instanceof Observable
+        ? source
+        : from(source).pipe(
+            distinctUntilChanged(),
+            props.pipe ? props.pipe : config.pipe ? config.pipe : x => x
+          )
 
     this.subscription = state$.subscribe(state => {
       if (this._isMounted) {

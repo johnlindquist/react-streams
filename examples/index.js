@@ -16,6 +16,7 @@ const examples = [
   "pipe",
   "ajax",
   "text",
+  "typeahead",
   "converge",
   "counter",
   "todos",

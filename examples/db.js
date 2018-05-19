@@ -1,19 +1,6 @@
+const todos = require("./todos")
+const people = require("./10000people")
 module.exports = () => ({
-  todos: [
-    {
-      text: "Eat",
-      done: false,
-      id: 1
-    },
-    {
-      text: "Sleep",
-      done: false,
-      id: 2
-    },
-    {
-      text: "Code",
-      done: false,
-      id: 3
-    }
-  ]
+  todos,
+  people
 })
