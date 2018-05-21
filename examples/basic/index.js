@@ -3,8 +3,8 @@ import { stream } from "react-streams"
 import { pipe } from "rxjs"
 import { delay, startWith } from "rxjs/operators"
 
-const startWithAndDelay = (message, time) =>
-  pipe(delay(time), startWith({ message }))
+const startWithAndDelay = (startMessage, time) =>
+  pipe(delay(time), startWith({ message: startMessage }))
 
 const MessageStream = stream(startWithAndDelay("Wait...", 500))
 

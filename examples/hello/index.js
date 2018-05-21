@@ -1,11 +1,12 @@
 import React from "react"
 import { stream } from "react-streams"
-import { of } from "rxjs"
-import { switchMap } from "rxjs/operators"
+import { map } from "rxjs/operators"
 
-const HelloWorld = stream(
-  switchMap(({ greeting, name }) => of({ message: `${greeting}, ${name}` }))
-)
+const mapGreeting = map(({ greeting, name }) => ({
+  message: `${greeting}, ${name}!`
+}))
+
+const HelloWorld = stream(mapGreeting)
 
 export default () => (
   <HelloWorld greeting="Hello" name="world">

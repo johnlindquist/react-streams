@@ -1,5 +1,5 @@
 import React from "react"
-import { converge, plan, stream } from "react-streams"
+import { mergePlans, plan, stream } from "react-streams"
 import { map } from "rxjs/operators"
 
 const onInc = plan(map(() => state => ({ count: state.count + 2 })))
