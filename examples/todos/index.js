@@ -1,6 +1,6 @@
 import React from "react"
-import { converge, fromPlan, plan, stream, toPlan } from "react-streams"
-import { from, of, pipe } from "rxjs"
+import { fromPlan, mergePlans, plan, stream, toPlan } from "react-streams"
+import { from, merge, of, pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
 import {
   concatMap,
@@ -31,8 +31,9 @@ const addTodoTransform = switchMap(({ onAddTodo, ...props }) => {
 
   const onSubmit = plan(submit)
 
-  return of({ ...props, current: "" }).pipe(
-    converge({ onSubmit, onChange }, clearAfterAdd$)
+  return mergePlans(
+    { onSubmit, onChange },
+    merge(clearAfterAdd$, of({ ...props, current: "" }))
   )
 })
 
@@ -110,40 +111,40 @@ const deleteTodo = map(todo => ({ todos }) => ({
   todos: todos.filter(t => t.id !== todo.id)
 }))
 
-const onAddTodo = plan(addTodoAjax, addTodo)
-const onToggleDone = plan(toggleDoneAjax, toggleDone)
-const onDeleteTodo = plan(deleteTodoAjax, deleteTodo)
-
 const todosTransform = pipe(
   loadTodosFromProps,
-  converge({ onAddTodo, onToggleDone, onDeleteTodo })
+  mergePlans({
+    onAddTodo: plan(addTodoAjax, addTodo),
+    onToggleDone: plan(toggleDoneAjax, toggleDone),
+    onDeleteTodo: plan(deleteTodoAjax, deleteTodo)
+  })
 )
 
 const Todos = stream(todosTransform)
+
+const addForm = ({ current, onChange, onSubmit }) => (
+  <form
+    onSubmit={onSubmit}
+    style={{ width: "100%", height: "2rem", display: "flex" }}
+  >
+    <input
+      aria-label="Add Todo"
+      style={{ flex: "1" }}
+      type="text"
+      value={current}
+      onChange={onChange}
+      autoFocus
+      placeholder="What needs to be done?"
+    />
+    <input type="submit" value="Add Todo" />
+  </form>
+)
 
 export default () => (
   <Todos url={url}>
     {({ todos, onAddTodo, onToggleDone, onDeleteTodo }) => (
       <div style={{ padding: "2rem", width: "300px" }}>
-        <AddTodoForm onAddTodo={onAddTodo}>
-          {({ current, onChange, onSubmit }) => (
-            <form
-              onSubmit={onSubmit}
-              style={{ width: "100%", height: "2rem", display: "flex" }}
-            >
-              <input
-                aria-label="Add Todo"
-                style={{ flex: "1" }}
-                type="text"
-                value={current}
-                onChange={onChange}
-                autoFocus
-                placeholder="What needs to be done?"
-              />
-              <input type="submit" value="Add Todo" />
-            </form>
-          )}
-        </AddTodoForm>
+        <AddTodoForm onAddTodo={onAddTodo} render={addForm} />
         <ul style={{ padding: "0", listStyleType: "none" }}>
           {todos.map(todo => (
             <Todo key={todo.id} {...{ todo, onToggleDone, onDeleteTodo }} />

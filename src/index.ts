@@ -9,7 +9,9 @@ import {
   merge,
   observable,
   of,
-  pipe
+  pipe,
+  from,
+  isObservable
 } from "rxjs"
 import {
   distinctUntilChanged,
@@ -26,14 +28,12 @@ import {
 const curry = fn => (...args) =>
   args.length < fn.length ? curry(fn.bind(null, ...args)) : fn(...args)
 
-// const patch = update instanceof Function ? update(state) : update
-// return { ...state, ...patch }
 const patchScan: any = pipe(
   (mergeScan as any)((state = {}, update) => {
     const result = update instanceof Function ? update(state) : of(update)
 
     return result instanceof Observable
-      ? result.pipe(map(v => ({ ...state, ...v })))
+      ? result.pipe(map(next => ({ ...state, ...next })))
       : of({ ...state, ...result })
   })
 )
@@ -61,6 +61,8 @@ const mergePlans = curry((plans, source) =>
 
 const assign = (...streams) => merge(...streams).pipe(patchScan)
 
+const isPlan = x => isObservable(x) && x instanceof Function
+
 class Stream extends Component<
   {
     pipe: OperatorFunction<any, Observable<any>>
@@ -83,17 +85,21 @@ class Stream extends Component<
   constructor(props, context) {
     super(props.props || props, context)
 
+    console.log(props)
     const source = props.source
-      ? props.source
+      ? isPlan(props.source)
+        ? props.source
+        : from(props.source)
       : concat(of(props.props || props), this.updateProps)
 
     const state$ = source.pipe(
       distinctUntilChanged(),
-      mergePlans(props.plans || {}),
+      props.plans ? mergePlans(props.plans) : x => x,
       props.pipe || (x => x)
     )
 
     this.subscription = state$.subscribe(state => {
+      console.log({ state })
       if (state.children) this._renderFn = state.children
       if (this._isMounted) {
         this.setState(() => state)

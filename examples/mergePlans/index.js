@@ -37,8 +37,8 @@ const url = process.env.DEV
   : "https://dandelion-bonsai.glitch.me/people"
 
 export default () => (
-  <Typeahead url={url} term="jo">
-    {({ term, people = [], onChange }) => (
+  <Typeahead url={url} term="jo" people={[]}>
+    {({ term, people, onChange }) => (
       <div>
         <h2>Search a username: {term}</h2>
         <input

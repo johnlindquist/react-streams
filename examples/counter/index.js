@@ -1,12 +1,13 @@
 import React from "react"
 import { mergePlans, plan, stream } from "react-streams"
-import { map } from "rxjs/operators"
+import { map, delay } from "rxjs/operators"
+import { of } from "rxjs"
 
 const onInc = plan(map(() => state => ({ count: state.count + 2 })))
 const onDec = plan(map(() => state => ({ count: state.count - 2 })))
-const onReset = plan(map(() => state => ({ count: 4 })))
+const onReset = plan(map(() => state => of({ count: 4 }).pipe(delay(1000))))
 
-const Count = stream(converge({ onInc, onDec, onReset }))
+const Count = stream(mergePlans({ onInc, onDec, onReset }))
 
 export default () => (
   <Count count={4}>

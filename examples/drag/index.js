@@ -1,6 +1,6 @@
 import React from "react"
-import { plan, Subscribe } from "react-streams"
-import { from, fromEvent, merge } from "rxjs"
+import { plan, Stream, mergePlans } from "react-streams"
+import { from, fromEvent, merge, concat, of } from "rxjs"
 import { map, switchMap, takeUntil, tap, pluck } from "rxjs/operators"
 
 const onMouseMove = plan()
@@ -23,13 +23,9 @@ const onDrag = onMouseDown =>
 
 const DraggableBox = ({ onDrag, children }) => {
   const onMouseDown = plan()
+  const drag$ = concat(of({}), onDrag(onMouseDown))
 
-  return (
-    <Subscribe
-      children={props => children({ ...props, onMouseDown })}
-      source={onDrag(onMouseDown)}
-    />
-  )
+  return <Stream source={drag$} plans={{ onMouseDown }} children={children} />
 }
 
 export default () => (
