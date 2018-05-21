@@ -1,6 +1,6 @@
 import React from "react"
 import { mergePlans, plan, stream } from "react-streams"
-import { pipe } from "rxjs"
+import { pipe, of, range } from "rxjs"
 import { ajax } from "rxjs/ajax"
 import {
   debounceTime,
@@ -11,19 +11,21 @@ import {
   switchMap,
   switchAll,
   tap,
-  distinctUntilChanged
+  distinctUntilChanged,
+  partition
 } from "rxjs/operators"
 
 const handleInput = pipe(
   pluck("target", "value"),
-  filter(term => term.length > 1),
   debounceTime(250),
   distinctUntilChanged(),
+  filter(term => term.length > 1),
+  term$ => term$.pipe(tap(console.log.bind(console))),
+  startWith(""),
   map(term => props => {
-    console.log({ term, props })
     return ajax(`${props.url}?username_like=${term || props.term}`).pipe(
       pluck("response"),
-      map(people => ({ term, people: people.slice(0, 10) }))
+      map(people => ({ term: term || props.term, people: people.slice(0, 10) }))
     )
   })
 )
@@ -39,7 +41,12 @@ export default () => (
     {({ term, people = [], onChange }) => (
       <div>
         <h2>Search a username: {term}</h2>
-        <input type="text" value={term} onChange={onChange} />
+        <input
+          type="text"
+          onChange={onChange}
+          placeholder="Type to seach"
+          autoFocus
+        />
         <ul>
           {people.map(person => (
             <li key={person.id} style={{ height: "25px" }}>

@@ -30,7 +30,6 @@ const curry = fn => (...args) =>
 // return { ...state, ...patch }
 const patchScan: any = pipe(
   (mergeScan as any)((state = {}, update) => {
-    console.log
     const result = update instanceof Function ? update(state) : of(update)
 
     return result instanceof Observable
@@ -54,7 +53,7 @@ const update = key => map(key => () => ({ key }))
 const spreadMap = (overrides = {}) => map(value => ({ ...value, ...overrides }))
 
 const mergePlans = curry((plans, source) =>
-  merge(...(Object.values(plans) as any[]), source).pipe(
+  merge(source, ...(Object.values(plans) as any[])).pipe(
     patchScan,
     spreadMap(plans)
   )
