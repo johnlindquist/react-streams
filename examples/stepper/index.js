@@ -1,11 +1,11 @@
 import React from "react"
-import { converge, plan, stream } from "react-streams"
+import { mergePlans, plan, stream, streamProps } from "react-streams"
 import { from, merge, of, pipe } from "rxjs"
 import { map, mergeScan, scan, switchMap } from "rxjs/operators"
 
 const inputNumAs = key => pipe(map(e => ({ [key]: Number(e.target.value) })))
 
-const StepperControl = stream(
+const StepperControl = streamProps(
   switchMap(({ min, max, step }) => {
     const onUpdateMin = plan(inputNumAs("min"))
     const onUpdateMax = plan(inputNumAs("max"))
@@ -65,7 +65,7 @@ const StepperControl = stream(
   })
 )
 
-const Stepper = stream(
+const Stepper = streamProps(
   //mergeScan when you need to compare original props to updated props
   mergeScan((prevProps, { min, max, step, defaultValue }) => {
     // Very helpful to compare prev/next props :)
@@ -106,7 +106,7 @@ const Stepper = stream(
       max,
       step
     }).pipe(
-      converge({
+      mergePlans({
         onDec,
         onInc,
         onChange,

@@ -11,7 +11,8 @@ import {
   merge,
   observable,
   of,
-  pipe
+  pipe,
+  throwError
 } from "rxjs"
 import {
   distinctUntilChanged,
@@ -68,7 +69,9 @@ class Stream extends Component<
   _isMounted = false
 
   configureSource(props, config) {
-    const { source } = config ? config : props
+    const { source = throwError("No source provided") } = config
+      ? config
+      : props
     return isNotPlan(source) ? source : from(source)
   }
 

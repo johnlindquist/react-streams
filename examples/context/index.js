@@ -1,12 +1,12 @@
 import React, { createContext } from "react"
-import { Subscribe, converge, plan } from "react-streams"
+import { Stream, mergePlans, plan } from "react-streams"
 import { of } from "rxjs"
 import { mapTo } from "rxjs/operators"
 
 const message$ = of({ message: "Hello" })
 const on = plan(mapTo({ message: "On" }))
 const off = plan(mapTo({ message: "Off" }))
-const source = message$.pipe(converge({ on, off }))
+const source = message$.pipe(mergePlans({ on, off }))
 
 const { Consumer } = createContext({ source, on, off })
 
@@ -14,9 +14,9 @@ export default () => (
   <div>
     <Consumer>
       {({ source }) => (
-        <Subscribe source={source}>
+        <Stream source={source}>
           {({ message }) => <h2 id="message">{message}</h2>}
-        </Subscribe>
+        </Stream>
       )}
     </Consumer>
 
