@@ -19,81 +19,81 @@ npm i react-streams rxjs
 
 ### Stream from sources
 
-* `<Stream source={}/>` - A component that subscribes to a `source` and streams values to children. The stream will pass through a `pipe` and can be updated by `plans`.
+**_`<Stream source={}/>`_** - A component that subscribes to a `source` and streams values to children. The stream will pass through a `pipe` and can be updated by `plans`.
 
-```js
-<Stream source={source$}>{values => <div>{values.message}</div>}</Stream>
-```
+> ```js
+> <Stream source={source$}>{values => <div>{values.message}</div>}</Stream>
+> ```
 
-* `stream(source)` - Creates a named component that subscribes to a `source` and streams values to children. The stream will pass through a `pipe` and can be updated by `plans`.
+**_`stream(source)`_** - Creates a named component that subscribes to a `source` and streams values to children. The stream will pass through a `pipe` and can be updated by `plans`.
 
-```js
-const MyStreamingComponent = stream(source$)
-
-<MyStreamingComponent>
-  {(values)=> <div>{values.message}</div>}
-</MyStreamingComponent>
-```
+> ```js
+> const MyStreamingComponent = stream(source$)
+>
+> <MyStreamingComponent>
+>   {(values)=> <div>{values.message}</div>}
+> </MyStreamingComponent>
+> ```
 
 ### Stream from props
 
-* `<StreamProps/>` - A component that streams props changes to children. Changes to props will pass through the `pipe` and can be updated by `plans`.
+**_`<StreamProps/>`_** - A component that streams props changes to children. Changes to props will pass through the `pipe` and can be updated by `plans`.
 
-```js
-<StreamProps message={message}>
-  {values => <div>{values.message}</div>}
-</StreamProps>
-```
+> ```js
+> <StreamProps message={message}>
+>   {values => <div>{values.message}</div>}
+> </StreamProps>
+> ```
 
-* `streamProps()` - Create a named component that streams props changes to children. Changes to props will pass through the `pipe` and can be updated by `plans`.
+**_`streamProps()`_** - Create a named component that streams props changes to children. Changes to props will pass through the `pipe` and can be updated by `plans`.
 
-```js
-const MyStreamingPropsComponent = streamProps()
-
-<MyStreamingComponent message={message}>
-  {(values)=> <div>{values.message}</div>}
-</MyStreamingComponent>
-```
+> ```js
+> const MyStreamingPropsComponent = streamProps()
+>
+> <MyStreamingComponent message={message}>
+>   {(values)=> <div>{values.message}</div>}
+> </MyStreamingComponent>
+> ```
 
 ### Stream through `pipe`
 
-A `pipe` is any operator (or `piped` combination of operators) that you want to act on your stream. Pipes can be simple mappings or complex ajax requests with timing as long as they return a function that returns an object which matches the `children`'s arguments.
+**_`pipe`_** is any operator (or `piped` combination of operators) that you want to act on your stream. Pipes can be simple mappings or complex ajax requests with timing as long as they return a function that returns an object which matches the `children`'s arguments.
 
-```js
-<StreamProps message={message} pipe={map(({ message }) => message + "!")}>
-  {values => <div>{values.message}</div>}
-</StreamProps>
-```
+> ```js
+> <StreamProps message={message} pipe={map(({ message }) => message + "!")}>
+>   {values => <div>{values.message}</div>}
+> </StreamProps>
+> ```
 
 ### Make a `plan` to update
 
-A `plan` is a function that can be observed.
+**_`plan`_** is a function that can be observed.
 
-```js
-const update = plan()
-
-from(update).subscribe(value => console.log(value))
-
-update("Hello") //logs "Hello"
-update("Friends") //logs "Friends"
-```
+> ```js
+> const update = plan()
+>
+> from(update).subscribe(value => console.log(value))
+>
+> update("Hello") //logs "Hello"
+> update("Friends") //logs "Friends"
+> ```
 
 Pass plans to the `plans` prop to control updates to the stream.
 
-```js
-const update = plan(
-  map(({message})=> ({message: "Updated!"}))
-)
-
-<StreamProps message="Hello" plans={{update}}>
-  {({message, update})=>
-    <div>
-      <h2>{message}</h2>
-      <button onClick={update}>Update Message</button>
-    </div>
-  }
-</StreamProps>
-```
+> ```js
+> const update = plan(
+>   map(({message})=> ({message: "Updated!"}))
+> )
+>
+> <StreamProps message="Hello" plans={{update}}>
+>   {({message, update})=>
+>     <div>
+>       <h2>{message}</h2>
+>       <button onClick={update}>Update Message</button>
+>     </div>
+>   }
+> </StreamProps>
+> ```
 
 ## Examples
 
