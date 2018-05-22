@@ -1,93 +1,107 @@
 # react-streams
 
-```bash
-npm i react-streams rxjs
-```
-
 <p align="center">
 
 <img src="https://rawgit.com/johnlindquist/react-streams/master/logo.svg" alt="react-streams logo" width="300px;"/>
 </p>
 
-## Play with Examples at [codesandbox.io](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%2Fstream%2Findex.js)
+## Installation
 
-## `stream`
+Install both `react-streams` and `rxjs`
 
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%2stream%2Findex.js)
-
-```js
-import React from "react"
-import { stream } from "react-streams"
-import { interval } from "rxjs"
-import { map } from "rxjs/operators"
-
-const count$ = interval(250).pipe(map(count => ({ count })))
-
-const Counter = stream(count$)
-
-export default () => (
-  <div>
-    <h2>Subscribe to a Stream</h2>
-    <Counter>{({ count }) => <div>{count}</div>}</Counter>
-  </div>
-)
+```bash
+npm i react-streams rxjs
 ```
 
-## `pipe`
+## About
 
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%pipe%2Findex.js)
+`react-streams` enables you to stream for sources or props. The stream will pass through a `pipe` and can be updated by `plans`.
 
-```js
-import React from "react"
-import { stream } from "react-streams"
-import { of } from "rxjs"
-import { map } from "rxjs/operators"
+### Stream from sources
 
-const stream$ = of({ greeting: "Hello", name: "world" })
-
-const mapToMessage = map(({ greeting, name }) => ({
-  message: `${greeting}, ${name}!`
-}))
-
-const Greeting = stream(stream$, mapToMessage)
-
-export default () => (
-  <div>
-    <h2>Pipe Stream Values</h2>
-    <Greeting>{({ message }) => <div>{message}</div>}</Greeting>
-  </div>
-)
-```
-
-## `streamProps`
-
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%2streamProps%2Findex.js)
+* `<Stream source={}/>` - A component that subscribes to a `source` and streams values to children. The stream will pass through a `pipe` and can be updated by `plans`.
 
 ```js
-import React from "react"
-import { streamProps } from "react-streams"
-import { map } from "rxjs/operators"
-
-const mapGreeting = map(({ greeting, name }) => ({
-  message: `${greeting}, ${name}!`
-}))
-
-const HelloWorld = streamProps(mapGreeting)
-
-export default () => (
-  <div>
-    <h2>Stream Props to Children</h2>
-    <HelloWorld greeting="Hello" name="world">
-      {({ message }) => <div>{message}</div>}
-    </HelloWorld>
-    <HelloWorld greeting="Bonjour" name="John">
-      {({ message }) => <div>{message}</div>}
-    </HelloWorld>
-  </div>
-)
+<Stream source={source$}>{values => <div>{values.message}</div>}</Stream>
 ```
 
-## `<Stream/>`
+* `stream(source)` - Creates a named component that subscribes to a `source` and streams values to children. The stream will pass through a `pipe` and can be updated by `plans`.
+
+```js
+const MyStreamingComponent = stream(source$)
+
+<MyStreamingComponent>
+  {(values)=> <div>{values.message}</div>}
+</MyStreamingComponent>
+```
+
+### Stream from props
+
+* `<StreamProps/>` - A component that streams props changes to children. Changes to props will pass through the `pipe` and can be updated by `plans`.
+
+```js
+<StreamProps message={message}>
+  {values => <div>{values.message}</div>}
+</StreamProps>
+```
+
+* `streamProps()` - Create a named component that streams props changes to children. Changes to props will pass through the `pipe` and can be updated by `plans`.
+
+```js
+const MyStreamingPropsComponent = streamProps()
+
+<MyStreamingComponent message={message}>
+  {(values)=> <div>{values.message}</div>}
+</MyStreamingComponent>
+```
+
+### Stream through `pipe`
+
+A `pipe` is any operator (or `piped` combination of operators) that you want to act on your stream. Pipes can be simple mappings or complex ajax requests with timing as long as they return a function that returns an object which matches the `children`'s arguments.
+
+```js
+<StreamProps message={message} pipe={map(({ message }) => message + "!")}>
+  {values => <div>{values.message}</div>}
+</StreamProps>
+```
+
+### Make a `plan` to update
+
+A `plan` is a function that can be observed.
+
+```js
+const update = plan()
+
+from(update).subscribe(value => console.log(value))
+
+update("Hello") //logs "Hello"
+update("Friends") //logs "Friends"
+```
+
+Pass plans to the `plans` prop to control updates to the stream.
+
+```js
+const update = plan(
+  map(({message})=> ({message: "Updated!"}))
+)
+
+<StreamProps message="Hello" plans={{update}}>
+  {({message, update})=>
+    <div>
+      <h2>{message}</h2>
+      <button onClick={update}>Update Message</button>
+    </div>
+  }
+</StreamProps>
+```
+
+## Examples
+
+Enough chit-chat, time for examples!
+
+Play with Examples at [codesandbox.io](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%2Fstream%2Findex.js)
+
+### `<Stream/>`
 
 [Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%generic%2Findex.js)
 
@@ -115,7 +129,83 @@ export default () => (
 )
 ```
 
-## Ajax
+### `stream`
+
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%2stream%2Findex.js)
+
+```js
+import React from "react"
+import { stream } from "react-streams"
+import { interval } from "rxjs"
+import { map } from "rxjs/operators"
+
+const count$ = interval(250).pipe(map(count => ({ count })))
+
+const Counter = stream(count$)
+
+export default () => (
+  <div>
+    <h2>Subscribe to a Stream</h2>
+    <Counter>{({ count }) => <div>{count}</div>}</Counter>
+  </div>
+)
+```
+
+### `pipe`
+
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%pipe%2Findex.js)
+
+```js
+import React from "react"
+import { stream } from "react-streams"
+import { of } from "rxjs"
+import { map } from "rxjs/operators"
+
+const stream$ = of({ greeting: "Hello", name: "world" })
+
+const mapToMessage = map(({ greeting, name }) => ({
+  message: `${greeting}, ${name}!`
+}))
+
+const Greeting = stream(stream$, mapToMessage)
+
+export default () => (
+  <div>
+    <h2>Pipe Stream Values</h2>
+    <Greeting>{({ message }) => <div>{message}</div>}</Greeting>
+  </div>
+)
+```
+
+### `streamProps`
+
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%2streamProps%2Findex.js)
+
+```js
+import React from "react"
+import { streamProps } from "react-streams"
+import { map } from "rxjs/operators"
+
+const mapGreeting = map(({ greeting, name }) => ({
+  message: `${greeting}, ${name}!`
+}))
+
+const HelloWorld = streamProps(mapGreeting)
+
+export default () => (
+  <div>
+    <h2>Stream Props to Children</h2>
+    <HelloWorld greeting="Hello" name="world">
+      {({ message }) => <div>{message}</div>}
+    </HelloWorld>
+    <HelloWorld greeting="Bonjour" name="John">
+      {({ message }) => <div>{message}</div>}
+    </HelloWorld>
+  </div>
+)
+```
+
+### Ajax
 
 [Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%ajax%2Findex.js)
 
@@ -158,7 +248,7 @@ export default () => (
 )
 ```
 
-## Nested Streams
+### Nested Streams
 
 [Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%nested%2Findex.js)
 
@@ -193,7 +283,7 @@ export default () => (
 )
 ```
 
-## Create a `plan`
+### Create a `plan`
 
 [Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%plans%2Findex.js)
 
@@ -219,7 +309,7 @@ export default () => (
 )
 ```
 
-## `mergePlans`
+### `mergePlans`
 
 [Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%plans%2Findex.js)
 
@@ -282,7 +372,7 @@ export default () => (
 )
 ```
 
-## Counter Demo
+### Counter Demo
 
 [Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%counter%2Findex.js)
 
