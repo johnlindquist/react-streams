@@ -6,28 +6,27 @@ import {
   Subscription,
   UnaryFunction,
   concat,
+  from,
+  isObservable,
   merge,
   observable,
   of,
-  pipe,
-  from,
-  isObservable
+  pipe
 } from "rxjs"
 import {
   distinctUntilChanged,
   ignoreElements,
   map,
-  scan,
+  mergeScan,
   share,
   tap,
-  withLatestFrom,
-  switchAll,
-  mergeScan
+  withLatestFrom
 } from "rxjs/operators"
 
 const curry = fn => (...args) =>
   args.length < fn.length ? curry(fn.bind(null, ...args)) : fn(...args)
 
+//mergeScan's type should allow only 1 fn arg. Seed should be optional
 const patchScan: any = pipe(
   (mergeScan as any)((state = {}, update) => {
     const result = update instanceof Function ? update(state) : of(update)
@@ -38,18 +37,6 @@ const patchScan: any = pipe(
   })
 )
 
-const filterObject = (o, fn) =>
-  Object.entries(o)
-    .filter(fn)
-    .reduce(
-      (o, [key, value]) => ({
-        ...o,
-        [key]: value
-      }),
-      {}
-    )
-
-const update = key => map(key => () => ({ key }))
 const spreadMap = (overrides = {}) => map(value => ({ ...value, ...overrides }))
 
 const mergePlans = curry((plans, source) =>
@@ -61,7 +48,7 @@ const mergePlans = curry((plans, source) =>
 
 const assign = (...streams) => merge(...streams).pipe(patchScan)
 
-const isPlan = x => isObservable(x) && x instanceof Function
+const isNotPlan = x => isObservable(x) && !(x instanceof Function)
 
 class Stream extends Component<
   {
@@ -71,8 +58,6 @@ class Stream extends Component<
   },
   any
 > {
-  updateProps = plan()
-
   _renderFn = (this.props.children ||
     this.props.render ||
     ((state: any) => {
@@ -82,25 +67,23 @@ class Stream extends Component<
   subscription?: Subscription
   _isMounted = false
 
-  constructor(props, context) {
-    super(props.props || props, context)
+  configureSource(props, config) {
+    const { source } = config ? config : props
+    return isNotPlan(source) ? source : from(source)
+  }
 
-    console.log(props)
-    const source = props.source
-      ? isPlan(props.source)
-        ? props.source
-        : from(props.source)
-      : concat(of(props.props || props), this.updateProps)
+  constructor(props, context, config) {
+    super(props, context)
 
-    const state$ = source.pipe(
+    const { source, pipe: sourcePipe, plans } = config ? config : props
+
+    const state$ = this.configureSource(props, config).pipe(
       distinctUntilChanged(),
-      props.plans ? mergePlans(props.plans) : x => x,
-      props.pipe || (x => x)
+      plans ? mergePlans(plans) : x => x,
+      sourcePipe || (x => x)
     )
 
     this.subscription = state$.subscribe(state => {
-      console.log({ state })
-      if (state.children) this._renderFn = state.children
       if (this._isMounted) {
         this.setState(() => state)
       } else {
@@ -116,11 +99,21 @@ class Stream extends Component<
   render() {
     return this.state ? this._renderFn(this.state) : null
   }
-  componentDidUpdate() {
-    this.updateProps(this.props)
-  }
   componentWillUnmount() {
     if (this.subscription) this.subscription.unsubscribe()
+  }
+}
+
+class StreamProps extends Stream {
+  updateProps
+
+  configureSource(props) {
+    this.updateProps = plan()
+    return concat(of(props), this.updateProps)
+  }
+
+  componentDidUpdate() {
+    this.updateProps(this.props)
   }
 }
 
@@ -138,6 +131,20 @@ const fromPlan = (otherPlan, selector): UnaryFunction<any, any> =>
 const toPlan = (otherPlan, selector = x => x): UnaryFunction<any, any> =>
   pipe(map(selector), tap(otherPlan), ignoreElements())
 
-const stream = pipe => (props, context) => new Stream({ pipe, props }, context)
+const stream = (source, pipe, plans) => (props, context) =>
+  new Stream(props, context, { source, pipe, plans })
 
-export { plan, fromPlan, toPlan, Stream, stream, mergePlans, assign }
+const streamProps = (pipe, plans) => (props, context) =>
+  new StreamProps(props, context, { pipe, plans })
+
+export {
+  plan,
+  fromPlan,
+  toPlan,
+  Stream,
+  StreamProps,
+  stream,
+  streamProps,
+  mergePlans,
+  assign
+}

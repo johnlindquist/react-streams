@@ -11,8 +11,9 @@ import {
 import "./index.css"
 
 const examples = [
-  "hello",
-  "basic",
+  "stream",
+  "pipe",
+  "streamProps",
   "generic",
   "ajax",
   "nested",
@@ -21,8 +22,6 @@ const examples = [
   "counter",
   "todos",
   "drag",
-  "subscribe",
-  "subscribePipe",
   "context",
   "assign",
   "stepper"
@@ -51,12 +50,14 @@ render(
           </Link>
         ))}
       </nav>
-      <Switch>
-        <Redirect exact from="/" to="/hello" />
-        {examples.map(example => (
-          <ExampleRoute key={example} path={`/${example}`} />
-        ))}
-      </Switch>
+      <div style={{ padding: "2rem" }}>
+        <Switch>
+          <Redirect exact from="/" to="/hello" />
+          {examples.map(example => (
+            <ExampleRoute key={example} path={`/${example}`} />
+          ))}
+        </Switch>
+      </div>
     </Fragment>
   </Router>,
   document.querySelector("#root")

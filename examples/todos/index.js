@@ -1,5 +1,5 @@
 import React from "react"
-import { fromPlan, mergePlans, plan, stream, toPlan } from "react-streams"
+import { fromPlan, mergePlans, plan, streamProps, toPlan } from "react-streams"
 import { from, merge, of, pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
 import {
@@ -37,7 +37,7 @@ const addTodoTransform = switchMap(({ onAddTodo, ...props }) => {
   )
 })
 
-const AddTodoForm = stream(addTodoTransform)
+const AddTodoForm = streamProps(addTodoTransform)
 
 const Todo = ({ todo, onToggleDone, onDeleteTodo }) => (
   <li
@@ -120,7 +120,7 @@ const todosTransform = pipe(
   })
 )
 
-const Todos = stream(todosTransform)
+const Todos = streamProps(todosTransform)
 
 const addForm = ({ current, onChange, onSubmit }) => (
   <form

@@ -10,6 +10,7 @@ const message$ = of({ message: "Hello" })
 
 export default () => (
   <div>
+    <h2>Stream as a Component</h2>
     <Stream source={message$} pipe={startWithAndDelay("Wait...", 500)}>
       {({ message }) => <div>{message}</div>}
     </Stream>
