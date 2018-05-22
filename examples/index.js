@@ -11,10 +11,10 @@ import {
 import "./index.css"
 
 const examples = [
+  "generic",
   "stream",
   "pipe",
   "streamProps",
-  "generic",
   "ajax",
   "nested",
   "plans",
@@ -52,7 +52,7 @@ render(
       </nav>
       <div style={{ padding: "2rem" }}>
         <Switch>
-          <Redirect exact from="/" to="/hello" />
+          <Redirect exact from="/" to="/generic" />
           {examples.map(example => (
             <ExampleRoute key={example} path={`/${example}`} />
           ))}

@@ -99,11 +99,11 @@ const update = plan(
 
 Enough chit-chat, time for examples!
 
-Play with Examples at [codesandbox.io](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%2Fstream%2Findex.js)
+Play with Examples at [codesandbox.io](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=/stream/index.js)
 
 ### `<Stream/>`
 
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%generic%2Findex.js)
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=generic/index.js)
 
 ```js
 import React from "react"
@@ -131,7 +131,7 @@ export default () => (
 
 ### `stream`
 
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%2stream%2Findex.js)
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=/stream/index.js)
 
 ```js
 import React from "react"
@@ -153,7 +153,7 @@ export default () => (
 
 ### `pipe`
 
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%pipe%2Findex.js)
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=/pipe/index.js)
 
 ```js
 import React from "react"
@@ -179,7 +179,7 @@ export default () => (
 
 ### `streamProps`
 
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%2streamProps%2Findex.js)
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=/streamProps/index.js)
 
 ```js
 import React from "react"
@@ -207,7 +207,7 @@ export default () => (
 
 ### Ajax
 
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%ajax%2Findex.js)
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=/ajax/index.js)
 
 ```js
 import React from "react"
@@ -250,7 +250,7 @@ export default () => (
 
 ### Nested Streams
 
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%nested%2Findex.js)
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=/nested/index.js)
 
 ```js
 import React from "react"
@@ -285,7 +285,7 @@ export default () => (
 
 ### Create a `plan`
 
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%plans%2Findex.js)
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=/plans/index.js)
 
 ```js
 import React from "react"
@@ -311,7 +311,7 @@ export default () => (
 
 ### `mergePlans`
 
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%plans%2Findex.js)
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=/plans/index.js)
 
 ```js
 import React from "react"
@@ -374,7 +374,7 @@ export default () => (
 
 ### Counter Demo
 
-[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=%counter%2Findex.js)
+[Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=/counter/index.js)
 
 ```js
 import React from "react"
