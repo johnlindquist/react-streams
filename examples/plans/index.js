@@ -1,7 +1,6 @@
 import React from "react"
-import { mergePlans, plan, stream, StreamProps } from "react-streams"
-import { concat, of, pipe, from } from "rxjs"
-import { delay, map, pluck, switchMap } from "rxjs/operators"
+import { StreamProps, plan } from "react-streams"
+import { map, pluck } from "rxjs/operators"
 
 const onChange = plan(pluck("target", "value"), map(message => ({ message })))
 
