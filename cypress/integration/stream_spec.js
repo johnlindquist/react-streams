@@ -1,0 +1,16 @@
+describe("stream", () => {
+  it("should stream in 0, 1, 2", () => {
+    cy.clock()
+    cy.visit("http://localhost:4321/stream")
+    cy.tick(250)
+    cy.contains("0")
+    cy.tick(250)
+    cy.contains("1")
+    cy.tick(250)
+    cy.contains("2")
+    cy.tick(250)
+    cy.contains("3")
+    cy.tick(250)
+    cy.contains("4")
+  })
+})

@@ -1,6 +1,6 @@
 describe("Text", () => {
   beforeEach(() => {
-    cy.visit("http://localhost:4321/text")
+    cy.visit("http://localhost:4321/plans")
   })
 
   it("should start with 'Hello'", () => {

@@ -23,7 +23,7 @@ const examples = [
   "todos",
   "drag",
   "context",
-  "assign",
+  "mergeSources",
   "stepper"
 ]
 

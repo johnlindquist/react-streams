@@ -1,5 +1,5 @@
 import React, { createContext } from "react"
-import { Stream, assign, mergePlans, plan } from "react-streams"
+import { Stream, mergeSources, mergePlans, plan } from "react-streams"
 import { of } from "rxjs"
 import { map, mapTo, pluck, share, shareReplay } from "rxjs/operators"
 import { CountOnly, NameAndCount, NameOnly } from "./components"
@@ -15,20 +15,24 @@ const onDec = plan(mapTo(({ count }) => ({ count: count - 1 })))
 
 const countState$ = count$.pipe(mergePlans({ onInc, onDec }), shareReplay(1))
 
-const source = assign(nameState$, countState$)
+const source$ = mergeSources(nameState$, countState$)
 
 //for non-ui effects
-source.subscribe(state => console.log(state))
+source$.subscribe(state => console.log(state))
 
-const { Consumer } = createContext({ source })
+const { Consumer } = createContext({ source$ })
 const NameAndCountStream = props => (
-  <Consumer children={({ source }) => <Stream source={source} {...props} />} />
+  <Consumer
+    children={({ source$ }) => <Stream source={source$} {...props} />}
+  />
 )
 
 export default () => (
   <div>
     <NameAndCountStream render={NameOnly} />
     <NameAndCountStream render={CountOnly} />
+    <NameAndCountStream render={NameAndCount} />
+
     {/* Simulating late subscribers */}
     <NameAndCountStream>
       {({ name }) =>

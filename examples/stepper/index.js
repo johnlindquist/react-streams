@@ -34,7 +34,7 @@ const StepperControl = streamProps(
 
         if (next.min) {
           return {
-            min: next.min === max ? min : next.min,
+            min: next.min >= max ? min : next.min,
             max,
             step: updateStep(step, diff)
           }
@@ -42,7 +42,7 @@ const StepperControl = streamProps(
         if (next.max) {
           return {
             min,
-            max: next.max === min ? max : next.max,
+            max: next.max <= min ? max : next.max,
             step: updateStep(step, diff)
           }
         }
@@ -134,7 +134,7 @@ export default () => (
         <Stepper defaultValue={10} min={min} max={max} step={step}>
           {({ onDec, value, onBlur, onInc, onChange, min, max, step }) => (
             <div>
-              <button onClick={onDec} aria-label="Increment value">
+              <button onClick={onDec} aria-label="Decrement value">
                 -
               </button>
               <input
@@ -145,7 +145,7 @@ export default () => (
                 type="text"
                 aria-label="Set value"
               />
-              <button onClick={onInc} aria-label="Decrement value">
+              <button onClick={onInc} aria-label="Increment value">
                 +
               </button>
               <br />

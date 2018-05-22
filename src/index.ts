@@ -47,7 +47,7 @@ const mergePlans = curry((plans, source) =>
   )
 )
 
-const assign = (...streams) => merge(...streams).pipe(patchScan)
+const mergeSources = (...streams) => merge(...streams).pipe(patchScan)
 
 const isNotPlan = x => isObservable(x) && !(x instanceof Function)
 
@@ -149,5 +149,5 @@ export {
   stream,
   streamProps,
   mergePlans,
-  assign
+  mergeSources
 }
