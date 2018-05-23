@@ -1,10 +1,11 @@
-import { Component, ReactNode } from "react"
+import { Component, ReactNode, createElement } from "react"
 import {
   Observable,
   OperatorFunction,
   Subject,
   Subscription,
   UnaryFunction,
+  combineLatest,
   concat,
   from,
   isObservable,
@@ -47,7 +48,11 @@ const mergePlans = curry((plans, source) =>
   )
 )
 
-const mergeSources = (...streams) => merge(...streams).pipe(patchScan)
+const mergeSources = (...sources) =>
+  combineLatest(...sources).pipe(
+    map(values => values.reduce((a, c) => ({ ...a, ...c }), {})),
+    patchScan
+  )
 
 const isNotPlan = x => isObservable(x) && !(x instanceof Function)
 
@@ -96,8 +101,8 @@ class Stream extends Component<
     this._isMounted = true
   }
 
-  render() {
-    return this.state ? this.state.children(this.state) : null
+  render(): any {
+    return this.state ? createElement(this.state.children, this.state) : null
   }
   componentWillUnmount() {
     if (this.subscription) this.subscription.unsubscribe()
