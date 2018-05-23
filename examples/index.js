@@ -24,7 +24,9 @@ const examples = [
   "drag",
   "context",
   "mergeSources",
-  "stepper"
+  "stepper",
+  "render",
+  "shopping-cart"
 ]
 
 const ExampleRoute = props => (

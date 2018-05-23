@@ -54,17 +54,9 @@ const isNotPlan = x => isObservable(x) && !(x instanceof Function)
 class Stream extends Component<
   {
     pipe: OperatorFunction<any, Observable<any>>
-    children?: (props: any) => ReactNode
-    render?: (props: any) => ReactNode
   },
   any
 > {
-  _renderFn = (this.props.children ||
-    this.props.render ||
-    ((state: any) => {
-      throw Error("Need children or render")
-    })) as Function
-
   subscription?: Subscription
   _isMounted = false
 
@@ -83,7 +75,12 @@ class Stream extends Component<
     const state$ = this.configureSource(props, config).pipe(
       distinctUntilChanged(),
       plans ? mergePlans(plans) : x => x,
-      sourcePipe || (x => x)
+      sourcePipe || (x => x),
+      map((state: any) => ({
+        ...state,
+        children:
+          state.children || state.render || props.children || props.render
+      }))
     )
 
     this.subscription = state$.subscribe(state => {
@@ -100,7 +97,7 @@ class Stream extends Component<
   }
 
   render() {
-    return this.state ? this._renderFn(this.state) : null
+    return this.state ? this.state.children(this.state) : null
   }
   componentWillUnmount() {
     if (this.subscription) this.subscription.unsubscribe()
