@@ -18,7 +18,7 @@ module.exports = {
   configureWebpack(config, context) {
     debugger
     config.resolve.alias = {
-      "react-streams": "../../dist/index.js"
+      "react-streams": path.resolve(__dirname, "../dist/index.js")
     }
 
     config.module.rules.push({
