@@ -3,7 +3,7 @@ import Product from "./Product"
 
 export default ({ product, onAddToCartClicked }) => (
   <div style={{ marginBottom: 20 }}>
-    <Product title={product.title} price={product.price}>
+    <Product {...product}>
       <button
         onClick={onAddToCartClicked}
         disabled={product.inventory > 0 ? "" : "disabled"}

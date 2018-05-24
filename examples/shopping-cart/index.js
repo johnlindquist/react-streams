@@ -12,8 +12,8 @@ export default () => (
     <CartStream render={Cart} />
     <hr />
 
-    <DebugStream>
-      {stuff => (
+    <ProductsStream>
+      {data => (
         <div
           style={{
             fontFamily: "Menlo",
@@ -21,10 +21,24 @@ export default () => (
             padding: "1rem"
           }}
         >
-          <h4>Debug</h4>
-          {JSON.stringify(stuff)}
+          <h4>Debug Products</h4>
+          {JSON.stringify(data)}
         </div>
       )}
-    </DebugStream>
+    </ProductsStream>
+    <CartStream>
+      {data => (
+        <div
+          style={{
+            fontFamily: "Menlo",
+            backgroundColor: "whitesmoke",
+            padding: "1rem"
+          }}
+        >
+          <h4>Debug Cart</h4>
+          {JSON.stringify(data)}
+        </div>
+      )}
+    </CartStream>
   </div>
 )

@@ -1,35 +1,42 @@
-import { mergeSources, mergePlans, stream, plan } from "react-streams"
-import { of, pipe } from "rxjs"
-import { shareReplay, map, tap } from "rxjs/operators"
-import { addToCart, removeFromCart, checkout } from "./plans"
+import { mergePlans, stream } from "react-streams"
+import { from, of } from "rxjs"
+import { shareReplay } from "rxjs/operators"
+import { calcTotal, planOnLastItem } from "./pipes"
+import {
+  addToCart,
+  removeFromCart,
+  addToProducts,
+  removeFromProducts,
+  checkout
+} from "./plans"
 
-const products = [
-  { id: 1, title: "iPad 4 Mini", price: 500.01, inventory: 2 },
-  { id: 2, title: "H&M T-Shirt White", price: 10.99, inventory: 10 },
-  { id: 3, title: "Charli XCX - Sucker CD", price: 19.99, inventory: 5 }
-]
+const products = {
+  products: [
+    { id: 1, title: "iPad 4 Mini", price: 500.01, inventory: 2 },
+    { id: 2, title: "H&M T-Shirt White", price: 10.99, inventory: 10 },
+    { id: 3, title: "Charli XCX - Sucker CD", price: 19.99, inventory: 5 }
+  ]
+}
 
-const products$ = of({ products }).pipe(shareReplay(1))
-const cart$ = of({ cart: [] }).pipe(shareReplay(1))
+const products$ = mergePlans(
+  { addToProducts, removeFromProducts },
+  of(products).pipe(shareReplay(1))
+)
 
-const store$ = mergePlans(
+const cart = { products: [], error: "", checkoutPending: false }
+
+const cart$ = mergePlans(
   { addToCart, removeFromCart, checkout },
-  mergeSources(products$, cart$)
+  of(cart).pipe(shareReplay(1))
 )
 
-export const DebugStream = stream(store$)
+from(products$)
+  .pipe(planOnLastItem(addToCart))
+  .subscribe()
 
-export const ProductsStream = stream(store$, map(({ cart, ...rest }) => rest))
+from(cart$)
+  .pipe(planOnLastItem(addToProducts))
+  .subscribe()
+export const ProductsStream = stream(products$)
 
-export const CartStream = stream(
-  store$,
-  map(({ products: nope, cart: products, ...rest }) => {
-    const total = products
-      .reduce((total, item) => total + item.price, 0)
-      .toFixed(2)
-
-    const error = ""
-    const checkoutPending = false
-    return { products, total, error, ...rest }
-  })
-)
+export const CartStream = stream(cart$, calcTotal)
