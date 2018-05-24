@@ -6,10 +6,13 @@ import {
   removeFromCartPipe,
   removeFromProductsPipe
 } from "./pipes"
+import { pipe } from "rxjs"
+import { tap } from "rxjs/operators"
 
 export const addToProducts = plan(addToProductsPipe)
-export const removeFromProducts = plan(removeFromProductsPipe)
-
 export const addToCart = plan(addToCartPipe)
-export const removeFromCart = plan(removeFromCartPipe)
+
+export const removeFromProducts = plan(removeFromProductsPipe(addToCart))
+export const removeFromCart = plan(removeFromCartPipe(addToProducts))
+
 export const checkout = plan(checkoutPipe)

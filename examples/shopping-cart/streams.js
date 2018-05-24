@@ -1,7 +1,7 @@
 import { mergePlans, stream } from "react-streams"
 import { from, of } from "rxjs"
 import { shareReplay } from "rxjs/operators"
-import { calcTotal, planOnLastItem } from "./pipes"
+import { calcTotal } from "./pipes"
 import {
   addToCart,
   removeFromCart,
@@ -20,23 +20,16 @@ const products = {
 
 const products$ = mergePlans(
   { addToProducts, removeFromProducts },
-  of(products).pipe(shareReplay(1))
-)
+  of(products)
+).pipe(shareReplay(1))
 
 const cart = { products: [], error: "", checkoutPending: false }
 
 const cart$ = mergePlans(
   { addToCart, removeFromCart, checkout },
-  of(cart).pipe(shareReplay(1))
-)
+  of(cart)
+).pipe(shareReplay(1))
 
-from(products$)
-  .pipe(planOnLastItem(addToCart))
-  .subscribe()
-
-from(cart$)
-  .pipe(planOnLastItem(addToProducts))
-  .subscribe()
 export const ProductsStream = stream(products$)
 
 export const CartStream = stream(cart$, calcTotal)
