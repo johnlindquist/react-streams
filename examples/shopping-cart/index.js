@@ -1,7 +1,7 @@
 import React, { createContext } from "react"
 import ProductList from "./components/ProductList"
 import Cart from "./components/Cart"
-import { ProductsStream, CartStream } from "./streams"
+import { ProductsStream, CartStream, DebugStream } from "./streams"
 
 export default () => (
   <div>
@@ -10,6 +10,21 @@ export default () => (
     <ProductsStream render={ProductList} />
     <hr />
     <CartStream render={Cart} />
-    <CartStream>{stuff => <div>{JSON.stringify(stuff)}</div>}</CartStream>
+    <hr />
+
+    <DebugStream>
+      {stuff => (
+        <div
+          style={{
+            fontFamily: "Menlo",
+            backgroundColor: "whitesmoke",
+            padding: "1rem"
+          }}
+        >
+          <h4>Debug</h4>
+          {JSON.stringify(stuff)}
+        </div>
+      )}
+    </DebugStream>
   </div>
 )
