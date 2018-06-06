@@ -1,0 +1,23 @@
+# https://docs.cypress.io/guides/guides/continuous-integration.html#CircleCI
+version: 2
+jobs:
+  build:
+    docker:
+      - image: cypress/base:10
+        environment:
+          ## this enables colors in the output
+          TERM: xterm
+    working_directory: ~/app
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-app
+      - run: yarn install
+      - save_cache:
+          key: v1-app
+          paths:
+            # since we use Yarn it caches in ~/.cache
+            # and Cypress caches its binary there!
+            - ~/.cache
+      - run: yarn build
+      - run: yarn e2e

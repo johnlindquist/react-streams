@@ -24,7 +24,7 @@
     "e2e": "concurrently -k --success first 'npm run examples' 'npm run cypress:run'",
     "e2e:open": "run-p examples cypress:open",
     "docs": "poi --config docs/poi.config.js",
-    "prepublish": "run-p e2e"
+    "disable-prepublish-stop-running-on-install-before-build": "run-p e2e"
   },
   "keywords": [
     "react",
