@@ -23,4 +23,5 @@ jobs:
             #   npx print-cachedir Cypress
             - ~/.cache
       - run: yarn build
-      - run: yarn e2e
+      # enable video recording for Cypress
+      - run: yarn e2e:video

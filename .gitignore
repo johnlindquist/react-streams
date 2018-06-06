@@ -65,3 +65,4 @@ typings/
 .vscode/
 dist/
 cypress/screenshots
+cypress/videos

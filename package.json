@@ -19,9 +19,11 @@
     "examples": "run-p examples:*",
     "examples:client": "cd examples && poi --port 4321",
     "examples:server": "cd cypress/fixtures && json-server --port 4322 db.js",
-    "cypress:run": "cypress run --config video=false",
+    "cypress:run": "cypress run",
+    "cypress:run:video": "cypress run --config video=true",
     "cypress:open": "cypress open",
     "e2e": "concurrently -k --success first 'npm run examples' 'npm run cypress:run'",
+    "e2e:video": "concurrently -k --success first 'npm run examples' 'npm run cypress:run:video'",
     "e2e:open": "run-p examples cypress:open",
     "docs": "poi --config docs/poi.config.js",
     "disable-prepublish-stop-running-on-install-before-build": "run-p e2e"
