@@ -20,7 +20,7 @@
     "examples:client": "cd examples && poi --port 4321",
     "examples:server": "cd cypress/fixtures && json-server --port 4322 db.js",
     "cypress:run": "cypress run",
-    "cypress:run:video": "cypress run --config video=true",
+    "cypress:run:video": "cypress run --config video=true --record",
     "cypress:open": "cypress open",
     "e2e": "concurrently -k --success first 'npm run examples' 'npm run cypress:run'",
     "e2e:video": "concurrently -k --success first 'npm run examples' 'npm run cypress:run:video'",
