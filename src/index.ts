@@ -151,7 +151,7 @@ function plan(...operators) {
   const o$ = new Observable(observer => {
     next = (...arg) => {
       observer.next(...arg)
-      const { index } = observer
+      const { index } = observer as any
       console.log(`next index`, index)
       return o$.pipe(elementAt(index))
     }
