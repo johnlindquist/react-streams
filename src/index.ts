@@ -1,40 +1,27 @@
-import { Component, ReactNode, createElement } from "react"
+import { Component, createElement } from "react"
 import {
-  Observable,
-  OperatorFunction,
-  Subject,
-  Subscription,
-  UnaryFunction,
   combineLatest,
   concat,
   from,
+  isObservable,
   merge,
+  Observable,
   observable,
   of,
+  OperatorFunction,
   pipe,
+  Subscription,
   throwError,
-  defer,
-  ReplaySubject,
-  isObservable,
-  race
+  UnaryFunction
 } from "rxjs"
 import {
   distinctUntilChanged,
   ignoreElements,
   map,
   mergeScan,
-  share,
-  tap,
-  withLatestFrom,
-  take,
-  first,
   shareReplay,
-  skip,
-  takeLast,
-  elementAt,
-  single,
-  filter,
-  materialize
+  tap,
+  withLatestFrom
 } from "rxjs/operators"
 
 const curry = fn => (...args) =>
@@ -133,27 +120,12 @@ class StreamProps extends Stream {
   }
 }
 
-// function plan(...operators) {
-//   const subject = new Subject()
-//   const source = subject.pipe(...operators, share())
-
-//   const next = (...args) => {
-//     subject.next(...args)
-//     return combineLatest(source, a => a)
-//   }
-//   next[observable] = () => source
-
-//   return next
-// }
-
 function plan(...operators) {
   let next
+
   const o$ = new Observable(observer => {
     next = (...arg) => {
       observer.next(...arg)
-      const { index } = observer as any
-      console.log(`next index`, index)
-      return o$.pipe(elementAt(index))
     }
   }).pipe(
     ...operators,

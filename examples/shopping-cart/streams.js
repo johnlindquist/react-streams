@@ -63,7 +63,7 @@ const combined$ = combineSources(status$, products$, cart$).pipe(
 
 const store$ = scanPlans(
   {
-    checkout: checkout(combined$)
+    checkout
   },
   combined$
 ).pipe(shareReplay(1))

@@ -19,4 +19,4 @@ export const updateStatus = plan(updateStatusPipe)
 export const updateInventory = plan(updateInventoryPipe)
 export const clearCart = plan(clearCartPipe)
 
-export const checkout = store$ => plan(checkoutPipe(store$))
+export const checkout = plan(checkoutPipe)

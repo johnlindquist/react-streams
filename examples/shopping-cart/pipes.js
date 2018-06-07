@@ -72,52 +72,50 @@ export const updateInventoryPipe = map(cart => ({ products }) => ({
   })
 }))
 
-export const checkoutPipe = store$ => {
-  return pipe(
-    withLatestFrom(store$, (_, store) => store),
-    switchMap(store => {
-      const { items, updateStatus } = store
+export const checkoutPipe = pipe(
+  // withLatestFrom(store$, (_, store) => store),
+  // switchMap(store => {
+  //   const { items, updateStatus } = store
 
-      if (items.filter(item => item.quantity > 0).length > 2) {
-        updateStatus({ error: "nope..." })
-        return of({})
-      }
+  //   if (items.filter(item => item.quantity > 0).length > 2) {
+  //     updateStatus({ error: "nope..." })
+  //     return of({})
+  //   }
 
-      updateStatus({ error: "ok..." })
-      return of(store)
-    }),
-    // switchMap$ => [
-    //   store$.pipe(
-    //     tap(store => console.log(store)),
-    //     filter(
-    //       store => store.items.filter(item => item.quantity > 0).length > 2
-    //     ),
-    //     setStatus("nope...")
-    //   ),
-    //   store$.pipe(setStatus("ok..."))
-    // ],
+  //   updateStatus({ error: "ok..." })
+  //   return of(store)
+  // }),
+  // switchMap$ => [
+  //   store$.pipe(
+  //     tap(store => console.log(store)),
+  //     filter(
+  //       store => store.items.filter(item => item.quantity > 0).length > 2
+  //     ),
+  //     setStatus("nope...")
+  //   ),
+  //   store$.pipe(setStatus("ok..."))
+  // ],
 
-    // partition(store => {
-    //   console.log(store)
-    //   return true
-    // }),
-    // switchMap(([valid$, invalid$]) => {
-    //   return merge(
-    //     valid$.pipe(
-    //       tap(({ updateInventory, items }) => {
-    //         updateInventory(items)
-    //       }),
-    //       tap(({ clearCart }) => clearCart()),
-    //       delay(2000),
+  // partition(store => {
+  //   console.log(store)
+  //   return true
+  // }),
+  // switchMap(([valid$, invalid$]) => {
+  //   return merge(
+  //     valid$.pipe(
+  //       tap(({ updateInventory, items }) => {
+  //         updateInventory(items)
+  //       }),
+  //       tap(({ clearCart }) => clearCart()),
+  //       delay(2000),
 
-    //       setStatus("Done..."),
-    //       delay(2000),
+  //       setStatus("Done..."),
+  //       delay(2000),
 
-    //       setStatus("")
-    //     ),
-    //     invalid$.pipe(setStatus("Nope..."))
-    //   )
-    // }),
-    ignoreElements() //we don't want to update the store
-  )
-}
+  //       setStatus("")
+  //     ),
+  //     invalid$.pipe(setStatus("Nope..."))
+  //   )
+  // }),
+  ignoreElements() //we don't want to update the store
+)
