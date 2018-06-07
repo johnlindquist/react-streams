@@ -8,12 +8,15 @@ import {
   combineLatest,
   concat,
   from,
-  isObservable,
   merge,
   observable,
   of,
   pipe,
-  throwError
+  throwError,
+  defer,
+  ReplaySubject,
+  isObservable,
+  race
 } from "rxjs"
 import {
   distinctUntilChanged,
@@ -22,7 +25,16 @@ import {
   mergeScan,
   share,
   tap,
-  withLatestFrom
+  withLatestFrom,
+  take,
+  first,
+  shareReplay,
+  skip,
+  takeLast,
+  elementAt,
+  single,
+  filter,
+  materialize
 } from "rxjs/operators"
 
 const curry = fn => (...args) =>
@@ -41,17 +53,16 @@ const patchScan: any = pipe(
 
 const spreadMap = (overrides = {}) => map(value => ({ ...value, ...overrides }))
 
-const mergePlans = curry((plans, source) =>
+const scanPlans = curry((plans, source) =>
   merge(source, ...(Object.values(plans) as any[])).pipe(
     patchScan,
     spreadMap(plans)
   )
 )
 
-const mergeSources = (...sources) =>
+const combineSources = (...sources) =>
   combineLatest(...sources).pipe(
-    map(values => values.reduce((a, c) => ({ ...a, ...c }), {})),
-    patchScan
+    map(values => values.reduce((a, c) => ({ ...a, ...c }), {}))
   )
 
 const isNotPlan = x => isObservable(x) && !(x instanceof Function)
@@ -79,7 +90,7 @@ class Stream extends Component<
 
     const state$ = this.configureSource(props, config).pipe(
       distinctUntilChanged(),
-      plans ? mergePlans(plans) : x => x,
+      plans ? scanPlans(plans) : x => x,
       sourcePipe || (x => x),
       map((state: any) => ({
         ...state,
@@ -122,19 +133,50 @@ class StreamProps extends Stream {
   }
 }
 
-function plan(...operators) {
-  const subject = new Subject()
-  const source = subject.pipe(...operators, share())
+// function plan(...operators) {
+//   const subject = new Subject()
+//   const source = subject.pipe(...operators, share())
 
-  const next = (...args) => subject.next(...args)
-  next[observable] = () => source
+//   const next = (...args) => {
+//     subject.next(...args)
+//     return combineLatest(source, a => a)
+//   }
+//   next[observable] = () => source
+
+//   return next
+// }
+
+function plan(...operators) {
+  let next
+  const o$ = new Observable(observer => {
+    next = (...arg) => {
+      observer.next(...arg)
+      const { index } = observer
+      console.log(`next index`, index)
+      return o$.pipe(elementAt(index))
+    }
+  }).pipe(
+    ...operators,
+    shareReplay(1)
+  )
+
+  const unsubscribe = o$.subscribe()
+  next["unsubscribe"] = unsubscribe
+  next[observable] = () => o$
   return next
 }
 
 const fromPlan = (otherPlan, selector): UnaryFunction<any, any> =>
-  pipe(withLatestFrom(otherPlan, (_, value) => value), map(selector))
+  pipe(
+    withLatestFrom(otherPlan, (_, value) => value),
+    map(selector)
+  )
 const toPlan = (otherPlan, selector = x => x): UnaryFunction<any, any> =>
-  pipe(map(selector), tap(otherPlan), ignoreElements())
+  pipe(
+    map(selector),
+    tap(otherPlan),
+    ignoreElements()
+  )
 
 const stream = (source, pipe, plans) => (props, context) =>
   new Stream(props, context, { source, pipe, plans })
@@ -150,6 +192,6 @@ export {
   StreamProps,
   stream,
   streamProps,
-  mergePlans,
-  mergeSources
+  scanPlans,
+  combineSources
 }

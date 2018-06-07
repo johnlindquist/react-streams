@@ -18,15 +18,16 @@ const examples = [
   "ajax",
   "nested",
   "plans",
-  "mergePlans",
+  "scanPlans",
   "counter",
   "todos",
   "drag",
   "context",
-  "mergeSources",
+  "combineSources",
   "stepper",
   "render",
-  "shopping-cart"
+  "shopping-cart",
+  "scan"
 ]
 
 const ExampleRoute = props => (

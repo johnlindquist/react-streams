@@ -1,18 +1,22 @@
 import { plan } from "react-streams"
 import {
   addToCartPipe,
-  addToProductsPipe,
   checkoutPipe,
+  clearCartPipe,
   removeFromCartPipe,
-  removeFromProductsPipe
+  updateStatusPipe,
+  updateInventoryPipe
 } from "./pipes"
-import { pipe } from "rxjs"
-import { tap } from "rxjs/operators"
+import { pipe, from, concat } from "rxjs"
+import { delay, tap, first } from "rxjs/operators"
 
-export const addToProducts = plan(addToProductsPipe)
 export const addToCart = plan(addToCartPipe)
 
-export const removeFromProducts = plan(removeFromProductsPipe(addToCart))
-export const removeFromCart = plan(removeFromCartPipe(addToProducts))
+export const removeFromCart = plan(removeFromCartPipe)
 
-export const checkout = plan(checkoutPipe)
+export const updateStatus = plan(updateStatusPipe)
+
+export const updateInventory = plan(updateInventoryPipe)
+export const clearCart = plan(clearCartPipe)
+
+export const checkout = store$ => plan(checkoutPipe(store$))

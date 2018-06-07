@@ -1,6 +1,6 @@
-describe("mergePlans", () => {
+describe("scanPlans", () => {
   beforeEach(() => {
-    cy.command("launch", "mergePlans")
+    cy.command("launch", "scanPlans")
     cy.get("input").clear()
   })
   it("should have an empty list", () => {

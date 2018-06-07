@@ -4,7 +4,7 @@ import CartItem from "./CartItem"
 export default class Cart extends Component {
   render() {
     const {
-      products,
+      items,
       total,
       error,
       checkoutPending,
@@ -12,21 +12,21 @@ export default class Cart extends Component {
       removeFromCart
     } = this.props
 
-    const hasProducts = products.length > 0
+    const hasProducts = items.length > 0
     const checkoutAllowed = hasProducts && !checkoutPending
 
     const nodes = !hasProducts ? (
       <em>Please add some products to cart.</em>
     ) : (
-      products.map(product => (
-        <CartItem
-          title={product.title}
-          price={product.price}
-          quantity={product.quantity}
-          key={product.id}
-          onRemove={() => removeFromCart(product.id)}
-        />
-      ))
+      items
+        .filter(({ quantity, inventory }) => quantity)
+        .map(product => (
+          <CartItem
+            {...product}
+            key={product.id}
+            onRemove={() => removeFromCart(product.id)}
+          />
+        ))
     )
 
     return (

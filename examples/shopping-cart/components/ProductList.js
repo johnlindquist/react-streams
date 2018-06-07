@@ -1,14 +1,14 @@
 import React from "react"
 import ProductItem from "./ProductItem"
 
-export default ({ products, removeFromProducts: addToCart }) => (
+export default ({ items, addToCart }) => (
   <div>
     <h3>Products</h3>
-    {products.map(product => (
+    {items.map(item => (
       <ProductItem
-        key={product.id}
-        product={product}
-        onAddToCartClicked={() => addToCart(product.id)}
+        {...item}
+        key={item.id}
+        onAddToCartClicked={() => addToCart(item.id)}
       />
     ))}
   </div>

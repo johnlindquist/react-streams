@@ -1,5 +1,5 @@
 import React from "react"
-import { mergePlans, plan, stream, streamProps } from "react-streams"
+import { scanPlans, plan, stream, streamProps } from "react-streams"
 import { from, merge, of, pipe } from "rxjs"
 import { map, mergeScan, scan, switchMap } from "rxjs/operators"
 
@@ -106,7 +106,7 @@ const Stepper = streamProps(
       max,
       step
     }).pipe(
-      mergePlans({
+      scanPlans({
         onDec,
         onInc,
         onChange,

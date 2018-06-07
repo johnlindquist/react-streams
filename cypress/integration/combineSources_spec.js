@@ -1,6 +1,6 @@
-describe("Assign", () => {
+describe("combineSources", () => {
   beforeEach(() => {
-    cy.command("launch", "mergeSources")
+    cy.command("launch", "combineSources")
     cy.get(".count > button:first").as("countButton")
     cy.get(".count > h3").as("countText")
     cy.get(".name > h3").as("nameText")

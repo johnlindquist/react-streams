@@ -1,12 +1,12 @@
 import React from "react"
-import { mergePlans, plan, streamProps } from "react-streams"
+import { scanPlans, plan, streamProps } from "react-streams"
 import { map } from "rxjs/operators"
 
 const onInc = plan(map(() => state => ({ count: state.count + 2 })))
 const onDec = plan(map(() => state => ({ count: state.count - 2 })))
 const onReset = plan(map(() => state => ({ count: 4 })))
 
-const Counter = streamProps(mergePlans({ onInc, onDec, onReset }))
+const Counter = streamProps(scanPlans({ onInc, onDec, onReset }))
 
 export default () => (
   <Counter count={4}>

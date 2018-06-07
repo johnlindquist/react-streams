@@ -1,5 +1,5 @@
 import React from "react"
-import { plan, stream, mergePlans } from "react-streams"
+import { plan, stream, scanPlans } from "react-streams"
 import { from, fromEvent, merge, concat, of } from "rxjs"
 import { map, switchMap, takeUntil, tap, pluck } from "rxjs/operators"
 

@@ -1,116 +1,123 @@
-import { concat, of, pipe } from "rxjs"
+import { concat, of, pipe, merge, race } from "rxjs"
 import {
   delay,
   distinctUntilChanged,
   filter,
   map,
   tap,
-  share
+  share,
+  switchMap,
+  first,
+  withLatestFrom,
+  ignoreElements
 } from "rxjs/operators"
 
-export const addToProductsPipe = pipe(
-  distinctUntilChanged(),
-  map(item => ({ products }) => {
-    const itemIndex = products.findIndex(({ id: _id }) => _id === item.id)
+export const removeFromCartPipe = map(id => ({ cart }) => {
+  const cartItemIndex = cart.findIndex(({ id: _id }) => _id === id)
 
-    const productItem = products[itemIndex]
-    const updateProductItem = {
-      ...productItem,
-      inventory: productItem.inventory + 1
-    }
+  const cartItem = cart[cartItemIndex]
+  const updateCartItem = { ...cartItem, quantity: cartItem.quantity - 1 }
 
-    return {
-      products: [
-        ...products.slice(0, itemIndex),
-        updateProductItem,
-        ...products.slice(itemIndex + 1)
-      ]
-    }
+  return of({
+    cart: [
+      ...cart.slice(0, cartItemIndex),
+      updateCartItem,
+      ...cart.slice(cartItemIndex + 1)
+    ]
   })
-)
-
-export const removeFromCartPipe = plan =>
-  map(id => ({ products }) => {
-    const cartItemIndex = products.findIndex(({ id: _id }) => _id === id)
-
-    const cartItem = products[cartItemIndex]
-    const updateCartItem = { ...cartItem, quantity: cartItem.quantity - 1 }
-
-    return of({
-      products: updateCartItem.quantity
-        ? [
-            ...products.slice(0, cartItemIndex),
-            updateCartItem,
-            ...products.slice(cartItemIndex + 1)
-          ]
-        : [
-            ...products.slice(0, cartItemIndex),
-            ...products.slice(cartItemIndex + 1)
-          ]
-    }).pipe(tap(() => plan(updateCartItem)))
-  })
-
-export const removeFromProductsPipe = plan =>
-  map(id => ({ products }) => {
-    const itemIndex = products.findIndex(({ id: _id }) => _id === id)
-
-    const item = products[itemIndex]
-    const updateProductItem = { ...item, inventory: item.inventory - 1 }
-
-    return of({
-      products: [
-        ...products.slice(0, itemIndex),
-        updateProductItem,
-        ...products.slice(itemIndex + 1)
-      ]
-    }).pipe(tap(() => plan(updateProductItem)))
-  })
-
-export const addToCartPipe = pipe(
-  distinctUntilChanged(),
-  map(item => ({ products, ...rest }) => {
-    console.log(`add to cart`, { item, products, rest })
-    const cartItemIndex = products.findIndex(({ id: _id }) => _id === item.id)
-    const cartItem = cartItemIndex > -1 ? products[cartItemIndex] : null
-
-    return {
-      products: cartItem
-        ? [
-            ...products.slice(0, cartItemIndex),
-            {
-              ...cartItem,
-              quantity: cartItem.quantity + 1
-            },
-            ...products.slice(cartItemIndex + 1)
-          ]
-        : [...products, { ...item, quantity: 1 }]
-    }
-  })
-)
-
-export const checkoutPipe = map(event => ({ products }) => {
-  if (products.length > 2) {
-    return {
-      error: "2 item max, remove items from cart"
-    }
-  }
-  return concat(
-    of({
-      checkoutPending: true,
-      error: "Processing..."
-    }),
-    of({
-      checkoutPending: false,
-      products: [],
-      error: ""
-    }).pipe(delay(2000))
-  )
 })
 
-export const calcTotal = map(({ total, products, ...rest }) => ({
-  total: products
+export const addToCartPipe = pipe(
+  map(id => ({ cart, ...rest }) => {
+    const cartItemIndex = cart.findIndex(({ id: _id }) => _id === id)
+    const cartItem = cart[cartItemIndex]
+
+    return {
+      cart: [
+        ...cart.slice(0, cartItemIndex),
+        {
+          ...cartItem,
+          quantity: cartItem.quantity + 1
+        },
+        ...cart.slice(cartItemIndex + 1)
+      ]
+    }
+  })
+)
+
+export const updateStatusPipe = map(newStatus => oldStatus => ({
+  ...oldStatus,
+  ...newStatus
+}))
+
+export const calcTotal = map(({ total, items, ...rest }) => ({
+  total: items
     .reduce((total, item) => total + item.price * item.quantity, 0)
     .toFixed(2),
-  products,
+  items,
   ...rest
 }))
+
+export const clearCartPipe = map(() => ({ cart }) => ({
+  cart: cart.map(item => ({ ...item, quantity: 0 }))
+}))
+
+export const updateInventoryPipe = map(cart => ({ products }) => ({
+  products: products.map(item => {
+    const { quantity } = cart.find(({ id }) => id === item.id)
+    return {
+      ...item,
+      inventory: item.inventory - quantity
+    }
+  })
+}))
+
+export const checkoutPipe = store$ => {
+  return pipe(
+    withLatestFrom(store$, (_, store) => store),
+    switchMap(store => {
+      const { items, updateStatus } = store
+
+      if (items.filter(item => item.quantity > 0).length > 2) {
+        updateStatus({ error: "nope..." })
+        return of({})
+      }
+
+      updateStatus({ error: "ok..." })
+      return of(store)
+    }),
+    // switchMap$ => [
+    //   store$.pipe(
+    //     tap(store => console.log(store)),
+    //     filter(
+    //       store => store.items.filter(item => item.quantity > 0).length > 2
+    //     ),
+    //     setStatus("nope...")
+    //   ),
+    //   store$.pipe(setStatus("ok..."))
+    // ],
+
+    // partition(store => {
+    //   console.log(store)
+    //   return true
+    // }),
+    // switchMap(([valid$, invalid$]) => {
+    //   return merge(
+    //     valid$.pipe(
+    //       tap(({ updateInventory, items }) => {
+    //         updateInventory(items)
+    //       }),
+    //       tap(({ clearCart }) => clearCart()),
+    //       delay(2000),
+
+    //       setStatus("Done..."),
+    //       delay(2000),
+
+    //       setStatus("")
+    //     ),
+    //     invalid$.pipe(setStatus("Nope..."))
+    //   )
+    // }),
+    ignoreElements() //we don't want to update the store
+  )
+}

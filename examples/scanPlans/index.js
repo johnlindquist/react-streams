@@ -1,5 +1,5 @@
 import React from "react"
-import { mergePlans, plan, streamProps } from "react-streams"
+import { scanPlans, plan, streamProps } from "react-streams"
 import { pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
 import { debounceTime, distinctUntilChanged, map, pluck } from "rxjs/operators"
@@ -21,7 +21,7 @@ const handleInput = pipe(
   })
 )
 
-const Typeahead = streamProps(mergePlans({ onChange: plan(handleInput) }))
+const Typeahead = streamProps(scanPlans({ onChange: plan(handleInput) }))
 
 const url = process.env.DEV
   ? "/api/people"

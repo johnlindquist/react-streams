@@ -1,5 +1,5 @@
 import React, { createContext } from "react"
-import { Stream, mergeSources, mergePlans, plan } from "react-streams"
+import { Stream, combineSources, scanPlans, plan } from "react-streams"
 import { of } from "rxjs"
 import { map, mapTo, pluck, share, shareReplay } from "rxjs/operators"
 import { CountOnly, NameAndCount, NameOnly } from "./components"
@@ -7,15 +7,15 @@ import { CountOnly, NameAndCount, NameOnly } from "./components"
 const name$ = of({ name: "John" })
 const onUpdate = plan(pluck("target", "value"), map(name => () => ({ name })))
 
-const nameState$ = name$.pipe(mergePlans({ onUpdate }), shareReplay(1))
+const nameState$ = name$.pipe(scanPlans({ onUpdate }), shareReplay(1))
 
 const count$ = of({ count: 5 })
 const onInc = plan(mapTo(({ count }) => ({ count: count + 1 })))
 const onDec = plan(mapTo(({ count }) => ({ count: count - 1 })))
 
-const countState$ = count$.pipe(mergePlans({ onInc, onDec }), shareReplay(1))
+const countState$ = count$.pipe(scanPlans({ onInc, onDec }), shareReplay(1))
 
-const source$ = mergeSources(nameState$, countState$)
+const source$ = combineSources(nameState$, countState$)
 
 //for non-ui effects
 source$.subscribe(state => console.log(state))

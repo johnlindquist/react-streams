@@ -1,5 +1,5 @@
 import React from "react"
-import { fromPlan, mergePlans, plan, streamProps, toPlan } from "react-streams"
+import { fromPlan, scanPlans, plan, streamProps, toPlan } from "react-streams"
 import { from, merge, of, pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
 import {
@@ -31,7 +31,7 @@ const addTodoTransform = switchMap(({ onAddTodo, ...props }) => {
 
   const onSubmit = plan(submit)
 
-  return mergePlans(
+  return scanPlans(
     { onSubmit, onChange },
     merge(clearAfterAdd$, of({ ...props, current: "" }))
   )
@@ -113,7 +113,7 @@ const deleteTodo = map(todo => ({ todos }) => ({
 
 const todosTransform = pipe(
   loadTodosFromProps,
-  mergePlans({
+  scanPlans({
     onAddTodo: plan(addTodoAjax, addTodo),
     onToggleDone: plan(toggleDoneAjax, toggleDone),
     onDeleteTodo: plan(deleteTodoAjax, deleteTodo)
