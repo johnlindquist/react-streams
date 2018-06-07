@@ -13,6 +13,12 @@ Install both `react-streams` and `rxjs`
 npm i react-streams rxjs
 ```
 
+## Build Status
+
+[![CircleCI](https://circleci.com/gh/johnlindquist/react-streams.svg?style=svg)](https://circleci.com/gh/johnlindquist/react-streams)
+
+[Cypress Dashboard](https://dashboard.cypress.io/#/projects/ar6axg/)
+
 ## About
 
 `react-streams` enables you to stream for sources or props. The stream will pass through a `pipe` and can be updated by `plans`.
@@ -112,7 +118,10 @@ import { of, pipe } from "rxjs"
 import { delay, startWith } from "rxjs/operators"
 
 const startWithAndDelay = (message, time) =>
-  pipe(delay(time), startWith({ message }))
+  pipe(
+    delay(time),
+    startWith({ message })
+  )
 
 const message$ = of({ message: "Hello" })
 
