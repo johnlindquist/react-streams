@@ -3328,7 +3328,11 @@ cyclist@~0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-0.2.2.tgz#1b33792e11e914a2fd6d6ed6447464444e5fa640"
 
+<<<<<<< HEAD
 cypress@^3.0.1:
+=======
+cypress@3.0.1:
+>>>>>>> cc0d2402e3af35d4a2dc95864f46c761b24ce5b9
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/cypress/-/cypress-3.0.1.tgz#6a8938ce8a551e4ae1bd5fb2ceab038d4ad39c4d"
   dependencies:
