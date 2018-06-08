@@ -24,11 +24,11 @@ import {
   withLatestFrom
 } from "rxjs/operators"
 
-const curry = fn => (...args) =>
+export const curry = fn => (...args) =>
   args.length < fn.length ? curry(fn.bind(null, ...args)) : fn(...args)
 
 //mergeScan's type should allow only 1 fn arg. Seed should be optional
-const patchScan: any = pipe(
+export const patchScan: any = pipe(
   (mergeScan as any)((state = {}, update) => {
     const result = update instanceof Function ? update(state) : of(update)
 
@@ -38,23 +38,24 @@ const patchScan: any = pipe(
   })
 )
 
-const spreadMap = (overrides = {}) => map(value => ({ ...value, ...overrides }))
+export const spreadMap = (overrides = {}) =>
+  map(value => ({ ...value, ...overrides }))
 
-const scanPlans = curry((plans, source) =>
+export const scanPlans = curry((plans, source) =>
   merge(source, ...(Object.values(plans) as any[])).pipe(
     patchScan,
     spreadMap(plans)
   )
 )
 
-const combineSources = (...sources) =>
+export const combineSources = (...sources) =>
   combineLatest(...sources).pipe(
     map(values => values.reduce((a, c) => ({ ...a, ...c }), {}))
   )
 
-const isNotPlan = x => isObservable(x) && !(x instanceof Function)
+export const isNotPlan = x => isObservable(x) && !(x instanceof Function)
 
-class Stream extends Component<
+export class Stream extends Component<
   {
     pipe: OperatorFunction<any, Observable<any>>
   },
@@ -107,7 +108,7 @@ class Stream extends Component<
   }
 }
 
-class StreamProps extends Stream {
+export class StreamProps extends Stream {
   updateProps
 
   configureSource(props) {
@@ -120,7 +121,7 @@ class StreamProps extends Stream {
   }
 }
 
-function plan(...operators) {
+export function plan(...operators) {
   let next
 
   const o$ = new Observable(observer => {
@@ -138,32 +139,20 @@ function plan(...operators) {
   return next
 }
 
-const fromPlan = (otherPlan, selector): UnaryFunction<any, any> =>
+export const fromPlan = (otherPlan, selector): UnaryFunction<any, any> =>
   pipe(
     withLatestFrom(otherPlan, (_, value) => value),
     map(selector)
   )
-const toPlan = (otherPlan, selector = x => x): UnaryFunction<any, any> =>
+export const toPlan = (otherPlan, selector = x => x): UnaryFunction<any, any> =>
   pipe(
     map(selector),
     tap(otherPlan),
     ignoreElements()
   )
 
-const stream = (source, pipe, plans) => (props, context) =>
+export const stream = (source, pipe, plans) => (props, context) =>
   new Stream(props, context, { source, pipe, plans })
 
-const streamProps = (pipe, plans) => (props, context) =>
+export const streamProps = (pipe, plans) => (props, context) =>
   new StreamProps(props, context, { pipe, plans })
-
-export {
-  plan,
-  fromPlan,
-  toPlan,
-  Stream,
-  StreamProps,
-  stream,
-  streamProps,
-  scanPlans,
-  combineSources
-}
