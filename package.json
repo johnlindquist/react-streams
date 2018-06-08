@@ -1,6 +1,6 @@
 {
   "name": "react-streams",
-  "version": "13.2.0",
+  "version": "13.2.1",
   "description": "Simple Streams for React",
   "main": "dist/react-streams.js",
   "module": "dist/react-streams.esm.js",
@@ -60,7 +60,9 @@
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "rollup": "^0.60.1",
+    "rollup-plugin-terser": "^1.0.1",
     "rollup-plugin-typescript2": "^0.14.0",
+    "rollup-plugin-uglify": "^4.0.0",
     "rxjs": "^6.2.0",
     "ts-jest": "^22.4.4",
     "ts-snippet": "^3.1.1",

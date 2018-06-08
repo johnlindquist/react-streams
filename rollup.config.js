@@ -1,5 +1,6 @@
-// rollup.config.js
 import typescript from "rollup-plugin-typescript2"
+import { uglify } from "rollup-plugin-uglify"
+import { terser } from "rollup-plugin-terser"
 
 module.exports = [
   {
@@ -8,7 +9,7 @@ module.exports = [
       file: "dist/react-streams.esm.js",
       format: "es"
     },
-    plugins: [typescript()],
+    plugins: [typescript(), terser()],
     external: ["react", "rxjs", "rxjs/operators"]
   },
   {
@@ -24,6 +25,6 @@ module.exports = [
     },
     external: ["react", "rxjs", "rxjs/operators"],
 
-    plugins: [typescript()]
+    plugins: [typescript(), uglify()]
   }
 ]
