@@ -1,9 +1,13 @@
 {
   "name": "react-streams",
-  "version": "13.1.0",
+  "version": "13.2.0",
   "description": "Simple Streams for React",
-  "main": "dist/index.js",
+  "main": "dist/react-streams.js",
+  "module": "dist/react-streams.esm.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/johnlindquist/react-streams.git"
@@ -13,8 +17,8 @@
   },
   "homepage": "https://github.com/johnlindquist/react-streams#readme",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc -w",
+    "build": "rollup -c rollup.config.js",
+    "dev": "rollup -w -c rollup.config.js",
     "test": "jest",
     "examples": "run-p examples:*",
     "examples:client": "cd examples && poi --port 4321",
@@ -55,6 +59,8 @@
     "react-loadable": "^5.4.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
+    "rollup": "^0.60.1",
+    "rollup-plugin-typescript2": "^0.14.0",
     "rxjs": "^6.2.0",
     "ts-jest": "^22.4.4",
     "ts-snippet": "^3.1.1",

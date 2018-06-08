@@ -60,7 +60,7 @@ typings/
 # next.js build output
 .next
 
-
+.rpt2_cache/
 .DS_Store
 .vscode/
 dist/
