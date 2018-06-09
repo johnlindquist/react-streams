@@ -1,13 +1,14 @@
-import { Observable, of, pipe } from "rxjs"
-import { map, mergeScan } from "rxjs/operators"
+import { isObservable, of, pipe } from "rxjs"
+import { scan, switchMap } from "rxjs/operators"
 
-//mergeScan's type should allow only 1 fn arg. Seed should be optional
 export const patchScan: any = pipe(
-  (mergeScan as any)((state = {}, update) => {
-    const result = update instanceof Function ? update(state) : of(update)
+  scan((state, update: any) => {
+    if (update instanceof Function) return update(state)
+    return { ...state, ...update }
+  }),
+  switchMap((result: any) => {
+    if (isObservable(result)) return result
 
-    return result instanceof Observable
-      ? result.pipe(map(next => ({ ...state, ...next })))
-      : of({ ...state, ...result })
+    return of(result)
   })
 )

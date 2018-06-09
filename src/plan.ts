@@ -1,5 +1,5 @@
-import { Observable, observable } from "rxjs"
-import { shareReplay } from "rxjs/operators"
+import { Observable, observable, queueScheduler } from "rxjs"
+import { share, observeOn, subscribeOn } from "rxjs/operators"
 
 export function plan(...operators) {
   let next
@@ -10,7 +10,7 @@ export function plan(...operators) {
     }
   }).pipe(
     ...operators,
-    shareReplay(1)
+    share()
   )
 
   const unsubscribe = o$.subscribe()

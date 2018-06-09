@@ -1,23 +1,25 @@
 import React, { createContext } from "react"
-import { Stream, combineSources, scanPlans, plan } from "react-streams"
-import { of } from "rxjs"
-import { map, mapTo, pluck, share, shareReplay } from "rxjs/operators"
+import { combineSources, plan, scanPlans, Stream } from "react-streams"
+import { map, mapTo, pluck } from "rxjs/operators"
 import { CountOnly, NameAndCount, NameOnly } from "./components"
+import { of } from "rxjs"
 
-const name$ = of({ name: "John" })
-const onUpdate = plan(pluck("target", "value"), map(name => () => ({ name })))
+const nameState$ = of({ name: "John" }).pipe(
+  scanPlans({
+    onUpdate: plan(pluck("target", "value"), map(name => () => ({ name })))
+  })
+)
 
-const nameState$ = name$.pipe(scanPlans({ onUpdate }), shareReplay(1))
-
-const count$ = of({ count: 5 })
-const onInc = plan(mapTo(({ count }) => ({ count: count + 1 })))
-const onDec = plan(mapTo(({ count }) => ({ count: count - 1 })))
-
-const countState$ = count$.pipe(scanPlans({ onInc, onDec }), shareReplay(1))
+const countState$ = of({ count: 5 }).pipe(
+  scanPlans({
+    onInc: plan(mapTo(({ count }) => ({ count: count + 1 }))),
+    onDec: plan(mapTo(({ count }) => ({ count: count - 1 })))
+  })
+)
 
 const source$ = combineSources(nameState$, countState$)
 
-//for non-ui effects
+//for non-ui effectss
 source$.subscribe(state => console.log(state))
 
 const { Consumer } = createContext({ source$ })

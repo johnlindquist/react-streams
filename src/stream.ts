@@ -8,7 +8,7 @@ import {
   Subscription,
   throwError
 } from "rxjs"
-import { distinctUntilChanged, map } from "rxjs/operators"
+import { distinctUntilChanged, map, tap } from "rxjs/operators"
 import { isNotPlan } from "./utils/isNotPlan"
 import { scanPlans } from "./observable/scanPlans"
 import { plan } from "./plan"
@@ -32,7 +32,7 @@ export class Stream extends Component<
   constructor(props, context, config) {
     super(props, context)
 
-    const { source, pipe: sourcePipe, plans } = config ? config : props
+    const { pipe: sourcePipe, plans } = config ? config : props
 
     const state$ = this.configureSource(props, config).pipe(
       distinctUntilChanged(),
