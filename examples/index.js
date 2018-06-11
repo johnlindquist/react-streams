@@ -27,7 +27,8 @@ const examples = [
   "stepper",
   "render",
   "shopping-cart",
-  "ping"
+  "ping",
+  "sequence"
 ]
 
 const ExampleRoute = props => (
