@@ -1,17 +1,16 @@
 import React from "react"
-import { plan, scanPlans, stream } from "react-streams"
-import { concat, of } from "rxjs"
-import { map, tap, delay, finalize } from "rxjs/operators"
+import { plan, scanPlans, stream, tapWhen } from "react-streams"
+import { of } from "rxjs"
+import { delay } from "rxjs/operators"
 
-const ping = plan(
-  map(state => () =>
-    concat(of({ isPinging: true }), of({ isPinging: false }).pipe(delay(1000)))
-  )
+const ping = plan({ isPinging: true })
+
+const pong = plan({ isPinging: false })
+
+const state$ = of({ isPinging: false }).pipe(
+  scanPlans({ ping, pong }),
+  tapWhen(ping, pong, delay(1000))
 )
-
-const state$ = of({ isPinging: false }).pipe(scanPlans({ ping }))
-
-state$.subscribe(value => console.log(value))
 
 const Ping = stream(state$)
 
