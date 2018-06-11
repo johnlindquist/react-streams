@@ -2,7 +2,7 @@ import React from "react"
 import { streamProps } from "react-streams"
 import { pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
-import { pluck, switchMap, startWith } from "rxjs/operators"
+import { pluck, switchMap } from "rxjs/operators"
 
 const getTodo = pipe(
   switchMap(({ url, id }) => ajax(`${url}/${id}`)),

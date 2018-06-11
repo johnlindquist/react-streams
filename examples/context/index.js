@@ -1,11 +1,10 @@
 import React, { createContext } from "react"
 import { Stream, scanPlans, plan } from "react-streams"
 import { of } from "rxjs"
-import { mapTo } from "rxjs/operators"
 
 const message$ = of({ message: "Hello" })
-const on = plan(mapTo({ message: "On" }))
-const off = plan(mapTo({ message: "Off" }))
+const on = plan({ message: "On" })
+const off = plan({ message: "Off" })
 const state$ = message$.pipe(scanPlans({ on, off }))
 
 const { Consumer } = createContext({ state$, on, off })
