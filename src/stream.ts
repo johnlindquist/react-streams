@@ -1,17 +1,14 @@
 import { Component, createElement } from "react"
 import {
-  concat,
   from,
   Observable,
-  of,
   OperatorFunction,
   Subscription,
   throwError
 } from "rxjs"
-import { distinctUntilChanged, map, tap } from "rxjs/operators"
-import { isNotPlan } from "./utils/isNotPlan"
+import { distinctUntilChanged, map } from "rxjs/operators"
 import { scanPlans } from "./observable/scanPlans"
-import { plan } from "./plan"
+import { isNotPlan } from "./utils/isNotPlan"
 
 export class Stream extends Component<
   {
@@ -66,21 +63,5 @@ export class Stream extends Component<
   }
 }
 
-export class StreamProps extends Stream {
-  updateProps
-
-  configureSource(props) {
-    this.updateProps = plan()
-    return concat(of(props), this.updateProps)
-  }
-
-  componentDidUpdate() {
-    this.updateProps(this.props)
-  }
-}
-
 export const stream = (source, pipe, plans) => (props, context) =>
   new Stream(props, context, { source, pipe, plans })
-
-export const streamProps = (pipe, plans) => (props, context) =>
-  new StreamProps(props, context, { pipe, plans })
