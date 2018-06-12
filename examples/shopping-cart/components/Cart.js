@@ -1,5 +1,6 @@
 import React, { Component } from "react"
 import CartItem from "./CartItem"
+import { StatusStream } from "../streams"
 
 export default class Cart extends Component {
   render() {
@@ -34,10 +35,15 @@ export default class Cart extends Component {
         <h3>Your Cart</h3>
         <div>{nodes}</div>
         <p>Total: &#36;{total}</p>
-        <button onClick={checkout} disabled={checkoutAllowed ? "" : "disabled"}>
+        <button
+          onClick={e => checkout(items)}
+          disabled={checkoutAllowed ? "" : "disabled"}
+        >
           Checkout
         </button>
-        <div style={{ color: "red" }}>{error}</div>
+        <StatusStream>
+          {({ error }) => <div style={{ color: "red" }}>{error}</div>}
+        </StatusStream>
       </div>
     )
   }

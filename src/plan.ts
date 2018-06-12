@@ -14,6 +14,7 @@ export function plan(...operators) {
   const o$ = new Observable(observer => {
     next = (...arg) => {
       observer.next(...arg)
+      return o$
     }
   }).pipe(
     ...ops,
