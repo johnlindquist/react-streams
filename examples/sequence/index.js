@@ -1,43 +1,48 @@
 import React from "react"
-import { plan, scanPlans, stream } from "react-streams"
-import { of } from "rxjs"
-import { delay, map, sample, shareReplay, tap } from "rxjs/operators"
+import { plan, scanPlans, stream, scanSequence } from "react-streams"
+import { from, of } from "rxjs"
+import {
+  concatAll,
+  delay,
+  map,
+  scan,
+  share,
+  switchMap,
+  concatMap
+} from "rxjs/operators"
 
-const ping = plan(map(state => () => ({ isPinging: true })))
+const three = plan(
+  delay(300),
+  map(({ things }) => ({ things: [...things, "three"] }))
+)
 
-const pong = plan(map(state => () => ({ isPinging: false })))
+const two = plan(
+  delay(200),
+  map(({ things }) => ({ things: [...things, "two"] }))
+)
 
-const tapWhen = (notifier, fn, ...pipe) => source => {
-  source
-    .pipe(
-      sample(notifier),
-      ...pipe,
-      tap(fn)
-    )
-    .subscribe()
-  return source
-}
+const one = plan(
+  delay(100),
+  map(({ things }) => ({ things: [...things, "one"] }))
+)
 
-const state$ = of({ isPinging: false })
-  .pipe(
-    scanPlans({ ping, pong }),
-    shareReplay(1)
-  )
-  .pipe(tapWhen(ping, pong, delay(1000)))
+const start = plan(scanSequence(one, two, three))
 
-state$.subscribe(value => console.log(value))
-
-const Ping = stream(state$)
+const Sequence = stream(of({ things: ["zero"] }).pipe(scanPlans({ start })))
 
 export default () => (
   <div>
-    <Ping>
-      {({ isPinging, ping }) => (
+    <Sequence>
+      {({ start, things }) => (
         <div>
-          <h2>is pinging: {JSON.stringify(isPinging)}</h2>
-          <button onClick={() => ping({ isPinging: true })}>Start PING</button>
+          <button onClick={() => start({ things })}>Start</button>
+          {things.map((thing, index) => (
+            <div key={index}>
+              {index}. {thing}
+            </div>
+          ))}
         </div>
       )}
-    </Ping>
+    </Sequence>
   </div>
 )
