@@ -1,23 +1,16 @@
-import { Observable, observable } from "rxjs"
-import { mapTo, share } from "rxjs/operators"
+import { Observable, observable, from, asyncScheduler } from "rxjs"
+import { first, share } from "rxjs/operators"
 
 export function plan(...operators) {
   let next
 
-  const [first, ...rest] = operators
-  const ops = first
-    ? first instanceof Function
-      ? operators
-      : [mapTo(first), ...rest]
-    : operators
-
   const o$ = new Observable(observer => {
     next = (...arg) => {
       observer.next(...arg)
-      return o$
+      return o$.pipe(first())
     }
   }).pipe(
-    ...ops,
+    ...operators,
     share()
   )
 
