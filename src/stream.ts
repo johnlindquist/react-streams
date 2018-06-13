@@ -7,8 +7,6 @@ import {
   throwError
 } from "rxjs"
 import { distinctUntilChanged, map } from "rxjs/operators"
-import { scanPlans } from "./observable/scanPlans"
-import { isNotPlan } from "./utils/isNotPlan"
 
 export class Stream extends Component<
   {
@@ -23,17 +21,16 @@ export class Stream extends Component<
     const { source = throwError("No source provided") } = config
       ? config
       : props
-    return isNotPlan(source) ? source : from(source)
+    return from(source)
   }
 
   constructor(props, context, config) {
     super(props, context)
 
-    const { pipe: sourcePipe, plans } = config ? config : props
+    const { pipe: sourcePipe } = config ? config : props
 
     const state$ = this.configureSource(props, config).pipe(
       distinctUntilChanged(),
-      plans ? scanPlans(plans) : x => x,
       sourcePipe || (x => x),
       map((state: any) => ({
         ...state,
