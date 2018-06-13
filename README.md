@@ -84,23 +84,6 @@ npm i react-streams rxjs
 > update("Friends") //logs "Friends"
 > ```
 
-Pass plans to the `plans` prop to control updates to the stream.
-
-> ```js
-> const update = plan(
->   map(({message})=> ({message: "Updated!"}))
-> )
->
-> <StreamProps message="Hello" plans={{update}}>
->   {({message, update})=>
->     <div>
->       <h2>{message}</h2>
->       <button onClick={update}>Update Message</button>
->     </div>
->   }
-> </StreamProps>
-> ```
-
 ## Examples
 
 Enough chit-chat, time for examples!
