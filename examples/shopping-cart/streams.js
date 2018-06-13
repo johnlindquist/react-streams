@@ -7,8 +7,7 @@ import {
   partition,
   scan,
   shareReplay,
-  switchMap,
-  tap
+  switchMap
 } from "rxjs/operators"
 import { calcTotal } from "./pipes"
 import { addToCart, checkout, removeFromCart } from "./plans"
@@ -26,7 +25,6 @@ const [checkoutValid$, checkoutInvalid$] = checkout$.pipe(
 )
 
 const checkoutRequest$ = checkoutValid$.pipe(
-  tap(() => console.log(`valid`)),
   switchMap(items => {
     //fake an ajax request delay
     return of(items).pipe(delay(1000))

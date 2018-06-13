@@ -1,26 +1,25 @@
 import React from "react"
-import { plan, scanPlans, stream, tapWhen } from "react-streams"
-import { of } from "rxjs"
-import { delay } from "rxjs/operators"
+import { assign, plan, stream } from "react-streams"
+import { concat, of } from "rxjs"
+import { delay, switchMap, startWith } from "rxjs/operators"
 
-const ping = plan({ isPinging: true })
-
-const pong = plan({ isPinging: false })
-
-const state$ = of({ isPinging: false }).pipe(
-  scanPlans({ ping, pong }),
-  tapWhen(ping, pong, delay(1000))
+const ping = plan(
+  switchMap(() =>
+    concat(of({ isPinging: true }), of({ isPinging: false }).pipe(delay(1000)))
+  ),
+  startWith({ isPinging: false })
 )
 
-const Ping = stream(state$)
+const Ping = stream(ping, assign({ ping }))
 
 export default () => (
   <div>
+    <h2>Ping</h2>
     <Ping>
       {({ isPinging, ping }) => (
         <div>
           <h2>is pinging: {JSON.stringify(isPinging)}</h2>
-          <button onClick={() => ping({ isPinging: true })}>Start PING</button>
+          <button onClick={ping}>Start PING</button>
         </div>
       )}
     </Ping>

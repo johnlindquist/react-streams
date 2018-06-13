@@ -1,6 +1,12 @@
 import React from "react"
-import { plan, scanPlans, stream, streamProps, tapWhen } from "react-streams"
-import { of, pipe } from "rxjs"
+import {
+  plan,
+  scanPlans,
+  scanStreams,
+  stream,
+  streamProps
+} from "react-streams"
+import { from, of, pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
 import { map, mapTo, switchMap, tap, withLatestFrom } from "rxjs/operators"
 
@@ -10,8 +16,6 @@ const url = process.env.DEV
     "https://dandelion-bonsai.glitch.me/todos"
 
 const HEADERS = { "Content-Type": "application/json" }
-
-const clearForm = plan({ current: "" })
 
 const onChange = plan(map(event => ({ current: event.target.value })))
 
@@ -29,13 +33,9 @@ const addTodo = plan(
 )
 
 const TodoForm = stream(
-  of({ current: "", addTodo }),
-  pipe(
-    scanPlans({
-      onChange,
-      clearForm
-    }),
-    tapWhen(addTodo, clearForm)
+  of({ current: "", addTodo }).pipe(
+    scanPlans({ onChange }),
+    scanStreams(from(addTodo).pipe(mapTo({ current: "" })))
   )
 )
 

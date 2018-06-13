@@ -1,32 +1,44 @@
 import React from "react"
-import { plan, stream, scanPlans } from "react-streams"
-import { from, fromEvent, merge, concat, of } from "rxjs"
-import { map, switchMap, takeUntil, tap, pluck } from "rxjs/operators"
+import { plan, stream, assign } from "react-streams"
+import { concat, from, of } from "rxjs"
+import {
+  map,
+  pluck,
+  switchMap,
+  takeUntil,
+  startWith,
+  tap
+} from "rxjs/operators"
 
-const makeDrag = (middle, end) => start =>
+const makeDrag = (move, end) => start =>
   from(start).pipe(
     pluck("currentTarget"),
-    switchMap(currentTarget =>
-      from(middle).pipe(
-        map(moveEvent => ({
-          left: moveEvent.clientX - currentTarget.offsetWidth / 2,
-          top: moveEvent.clientY - currentTarget.offsetHeight / 2,
-          currentTarget
-        })),
-        takeUntil(end)
-      )
-    )
+    tap(value => console.log(value)),
+    switchMap(
+      currentTarget =>
+        console.log({ start, move, end }) ||
+        from(move).pipe(
+          tap(value => console.log(`onMouseMove`, value)),
+          map(moveEvent => ({
+            left: moveEvent.clientX - currentTarget.offsetWidth / 2,
+            top: moveEvent.clientY - currentTarget.offsetHeight / 2,
+            currentTarget
+          })),
+          takeUntil(end)
+        )
+    ),
+    startWith({})
   )
 
 const DragStream = props => {
-  const onMouseDown = plan()
-  const drag$ = concat(of({}), props.onDrag(onMouseDown))
+  const onMouseDown = plan(tap(value => console.log(`onMouseDown`, value)))
+  const drag$ = props.onDrag(onMouseDown).pipe(assign({ onMouseDown }))
 
-  return stream(drag$, x => x, { onMouseDown })(props)
+  return stream(drag$)(props)
 }
 
 const onMouseMove = plan()
-const onMouseUp = plan()
+const onMouseUp = plan(tap(value => console.log(`onMouseUp`, value)))
 
 export default () => (
   <div
