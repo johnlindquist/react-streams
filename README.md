@@ -21,17 +21,19 @@ npm i react-streams rxjs
 
 ## About
 
-`react-streams` enables you to stream for sources or props. The stream will pass through a `pipe` and can be updated by `plans`.
+`react-streams` enables you to stream from a source or props. The stream will pass through a `pipe` and new values will often be pushed through by `plans`.
 
 ### Stream from sources
 
-**_`<Stream source={}/>`_** - A component that subscribes to a `source` and streams values to children. The stream will pass through a `pipe` and can be updated by `plans`.
+**_`<Stream source={}/>`_** - A component that subscribes to a `source` and streams values to children. The stream will pass through a `pipe`.
 
 > ```js
-> <Stream source={source$}>{values => <div>{values.message}</div>}</Stream>
+> <Stream source={source$}>
+>   {values => <div>{values.message}</div>}
+> </Stream>
 > ```
 
-**_`stream(source)`_** - Creates a named component that subscribes to a `source` and streams values to children. The stream will pass through a `pipe` and can be updated by `plans`.
+**_`stream(source)`_** - Creates a named component that subscribes to a `source` and streams values to children. The stream will pass through a `pipe`.
 
 > ```js
 > const MyStreamingComponent = stream(source$)
@@ -66,7 +68,10 @@ npm i react-streams rxjs
 **_`pipe`_** is any operator (or `piped` combination of operators) that you want to act on your stream. Pipes can be simple mappings or complex ajax requests with timing as long as they return a function that returns an object which matches the `children`'s arguments.
 
 > ```js
-> <StreamProps message={message} pipe={map(({ message }) => message + "!")}>
+> <StreamProps
+>   message={message}
+>   pipe={map(({ message }) => message + "!")}
+> >
 >   {values => <div>{values.message}</div>}
 > </StreamProps>
 > ```
@@ -111,10 +116,16 @@ const message$ = of({ message: "Hello" })
 export default () => (
   <div>
     <h2>Stream as a Component</h2>
-    <Stream source={message$} pipe={startWithAndDelay("Wait...", 500)}>
+    <Stream
+      source={message$}
+      pipe={startWithAndDelay("Wait...", 500)}
+    >
       {({ message }) => <div>{message}</div>}
     </Stream>
-    <Stream source={message$} pipe={startWithAndDelay("Wait longer...", 3000)}>
+    <Stream
+      source={message$}
+      pipe={startWithAndDelay("Wait longer...", 3000)}
+    >
       {({ message }) => <div>{message}</div>}
     </Stream>
   </div>
@@ -131,14 +142,18 @@ import { stream } from "react-streams"
 import { interval } from "rxjs"
 import { map } from "rxjs/operators"
 
-const count$ = interval(250).pipe(map(count => ({ count })))
+const count$ = interval(250).pipe(
+  map(count => ({ count }))
+)
 
 const Counter = stream(count$)
 
 export default () => (
   <div>
     <h2>Subscribe to a Stream</h2>
-    <Counter>{({ count }) => <div>{count}</div>}</Counter>
+    <Counter>
+      {({ count }) => <div>{count}</div>}
+    </Counter>
   </div>
 )
 ```
@@ -164,7 +179,9 @@ const Greeting = stream(stream$, mapToMessage)
 export default () => (
   <div>
     <h2>Pipe Stream Values</h2>
-    <Greeting>{({ message }) => <div>{message}</div>}</Greeting>
+    <Greeting>
+      {({ message }) => <div>{message}</div>}
+    </Greeting>
   </div>
 )
 ```
@@ -206,7 +223,11 @@ import React from "react"
 import { streamProps } from "react-streams"
 import { pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
-import { pluck, switchMap, startWith } from "rxjs/operators"
+import {
+  pluck,
+  switchMap,
+  startWith
+} from "rxjs/operators"
 
 const getTodo = pipe(
   switchMap(({ url, id }) => ajax(`${url}/${id}`)),
@@ -250,7 +271,9 @@ import { Stream, StreamProps } from "react-streams"
 import { map, filter } from "rxjs/operators"
 import { interval } from "rxjs"
 
-const count$ = interval(1000).pipe(map(count => ({ count })))
+const count$ = interval(1000).pipe(
+  map(count => ({ count }))
+)
 
 const odds = filter(({ count }) => count % 2)
 const evens = filter(({ count }) => !(count % 2))
@@ -259,7 +282,9 @@ export default () => (
   <Stream source={count$}>
     {({ count }) => (
       <div style={{ padding: "2rem" }}>
-        <h2>Stream with Nested StreamProps Components</h2>
+        <h2>
+          Stream with Nested StreamProps Components
+        </h2>
         <StreamProps count={count}>
           {({ count }) => <div>No filter: {count}</div>}
         </StreamProps>
@@ -284,7 +309,10 @@ import React from "react"
 import { StreamProps, plan } from "react-streams"
 import { map, pluck } from "rxjs/operators"
 
-const onChange = plan(pluck("target", "value"), map(message => ({ message })))
+const onChange = plan(
+  pluck("target", "value"),
+  map(message => ({ message }))
+)
 
 export default () => (
   <div>
@@ -292,7 +320,11 @@ export default () => (
     <StreamProps message="Hello" plans={{ onChange }}>
       {({ message, onChange }) => (
         <div>
-          <input id="input" type="text" onChange={onChange} />
+          <input
+            id="input"
+            type="text"
+            onChange={onChange}
+          />
           <div id="message">{message}</div>
         </div>
       )}
@@ -307,10 +339,19 @@ export default () => (
 
 ```js
 import React from "react"
-import { mergePlans, plan, streamProps } from "react-streams"
+import {
+  mergePlans,
+  plan,
+  streamProps
+} from "react-streams"
 import { pipe } from "rxjs"
 import { ajax } from "rxjs/ajax"
-import { debounceTime, distinctUntilChanged, map, pluck } from "rxjs/operators"
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  pluck
+} from "rxjs/operators"
 
 const handleInput = pipe(
   pluck("target", "value"),
@@ -322,14 +363,21 @@ const handleInput = pipe(
    */
   map(term => props => {
     if (term.length < 2) return { people: [], term: "" }
-    return ajax(`${props.url}?username_like=${term}`).pipe(
+    return ajax(
+      `${props.url}?username_like=${term}`
+    ).pipe(
       pluck("response"),
-      map(people => ({ term, people: people.slice(0, 10) }))
+      map(people => ({
+        term,
+        people: people.slice(0, 10)
+      }))
     )
   })
 )
 
-const Typeahead = streamProps(mergePlans({ onChange: plan(handleInput) }))
+const Typeahead = streamProps(
+  mergePlans({ onChange: plan(handleInput) })
+)
 
 const url = process.env.DEV
   ? "/api/people"
@@ -348,7 +396,10 @@ export default () => (
         />
         <ul>
           {people.map(person => (
-            <li key={person.id} style={{ height: "25px" }}>
+            <li
+              key={person.id}
+              style={{ height: "25px" }}
+            >
               <span>{person.username}</span>
               <img
                 style={{ height: "100%" }}
@@ -370,26 +421,44 @@ export default () => (
 
 ```js
 import React from "react"
-import { mergePlans, plan, streamProps } from "react-streams"
+import {
+  mergePlans,
+  plan,
+  streamProps
+} from "react-streams"
 import { map } from "rxjs/operators"
 
-const onInc = plan(map(() => state => ({ count: state.count + 2 })))
-const onDec = plan(map(() => state => ({ count: state.count - 2 })))
+const onInc = plan(
+  map(() => state => ({ count: state.count + 2 }))
+)
+const onDec = plan(
+  map(() => state => ({ count: state.count - 2 }))
+)
 const onReset = plan(map(() => state => ({ count: 4 })))
 
-const Counter = streamProps(mergePlans({ onInc, onDec, onReset }))
+const Counter = streamProps(
+  mergePlans({ onInc, onDec, onReset })
+)
 
 export default () => (
   <Counter count={4}>
     {({ count, onInc, onDec, onReset }) => (
       <div>
-        <button id="dec" onClick={onDec} aria-label="decrement">
+        <button
+          id="dec"
+          onClick={onDec}
+          aria-label="decrement"
+        >
           -
         </button>
         <span id="count" aria-label="count">
           {count}
         </span>
-        <button id="inc" onClick={onInc} aria-label="increment">
+        <button
+          id="inc"
+          onClick={onInc}
+          aria-label="increment"
+        >
           +
         </button>
         <button onClick={onReset} aria-label="reset">
