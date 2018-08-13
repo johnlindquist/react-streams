@@ -6,7 +6,10 @@ import {
   Subscription,
   throwError
 } from "rxjs"
-import { distinctUntilChanged, map } from "rxjs/operators"
+import {
+  distinctUntilChanged,
+  map
+} from "rxjs/operators"
 
 export class Stream extends Component<
   {
@@ -18,9 +21,9 @@ export class Stream extends Component<
   _isMounted = false
 
   configureSource(props, config) {
-    const { source = throwError("No source provided") } = config
-      ? config
-      : props
+    const {
+      source = throwError("No source provided")
+    } = config ? config : props
     return from(source)
   }
 
@@ -29,13 +32,19 @@ export class Stream extends Component<
 
     const { pipe: sourcePipe } = config ? config : props
 
-    const state$ = this.configureSource(props, config).pipe(
+    const state$ = this.configureSource(
+      props,
+      config
+    ).pipe(
       distinctUntilChanged(),
       sourcePipe || (x => x),
       map((state: any) => ({
         ...state,
         children:
-          state.children || state.render || props.children || props.render
+          state.children ||
+          state.render ||
+          props.children ||
+          props.render
       }))
     )
 
@@ -53,12 +62,17 @@ export class Stream extends Component<
   }
 
   render(): any {
-    return this.state ? createElement(this.state.children, this.state) : null
+    return this.state
+      ? createElement(this.state.children, this.state)
+      : null
   }
   componentWillUnmount() {
-    if (this.subscription) this.subscription.unsubscribe()
+    if (this.subscription)
+      this.subscription.unsubscribe()
   }
 }
 
-export const stream = (source, pipe, plans) => (props, context) =>
-  new Stream(props, context, { source, pipe, plans })
+export const stream = (source, pipe) => (
+  props,
+  context
+) => new Stream(props, context, { source, pipe })

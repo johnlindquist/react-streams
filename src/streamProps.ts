@@ -15,5 +15,5 @@ export class StreamProps extends Stream {
   }
 }
 
-export const streamProps = (pipe, plans) => (props, context) =>
-  new StreamProps(props, context, { pipe, plans })
+export const streamProps = pipe => (props, context) =>
+  new StreamProps(props, context, { pipe })
