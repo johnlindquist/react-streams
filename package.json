@@ -1,6 +1,6 @@
 {
   "name": "react-streams",
-  "version": "13.6.3",
+  "version": "13.6.4",
   "description": "Simple Streams for React",
   "main": "dist/react-streams.js",
   "module": "dist/react-streams.esm.js",
