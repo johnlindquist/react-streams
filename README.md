@@ -333,14 +333,14 @@ export default () => (
 )
 ```
 
-### `mergePlans`
+### `scanPlans`
 
 [Demo here](https://codesandbox.io/s/github/johnlindquist/react-streams/tree/master/examples?module=/plans/index.js)
 
 ```js
 import React from "react"
 import {
-  mergePlans,
+  scanPlans,
   plan,
   streamProps
 } from "react-streams"
@@ -376,7 +376,7 @@ const handleInput = pipe(
 )
 
 const Typeahead = streamProps(
-  mergePlans({ onChange: plan(handleInput) })
+  scanPlans({ onChange: plan(handleInput) })
 )
 
 const url = process.env.DEV
@@ -422,7 +422,7 @@ export default () => (
 ```js
 import React from "react"
 import {
-  mergePlans,
+  scanPlans,
   plan,
   streamProps
 } from "react-streams"
@@ -437,7 +437,7 @@ const onDec = plan(
 const onReset = plan(map(() => state => ({ count: 4 })))
 
 const Counter = streamProps(
-  mergePlans({ onInc, onDec, onReset })
+  scanPlans({ onInc, onDec, onReset })
 )
 
 export default () => (
